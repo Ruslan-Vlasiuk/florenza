@@ -1,0 +1,58 @@
+export const DEMO_REVIEWS = [
+  {
+    authorName: 'Олена',
+    rating: 5,
+    content: 'Замовляла букет на ДН подруги — Лія підказала ідеальний варіант за 5 хвилин. Привезли вчасно, фото від кур\'єра. Подруга в захваті.',
+    isFeatured: true,
+    source: 'website',
+  },
+  {
+    authorName: 'Артем',
+    rating: 5,
+    content: 'Варвара особисто підбирала букет нареченої. Усе по кольорах сукні, стилю весілля. Виглядав так, ніби з журналу.',
+    isFeatured: true,
+    source: 'gbp',
+  },
+  {
+    authorName: 'Ірина',
+    rating: 5,
+    content: 'Замовляю кожен тиждень для офісу. Завжди свіжі, у фірмовому стилі. Без зайвих переговорів — Лія все пам\'ятає.',
+    isFeatured: true,
+    source: 'website',
+  },
+  {
+    authorName: 'Михайло',
+    rating: 5,
+    content: 'Не люблю заморочуватись з квітами. Написав у Telegram — отримав 3 варіанти, обрав, оплатив у телефоні. Все за 4 хвилини.',
+    isFeatured: true,
+    source: 'website',
+  },
+  {
+    authorName: 'Катерина',
+    rating: 5,
+    content: 'Букет з півоніями для мами. Виглядав живий, пах ніжно. Доставили в обідній слот точно. Дякую!',
+    isFeatured: true,
+    source: 'gbp',
+  },
+  {
+    authorName: 'Андрій',
+    rating: 5,
+    content: 'Замовляв терміновий букет — за годину привезли в Бучу. Так швидко не робить ніхто.',
+    isFeatured: true,
+    source: 'website',
+  },
+  {
+    authorName: 'Юлія',
+    rating: 5,
+    content: 'Найкраща знахідка для подарунків. Композиції — як з Pinterest, а не з вітрини на Прому.',
+    isFeatured: true,
+    source: 'website',
+  },
+  {
+    authorName: 'Сергій',
+    rating: 4,
+    content: 'Все добре, але слот був на годину пізніше через затори. Лія попередила — тому не критично.',
+    isFeatured: true,
+    source: 'website',
+  },
+];

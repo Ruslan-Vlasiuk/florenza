@@ -1,0 +1,93 @@
+'use client';
+
+import { type HTMLAttributes, type PropsWithChildren, type ReactNode, useRef, useState } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { cn } from '@/lib/utils/cn';
+
+interface MagneticButtonProps extends Omit<HTMLAttributes<HTMLButtonElement>, 'children'> {
+  href?: string;
+  variant?: 'primary' | 'ghost' | 'outline';
+  children: ReactNode;
+}
+
+/**
+ * Magnetic CTA button.
+ *  - Desktop: subtle pull toward cursor in 80px radius.
+ *  - Mobile (coarse pointer): press-and-hold scale + haptic vibration.
+ */
+export function MagneticButton({
+  children,
+  variant = 'primary',
+  className,
+  href,
+  ...rest
+}: PropsWithChildren<MagneticButtonProps>) {
+  const ref = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
+  const [pressed, setPressed] = useState(false);
+
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { damping: 22, stiffness: 220 });
+  const sy = useSpring(y, { damping: 22, stiffness: 220 });
+
+  function onMouseMove(e: React.MouseEvent) {
+    if (!ref.current) return;
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    const rect = ref.current.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = e.clientX - cx;
+    const dy = e.clientY - cy;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 80) {
+      x.set(dx * 0.25);
+      y.set(dy * 0.25);
+    }
+  }
+
+  function onMouseLeave() {
+    x.set(0);
+    y.set(0);
+  }
+
+  function onTouchStart() {
+    setPressed(true);
+    if ('vibrate' in navigator) {
+      try {
+        navigator.vibrate?.(8);
+      } catch {}
+    }
+  }
+
+  function onTouchEnd() {
+    setPressed(false);
+  }
+
+  const base = 'relative inline-flex items-center justify-center px-6 py-3 rounded-md font-medium text-sm transition-colors';
+  const variants = {
+    primary: 'bg-[var(--color-deep-forest)] text-[var(--color-cream)] hover:bg-[var(--color-deep-forest-soft)]',
+    ghost: 'text-[var(--color-deep-forest)] hover:text-[var(--color-deep-forest-soft)]',
+    outline:
+      'border border-[var(--color-deep-forest)] text-[var(--color-deep-forest)] hover:bg-[var(--color-deep-forest)] hover:text-[var(--color-cream)]',
+  };
+
+  const Tag: any = href ? motion.a : motion.button;
+
+  return (
+    <Tag
+      ref={ref as any}
+      href={href}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      style={{ x: sx, y: sy }}
+      animate={{ scale: pressed ? 0.96 : 1 }}
+      transition={{ scale: { duration: 0.2 } }}
+      className={cn(base, variants[variant], className)}
+      {...(rest as any)}
+    >
+      {children}
+    </Tag>
+  );
+}

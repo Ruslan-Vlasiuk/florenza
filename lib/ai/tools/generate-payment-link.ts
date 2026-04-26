@@ -1,0 +1,81 @@
+import type { ToolDef } from './index';
+import { getPayloadClient } from '../../payload-client';
+import { createMonoPayment } from '../../payments/mono';
+import { createLiqPayPayment } from '../../payments/liqpay';
+
+export const generatePaymentLink: ToolDef = {
+  name: 'generate_payment_link',
+  description:
+    'Генерує посилання на оплату для замовлення. Повертає URL який клієнт відкриває.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      order_id: { type: 'string' },
+      provider: {
+        type: 'string',
+        enum: ['mono', 'liqpay'],
+        default: 'mono',
+        description: 'mono — основний, liqpay — резервний (якщо у клієнта проблеми з Mono)',
+      },
+      amount_override: {
+        type: 'number',
+        description:
+          'Опційно: сума для часткової передоплати (% від total). Якщо не вказано — повна сума.',
+      },
+    },
+    required: ['order_id'],
+  },
+  handler: async (input, _ctx) => {
+    const payload = await getPayloadClient();
+    const order = (await payload.findByID({
+      collection: 'orders',
+      id: input.order_id,
+    })) as any;
+
+    const amount = input.amount_override ?? order.totalAmount;
+    const provider = input.provider ?? 'mono';
+
+    let result: { url: string; intentId: string };
+    try {
+      if (provider === 'mono') {
+        result = await createMonoPayment({
+          amount,
+          orderRef: order.orderNumber,
+          description: `Замовлення ${order.orderNumber} — Florenza`,
+          redirectUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/order-thank-you?order=${order.orderNumber}`,
+          webhookUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/api/webhook/mono`,
+        });
+      } else {
+        result = await createLiqPayPayment({
+          amount,
+          orderRef: order.orderNumber,
+          description: `Замовлення ${order.orderNumber} — Florenza`,
+          resultUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/order-thank-you?order=${order.orderNumber}`,
+          serverUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/api/webhook/liqpay`,
+        });
+      }
+    } catch (e) {
+      return {
+        error: true,
+        message: `Не вдалось створити посилання: ${(e as Error).message}. Можете спробувати інший провайдер.`,
+      };
+    }
+
+    await payload.update({
+      collection: 'orders',
+      id: input.order_id,
+      data: {
+        paymentProvider: provider,
+        paymentIntentId: result.intentId,
+        paymentLink: result.url,
+      },
+    });
+
+    return {
+      paymentUrl: result.url,
+      provider,
+      amount,
+      message: `Ось посилання на оплату ${amount} грн через ${provider === 'mono' ? 'Monobank' : 'LiqPay (ПриватБанк)'}: ${result.url}`,
+    };
+  },
+};

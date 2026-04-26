@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 160" width="600" height="160" role="img" aria-label="Florenza">
+  <title>Florenza</title>
+  <text x="300" y="105" font-family="Georgia, 'Fraunces', serif" font-size="96" font-weight="300" text-anchor="middle" fill="#2C3E2D" letter-spacing="-0.04em">florenza</text>
+  <!-- subtle botanical line glyph -->
+  <path d="M 285 30 Q 295 22, 305 28 Q 315 32, 312 24 Q 308 18, 300 22" fill="none" stroke="#8A9A7B" stroke-width="0.8" stroke-linecap="round"/>
+</svg>

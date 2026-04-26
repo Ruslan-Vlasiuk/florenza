@@ -1,0 +1,288 @@
+@import 'tailwindcss';
+
+/* =============================================================================
+   Florenza — Design System
+   "Тиха editorial-чутливість" — Aesop × Studio Mondine
+   ============================================================================= */
+
+@theme {
+  /* --- Brand palette --- */
+  --color-cream: #f5f0e8;
+  --color-cream-soft: #efe9dd;
+  --color-sage: #8a9a7b;
+  --color-sage-deep: #6b7d5e;
+  --color-deep-forest: #2c3e2d;
+  --color-deep-forest-soft: #3d5240;
+  --color-dusty-rose: #c9a395;
+  --color-dusty-rose-soft: #d8b9ad;
+  --color-graphite: #1a1a1a;
+  --color-graphite-soft: #4a4a4a;
+
+  /* --- Functional --- */
+  --color-bg-primary: var(--color-cream);
+  --color-bg-secondary: var(--color-cream-soft);
+  --color-bg-elevated: #ffffff;
+  --color-text-primary: var(--color-graphite);
+  --color-text-secondary: var(--color-graphite-soft);
+  --color-text-muted: #6b6b6b;
+  --color-accent: var(--color-deep-forest);
+  --color-accent-soft: var(--color-dusty-rose);
+  --color-border: rgba(44, 62, 45, 0.12);
+  --color-border-soft: rgba(44, 62, 45, 0.06);
+
+  /* --- States --- */
+  --color-error: #b85b5b;
+  --color-success: #7b9a7e;
+  --color-warning: #c9954a;
+  --color-info: #6b8fa3;
+
+  /* --- Typography --- */
+  --font-display: 'Fraunces', 'Georgia', serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.75rem;
+  --text-4xl: 3.5rem;
+  --text-display: 4rem;
+  --text-display-lg: 5.5rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-relaxed: 1.65;
+  --leading-loose: 1.85;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.08em;
+
+  /* --- Spacing --- */
+  --spacing: 0.25rem;
+
+  /* --- Radius --- */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* --- Shadows (subtle, editorial) --- */
+  --shadow-soft: 0 1px 2px rgba(44, 62, 45, 0.04), 0 4px 12px rgba(44, 62, 45, 0.04);
+  --shadow-card: 0 2px 4px rgba(44, 62, 45, 0.03), 0 8px 24px rgba(44, 62, 45, 0.06);
+  --shadow-hover: 0 4px 8px rgba(44, 62, 45, 0.06), 0 16px 40px rgba(44, 62, 45, 0.1);
+
+  /* --- Container --- */
+  --container-narrow: 880px;
+  --container-default: 1280px;
+  --container-wide: 1440px;
+
+  /* --- Animation timing --- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 200ms;
+  --duration-base: 300ms;
+  --duration-slow: 500ms;
+  --duration-very-slow: 800ms;
+}
+
+/* =============================================================================
+   Base styles
+   ============================================================================= */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  font-feature-settings: 'ss01', 'ss02', 'cv01', 'cv11';
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-deep-forest);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+::selection {
+  background: var(--color-sage);
+  color: var(--color-cream);
+}
+
+/* =============================================================================
+   Utility classes — editorial spacing helpers
+   ============================================================================= */
+
+.editorial-container {
+  max-width: var(--container-default);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .editorial-container {
+    padding-inline: 3rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .editorial-container {
+    padding-inline: 4rem;
+  }
+}
+
+.editorial-narrow {
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* =============================================================================
+   Animations and motion respect
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Shimmer for skeletons */
+@keyframes florenza-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-cream-soft) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    var(--color-cream-soft) 100%
+  );
+  background-size: 200% 100%;
+  animation: florenza-shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Lenis-friendly smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Image hover swap */
+.bouquet-card-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.bouquet-card-image > img {
+  transition: opacity var(--duration-slow) var(--ease-out),
+    transform var(--duration-slow) var(--ease-out);
+}
+
+.bouquet-card-image > img:nth-of-type(2) {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .bouquet-card-image:hover > img:first-of-type {
+    opacity: 0;
+  }
+  .bouquet-card-image:hover > img:nth-of-type(2) {
+    opacity: 1;
+  }
+  .bouquet-card-image:hover > img {
+    transform: scale(1.04);
+  }
+}
+
+/* Editorial markup defaults */
+.prose-editorial {
+  max-width: var(--container-narrow);
+  font-family: var(--font-body);
+  line-height: var(--leading-loose);
+}
+
+.prose-editorial h1,
+.prose-editorial h2,
+.prose-editorial h3 {
+  margin-block: 2.5rem 1rem;
+}
+
+.prose-editorial h1 { font-size: var(--text-3xl); }
+.prose-editorial h2 { font-size: var(--text-2xl); }
+.prose-editorial h3 { font-size: var(--text-xl); }
+
+.prose-editorial p {
+  margin-block: 1rem;
+}
+
+.prose-editorial a {
+  border-bottom: 1px solid var(--color-deep-forest);
+  transition: color var(--duration-fast);
+}
+
+.prose-editorial a:hover {
+  color: var(--color-sage-deep);
+  border-bottom-color: var(--color-sage-deep);
+}
+
+.prose-editorial ul,
+.prose-editorial ol {
+  margin-block: 1rem;
+  padding-left: 1.5rem;
+}
+
+.prose-editorial li {
+  margin-block: 0.5rem;
+}

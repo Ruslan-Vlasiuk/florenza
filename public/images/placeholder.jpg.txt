@@ -1,0 +1,11 @@
+Replace this with actual placeholder.jpg, hero-default.jpg, about-hero.jpg, wedding-hero.jpg.
+After demo seed runs, AI-generated bouquet photos will live in /var/florenza/media/ and be served via Payload's media collection.
+
+For initial setup before seed:
+- /public/images/hero-default.jpg
+- /public/images/about-hero.jpg
+- /public/images/wedding-hero.jpg
+- /public/images/placeholder.jpg
+
+Use any 1920×1280 editorial florist photo (CC0 from unsplash.com/s/photos/florist).
+The seed script downloads stock images via picsum.photos automatically for bouquet cards.

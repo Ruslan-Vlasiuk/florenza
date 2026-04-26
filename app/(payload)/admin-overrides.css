@@ -1,0 +1,18 @@
+/* Florenza admin tweaks. Override Payload defaults softly. */
+:root {
+  --theme-elevation-0: #ffffff;
+  --theme-elevation-50: #f5f0e8;
+  --theme-success-500: #7b9a7e;
+  --theme-warning-500: #c9954a;
+  --theme-error-500: #b85b5b;
+}
+
+.payload-admin .dashboard h1,
+.payload-admin .collection-edit h1 {
+  font-family: 'Fraunces', serif;
+}
+
+/* Demo content yellow banner */
+.field-type.is-demo-row {
+  position: relative;
+}
