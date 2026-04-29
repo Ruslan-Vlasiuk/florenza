@@ -416,3 +416,19 @@ pnpm typecheck
 ---
 
 **Цей файл — джерело істини для Claude Code на цьому проєкті.**
+
+
+## Brain — Project rules
+
+At the start of EVERY session in this project:
+  recall("current task in florenza")
+  get_project("florenza")
+
+Before making architecture changes:
+  log_decision(what="...", why="...", project="florenza")
+
+After fixing any error:
+  log_error(error="...", fix="...", project="florenza")
+
+When you see CONTEXT warning:
+  session_summary(...) then /compact then recall_current() then continue
