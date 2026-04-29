@@ -5,7 +5,7 @@
  */
 import 'dotenv/config';
 import { getPayload } from 'payload';
-import config from '../../payload/payload.config';
+import config from '../../payload.config';
 
 const COLLECTIONS_WITH_DEMO = [
   'bouquets',

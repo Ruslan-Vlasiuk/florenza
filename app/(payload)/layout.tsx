@@ -1,9 +1,7 @@
 /* Payload admin must NOT inherit the public layout (Lenis, Header, etc) */
 import '@payloadcms/next/css';
 import config from '@/payload-config';
-import { RootLayout } from '@payloadcms/next/layouts';
-// @ts-expect-error — handleServerFunctions is internal but stable in Payload 3.x
-import { handleServerFunctions } from '@payloadcms/next/dist/utilities/handleServerFunctions.js';
+import { RootLayout, handleServerFunctions } from '@payloadcms/next/layouts';
 import type { ServerFunctionClient } from 'payload';
 import { importMap } from './admin/importMap';
 

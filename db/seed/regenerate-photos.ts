@@ -5,7 +5,7 @@
  */
 import 'dotenv/config';
 import { getPayload } from 'payload';
-import config from '../../payload/payload.config';
+import config from '../../payload.config';
 import { generateImage, isGeminiConfigured } from '../../lib/ai/gemini';
 
 async function main() {

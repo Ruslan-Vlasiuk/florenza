@@ -30,6 +30,7 @@ pnpm-debug.log*
 # Editor
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 .DS_Store
@@ -41,6 +42,7 @@ coverage/
 # Payload generated
 /payload-types.ts
 /payload-schema.json
+app/(payload)/admin/importMap.js
 
 # Database
 *.sqlite

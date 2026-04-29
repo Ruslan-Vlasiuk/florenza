@@ -7,7 +7,7 @@
  */
 import 'dotenv/config';
 import { getPayload } from 'payload';
-import config from '../../payload/payload.config';
+import config from '../../payload.config';
 
 import { TYPES, FLOWERS, OCCASIONS } from './data/taxonomies';
 import { DEMO_BOUQUETS } from './data/bouquets';
