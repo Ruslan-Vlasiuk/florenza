@@ -6,7 +6,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 let _client: GoogleGenerativeAI | null = null;
 
-const MODEL_ID = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image-preview';
+const MODEL_ID = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
 
 export function getGeminiClient(): GoogleGenerativeAI {
   if (!_client) {
