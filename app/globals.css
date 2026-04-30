@@ -120,6 +120,30 @@ body {
   color: var(--color-text-primary);
   min-height: 100vh;
   position: relative;
+
+  /* Mood-aware text colors driven by ScrollColorWash. Defaults below are for
+     SSR (page-load before first scroll event), then JS injects up-to-date
+     values on every scroll. */
+  --mood-fg: #1a1a1a;
+  --mood-fg-soft: #4a4a4a;
+  --mood-eyebrow: #6b7d5e;
+  --mood-border: rgba(44, 62, 45, 0.12);
+}
+
+/* Smooth color transitions whenever --mood-* changes */
+.florenza-public .mood-text {
+  color: var(--mood-fg);
+  transition: color 600ms var(--ease-out);
+}
+
+.florenza-public .mood-text-soft {
+  color: var(--mood-fg-soft);
+  transition: color 600ms var(--ease-out);
+}
+
+.florenza-public .mood-eyebrow {
+  color: var(--mood-eyebrow);
+  transition: color 600ms var(--ease-out);
 }
 
 /* Film-grain noise overlay — gives the cream a tactile, magazine-paper feel.
@@ -180,7 +204,8 @@ body {
   font-weight: 400;
   letter-spacing: var(--tracking-tight);
   line-height: var(--leading-tight);
-  color: var(--color-text-primary);
+  color: var(--mood-fg);
+  transition: color 600ms var(--ease-out);
 }
 
 .florenza-public a {
@@ -324,7 +349,8 @@ button:focus-visible {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  color: var(--color-sage-deep);
+  color: var(--mood-eyebrow);
+  transition: color 600ms var(--ease-out);
 }
 
 .section-eyebrow::before {

@@ -1,6 +1,26 @@
 'use client';
 
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { useEffect } from 'react';
+import { motion, useScroll, useTransform, useReducedMotion, useMotionValueEvent } from 'framer-motion';
+
+/**
+ * Scroll bands where the wash is dark and text needs to invert to light.
+ * Most of the page is light; dark moments are short transitional flashes
+ * plus the one full-section dark mood (Roses).
+ */
+const DARK_BANDS: Array<[number, number]> = [
+  [0.12, 0.17],  // brief flash: Hero → Stats
+  [0.30, 0.34],  // brief flash: Stats → Story
+  [0.50, 0.68],  // Roses (sustained dark) + into Balloons dusky top
+  [0.84, 0.88],  // brief flash: Balloons → Showcase
+];
+
+function progressIsDark(p: number): boolean {
+  for (const [start, end] of DARK_BANDS) {
+    if (p >= start && p <= end) return true;
+  }
+  return false;
+}
 
 /**
  * Scroll-driven color morphing background.
@@ -21,9 +41,28 @@ export function ScrollColorWash() {
   const { scrollYProgress } = useScroll();
   const reduced = useReducedMotion();
 
-  // 6 mood layers, each fades in/out at its scroll range.
-  // Roses → Balloons overlap is wider (8% instead of 4%) so the burgundy
-  // bleeds into the dusky-rose top of Balloons without showing a seam.
+  // Drive mood-aware text colors as CSS variables on the document so any
+  // section header / eyebrow can read them and invert automatically.
+  useMotionValueEvent(scrollYProgress, 'change', (p) => {
+    const isDark = progressIsDark(p);
+    const root = document.body;
+    root.style.setProperty('--mood-fg', isDark ? '#f5e8e0' : '#1a1a1a');
+    root.style.setProperty('--mood-fg-soft', isDark ? 'rgba(245,232,224,0.78)' : '#4a4a4a');
+    root.style.setProperty('--mood-eyebrow', isDark ? 'rgba(212,168,160,0.95)' : '#6b7d5e');
+    root.style.setProperty('--mood-border', isDark ? 'rgba(245,232,224,0.18)' : 'rgba(44,62,45,0.12)');
+  });
+
+  // Apply initial value on mount (before user scrolls)
+  useEffect(() => {
+    const p = scrollYProgress.get();
+    const isDark = progressIsDark(p);
+    document.body.style.setProperty('--mood-fg', isDark ? '#f5e8e0' : '#1a1a1a');
+    document.body.style.setProperty('--mood-fg-soft', isDark ? 'rgba(245,232,224,0.78)' : '#4a4a4a');
+    document.body.style.setProperty('--mood-eyebrow', isDark ? 'rgba(212,168,160,0.95)' : '#6b7d5e');
+    document.body.style.setProperty('--mood-border', isDark ? 'rgba(245,232,224,0.18)' : 'rgba(44,62,45,0.12)');
+  }, [scrollYProgress]);
+
+  // 6 main mood layers — light throughout, each fades in/out at its range
   const opacityHero = useTransform(scrollYProgress, [0, 0.1, 0.18], [1, 1, 0]);
   const opacityStats = useTransform(scrollYProgress, [0.12, 0.22, 0.32], [0, 1, 0]);
   const opacityStory = useTransform(scrollYProgress, [0.28, 0.4, 0.5], [0, 1, 0]);
@@ -31,41 +70,51 @@ export function ScrollColorWash() {
   const opacityBalloons = useTransform(scrollYProgress, [0.58, 0.74, 0.86], [0, 1, 0]);
   const opacityShowcase = useTransform(scrollYProgress, [0.82, 0.92, 1], [0, 1, 1]);
 
+  // DARK FLASH layer — brief moody passes at section transitions where there
+  // would otherwise be no dark moment. Three peaks across the page:
+  //   ~14%  Hero → Stats boundary
+  //   ~32%  Stats → Story boundary
+  //   ~86%  Balloons → Showcase boundary
+  // Roses already provides a sustained dark zone in the middle, no flash
+  // needed there.
+  const opacityDarkFlash = useTransform(
+    scrollYProgress,
+    [0.09, 0.14, 0.19, 0.28, 0.32, 0.37, 0.81, 0.86, 0.91],
+    [0,    0.55, 0,    0,    0.45, 0,    0,    0.5,  0]
+  );
+
   const layers = [
-    // 1. HERO — Twilight persimmon: dusky bronze at top, peach below
+    // 1. HERO — Persimmon dawn: warm peach + soft rose (light throughout)
     {
       opacity: reduced ? 1 : opacityHero,
       style: {
         background: `
-          radial-gradient(ellipse 100% 70% at 30% 15%, rgba(120, 60, 50, 0.55) 0%, transparent 60%),
-          radial-gradient(ellipse 90% 70% at 70% 45%, rgba(220, 145, 125, 0.7) 0%, transparent 65%),
-          radial-gradient(ellipse 80% 90% at 80% 80%, rgba(245, 200, 180, 0.7) 0%, transparent 65%),
-          linear-gradient(180deg, #6b3328 0%, #c08775 25%, #e8b8a5 55%, #f5d8c8 85%, #f8e3d9 100%)
+          radial-gradient(ellipse 90% 70% at 20% 20%, rgba(245, 195, 175, 0.85) 0%, transparent 60%),
+          radial-gradient(ellipse 80% 90% at 80% 80%, rgba(220, 165, 145, 0.7) 0%, transparent 65%),
+          linear-gradient(180deg, #f8e3d9 0%, #f0d4c5 100%)
         `,
       },
     },
-    // 2. STATS — Forest twilight: deep moss top, drifting to soft sage below
+    // 2. STATS — Sage olive: dusty greens with mist (light throughout)
     {
       opacity: reduced ? 0 : opacityStats,
       style: {
         background: `
-          radial-gradient(ellipse 100% 80% at 30% 20%, rgba(28, 50, 38, 0.75) 0%, transparent 60%),
-          radial-gradient(ellipse 90% 70% at 70% 50%, rgba(60, 90, 65, 0.7) 0%, transparent 65%),
-          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(120, 150, 115, 0.6) 0%, transparent 65%),
-          linear-gradient(180deg, #1f3328 0%, #3a5a45 35%, #6a8870 65%, #a8bfa3 100%)
+          radial-gradient(ellipse 100% 80% at 50% 30%, rgba(170, 195, 155, 0.7) 0%, transparent 65%),
+          radial-gradient(ellipse 70% 90% at 90% 90%, rgba(110, 140, 105, 0.6) 0%, transparent 70%),
+          linear-gradient(180deg, #d8e0ce 0%, #c4d2b8 100%)
         `,
       },
     },
-    // 3. STORY — Golden dusk: chestnut at top fading down to honey
+    // 3. STORY — Golden hour: saturated honey + caramel (light throughout)
     {
       opacity: reduced ? 0 : opacityStory,
       style: {
         background: `
-          radial-gradient(ellipse 100% 80% at 30% 15%, rgba(80, 45, 25, 0.75) 0%, transparent 60%),
-          radial-gradient(ellipse 90% 70% at 70% 45%, rgba(180, 110, 60, 0.75) 0%, transparent 65%),
-          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(220, 160, 80, 0.7) 0%, transparent 65%),
-          radial-gradient(ellipse 70% 60% at 30% 80%, rgba(245, 200, 130, 0.6) 0%, transparent 70%),
-          linear-gradient(180deg, #4a2818 0%, #8a4f28 25%, #c08850 55%, #d8a868 80%, #e8c08c 100%)
+          radial-gradient(ellipse 100% 80% at 30% 50%, rgba(220, 160, 80, 0.85) 0%, transparent 60%),
+          radial-gradient(ellipse 80% 70% at 90% 20%, rgba(180, 110, 60, 0.7) 0%, transparent 65%),
+          radial-gradient(ellipse 70% 80% at 10% 90%, rgba(140, 85, 40, 0.6) 0%, transparent 70%),
+          linear-gradient(180deg, #d8a868 0%, #b87838 100%)
         `,
       },
     },
@@ -96,16 +145,27 @@ export function ScrollColorWash() {
         `,
       },
     },
-    // 6. SHOWCASE — Evening garden: deep forest at top, mint-cream at bottom
+    // 6. SHOWCASE — Cool fern garden (light throughout)
     {
       opacity: reduced ? 0 : opacityShowcase,
       style: {
         background: `
-          radial-gradient(ellipse 100% 80% at 30% 20%, rgba(30, 50, 35, 0.7) 0%, transparent 60%),
-          radial-gradient(ellipse 90% 70% at 70% 50%, rgba(80, 110, 85, 0.65) 0%, transparent 65%),
-          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(155, 185, 150, 0.6) 0%, transparent 65%),
-          radial-gradient(ellipse 70% 60% at 50% 80%, rgba(220, 230, 210, 0.6) 0%, transparent 70%),
-          linear-gradient(180deg, #233628 0%, #4a6b50 30%, #88a890 60%, #c8d8be 100%)
+          radial-gradient(ellipse 100% 80% at 30% 30%, rgba(155, 185, 145, 0.7) 0%, transparent 65%),
+          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(90, 125, 85, 0.55) 0%, transparent 65%),
+          radial-gradient(ellipse 70% 60% at 50% 50%, rgba(220, 230, 210, 0.7) 0%, transparent 70%),
+          linear-gradient(180deg, #c8d8be 0%, #a0bb98 100%)
+        `,
+      },
+    },
+    // 7. DARK FLASH — brief moody overlay at section transitions.
+    // Painted on top of the active mood, so it briefly darkens then clears.
+    {
+      opacity: reduced ? 0 : opacityDarkFlash,
+      style: {
+        background: `
+          radial-gradient(ellipse 100% 80% at 30% 30%, rgba(40, 25, 30, 0.85) 0%, transparent 60%),
+          radial-gradient(ellipse 90% 70% at 70% 70%, rgba(20, 15, 22, 0.95) 0%, transparent 65%),
+          linear-gradient(180deg, #1a0d14 0%, #0d0608 100%)
         `,
       },
     },
