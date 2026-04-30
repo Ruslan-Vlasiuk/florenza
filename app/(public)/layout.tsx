@@ -8,6 +8,7 @@ import { LenisProvider } from '@/components/florenza/LenisProvider';
 import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
 import { ScrollColorWash } from '@/components/florenza/effects/ScrollColorWash';
 import { CursorGlow } from '@/components/florenza/effects/CursorGlow';
+import { BackToTop } from '@/components/florenza/BackToTop';
 import '../globals.css';
 
 const fraunces = Fraunces({
@@ -95,6 +96,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           <main id="main">{children}</main>
           <Footer />
           <LiyaChatLauncher />
+          <BackToTop />
         </LenisProvider>
       </body>
     </html>

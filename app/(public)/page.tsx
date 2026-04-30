@@ -14,6 +14,7 @@ import { BouquetOfTheDay } from '@/components/florenza/BouquetOfTheDay';
 import { ProcessSection } from '@/components/florenza/ProcessSection';
 import { InventoryTicker } from '@/components/florenza/InventoryTicker';
 import { PressStrip } from '@/components/florenza/PressStrip';
+import { FloristsDiary } from '@/components/florenza/FloristsDiary';
 import { ScrollProgress } from '@/components/florenza/effects/ScrollProgress';
 import { SectionDivider } from '@/components/florenza/effects/SectionDivider';
 import { BlurFade } from '@/components/florenza/effects/BlurFade';
@@ -168,6 +169,10 @@ export default async function HomePage() {
       </section>
 
       <SectionDivider variant="sprig" />
+
+      <FloristsDiary />
+
+      <SectionDivider variant="line" />
 
       <BlurFade>
         <OccasionShowcase bouquets={authorShowcase} />

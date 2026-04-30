@@ -44,6 +44,8 @@ export function EditorialHero({
   const indicatorOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
 
   const words = title.split(' ');
+  // Italicize the last word for editorial cadence
+  const lastWordIndex = words.length - 1;
 
   return (
     <section
@@ -75,25 +77,32 @@ export function EditorialHero({
             className="font-[var(--font-display)] text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.02] text-[var(--color-deep-forest)]"
             aria-label={title}
           >
-            {words.map((word, i) => (
-              <motion.span
-                key={`${word}-${i}`}
-                aria-hidden="true"
-                initial={{ opacity: 0, y: 32, filter: 'blur(12px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{
-                  delay: 0.2 + i * 0.09,
-                  duration: 0.95,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="inline-block mr-[0.22em] italic-fraunces"
-                style={{
-                  fontVariationSettings: "'opsz' 144, 'SOFT' 50, 'wght' 350",
-                }}
-              >
-                {word}
-              </motion.span>
-            ))}
+            {words.map((word, i) => {
+              const isItalic = i === lastWordIndex;
+              return (
+                <motion.span
+                  key={`${word}-${i}`}
+                  aria-hidden="true"
+                  initial={{ opacity: 0, y: 32, filter: 'blur(12px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{
+                    delay: 0.2 + i * 0.09,
+                    duration: 0.95,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="inline-block mr-[0.22em]"
+                  style={{
+                    fontVariationSettings: isItalic
+                      ? "'opsz' 144, 'SOFT' 100, 'wght' 320"
+                      : "'opsz' 144, 'SOFT' 50, 'wght' 350",
+                    fontStyle: isItalic ? 'italic' : 'normal',
+                    color: isItalic ? 'var(--color-sage-deep)' : undefined,
+                  }}
+                >
+                  {word}
+                </motion.span>
+              );
+            })}
           </h1>
           {subtitle && (
             <motion.p
