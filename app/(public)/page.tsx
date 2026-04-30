@@ -10,6 +10,10 @@ import { BalloonsSection } from '@/components/florenza/BalloonsSection';
 import { OccasionShowcase } from '@/components/florenza/OccasionShowcase';
 import { StoryStickySection } from '@/components/florenza/StoryStickySection';
 import { StatsRibbon } from '@/components/florenza/StatsRibbon';
+import { BouquetOfTheDay } from '@/components/florenza/BouquetOfTheDay';
+import { ProcessSection } from '@/components/florenza/ProcessSection';
+import { InventoryTicker } from '@/components/florenza/InventoryTicker';
+import { PressStrip } from '@/components/florenza/PressStrip';
 import { ScrollProgress } from '@/components/florenza/effects/ScrollProgress';
 import { SectionDivider } from '@/components/florenza/effects/SectionDivider';
 import { BlurFade } from '@/components/florenza/effects/BlurFade';
@@ -59,6 +63,9 @@ export default async function HomePage() {
     fetchFeaturedReviews(8),
   ]);
 
+  // Pick today's featured bouquet — first non-discounted authored one
+  const bouquetOfTheDay = authorShowcase[0] ?? featured[0];
+
   return (
     <>
       <ScrollProgress />
@@ -73,7 +80,11 @@ export default async function HomePage() {
         ctaSecondary={{ label: 'Дізнатися більше', href: '/about' }}
       />
 
+      <InventoryTicker />
+
       <StatsRibbon />
+
+      <PressStrip />
 
       <BlurFade>
         <UspBento />
@@ -88,6 +99,8 @@ export default async function HomePage() {
       />
 
       <SectionDivider variant="line" />
+
+      {bouquetOfTheDay && <BouquetOfTheDay bouquet={bouquetOfTheDay} />}
 
       {discounts.length > 0 && (
         <BlurFade>
@@ -106,6 +119,8 @@ export default async function HomePage() {
           <BalloonsSection bouquets={balloons} />
         </BlurFade>
       )}
+
+      <ProcessSection />
 
       <SectionDivider variant="dots" />
 

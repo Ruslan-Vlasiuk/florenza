@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { formatPrice } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
 import { DiscountTimer } from './DiscountTimer';
+import { TiltCard } from './effects/TiltCard';
 
 export interface BouquetCardData {
   slug: string;
@@ -52,10 +53,10 @@ export function BouquetCard({
       className="group"
     >
       <Link href={`/buket/${bouquet.slug}`} className="block">
+        <TiltCard intensity={3} lift={4} className={cn('relative', aspect)}>
         <div
           className={cn(
-            'bouquet-card-image relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-cream-soft)]',
-            aspect,
+            'bouquet-card-image relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-cream-soft)] w-full h-full shadow-[0_2px_8px_rgba(44,62,45,0.04)] group-hover:shadow-[0_20px_60px_rgba(44,62,45,0.12)] transition-shadow duration-500',
           )}
         >
           <Image
@@ -86,7 +87,12 @@ export function BouquetCard({
               готовий сьогодні
             </div>
           )}
+          {/* Quick-view chip — appears on hover */}
+          <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-[var(--color-deep-forest)]/95 text-[var(--color-cream)] text-[10px] uppercase tracking-[0.2em] rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+            Швидкий перегляд →
+          </div>
         </div>
+        </TiltCard>
         <div className="mt-4 flex items-start justify-between gap-4">
           <div>
             <h3 className="font-[var(--font-display)] text-lg text-[var(--color-deep-forest)] leading-tight">

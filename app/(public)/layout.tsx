@@ -7,6 +7,7 @@ import { LiyaChatLauncher } from '@/components/florenza/LiyaChatLauncher';
 import { LenisProvider } from '@/components/florenza/LenisProvider';
 import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
 import { ScrollColorWash } from '@/components/florenza/effects/ScrollColorWash';
+import { CursorGlow } from '@/components/florenza/effects/CursorGlow';
 import '../globals.css';
 
 const fraunces = Fraunces({
@@ -87,6 +88,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
     <html lang="uk" className={`${fraunces.variable} ${inter.variable}`}>
       <body className="florenza-public">
         <ScrollColorWash />
+        <CursorGlow />
         <LenisProvider>
           <LocalBusinessSchema />
           <Header />
