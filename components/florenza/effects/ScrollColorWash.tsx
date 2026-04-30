@@ -41,25 +41,15 @@ export function ScrollColorWash() {
   const { scrollYProgress } = useScroll();
   const reduced = useReducedMotion();
 
-  // Drive mood-aware text colors as CSS variables on the document so any
-  // section header / eyebrow can read them and invert automatically.
+  // Toggle the .is-mood-dark class on the body when wash is dark. CSS handles
+  // the brand-token swaps (deep-forest, text-primary, text-secondary, etc.)
+  // so any existing `text-[var(--color-deep-forest)]` etc. inverts automatically.
   useMotionValueEvent(scrollYProgress, 'change', (p) => {
-    const isDark = progressIsDark(p);
-    const root = document.body;
-    root.style.setProperty('--mood-fg', isDark ? '#f5e8e0' : '#1a1a1a');
-    root.style.setProperty('--mood-fg-soft', isDark ? 'rgba(245,232,224,0.78)' : '#4a4a4a');
-    root.style.setProperty('--mood-eyebrow', isDark ? 'rgba(212,168,160,0.95)' : '#6b7d5e');
-    root.style.setProperty('--mood-border', isDark ? 'rgba(245,232,224,0.18)' : 'rgba(44,62,45,0.12)');
+    document.body.classList.toggle('is-mood-dark', progressIsDark(p));
   });
 
-  // Apply initial value on mount (before user scrolls)
   useEffect(() => {
-    const p = scrollYProgress.get();
-    const isDark = progressIsDark(p);
-    document.body.style.setProperty('--mood-fg', isDark ? '#f5e8e0' : '#1a1a1a');
-    document.body.style.setProperty('--mood-fg-soft', isDark ? 'rgba(245,232,224,0.78)' : '#4a4a4a');
-    document.body.style.setProperty('--mood-eyebrow', isDark ? 'rgba(212,168,160,0.95)' : '#6b7d5e');
-    document.body.style.setProperty('--mood-border', isDark ? 'rgba(245,232,224,0.18)' : 'rgba(44,62,45,0.12)');
+    document.body.classList.toggle('is-mood-dark', progressIsDark(scrollYProgress.get()));
   }, [scrollYProgress]);
 
   // 6 main mood layers — light throughout, each fades in/out at its range

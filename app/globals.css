@@ -113,37 +113,52 @@ body {
 
 /* Florenza public-site colors — scoped so they don't bleed into Payload admin */
 .florenza-public {
-  /* Background-color is provided by ScrollColorWash (drives mood per scroll
-     position). We keep var(--color-bg-primary) here as fallback for SSR /
-     reduced-motion scenarios where the wash is invisible. */
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   min-height: 100vh;
   position: relative;
-
-  /* Mood-aware text colors driven by ScrollColorWash. Defaults below are for
-     SSR (page-load before first scroll event), then JS injects up-to-date
-     values on every scroll. */
-  --mood-fg: #1a1a1a;
-  --mood-fg-soft: #4a4a4a;
-  --mood-eyebrow: #6b7d5e;
-  --mood-border: rgba(44, 62, 45, 0.12);
 }
 
-/* Smooth color transitions whenever --mood-* changes */
+/* When ScrollColorWash detects a dark scroll band, body gets `.is-mood-dark`.
+   We swap brand text colours so all existing
+   `text-[var(--color-deep-forest)]`, `text-[var(--color-text-primary)]`,
+   `text-[var(--color-text-secondary)]` etc. invert automatically with a
+   smooth fade — no per-component changes needed. */
+.florenza-public,
+.florenza-public h1,
+.florenza-public h2,
+.florenza-public h3,
+.florenza-public h4,
+.florenza-public h5,
+.florenza-public h6,
+.florenza-public p,
+.florenza-public span,
+.florenza-public a {
+  transition: color 500ms var(--ease-out);
+}
+
+body.is-mood-dark.florenza-public {
+  --color-text-primary: #f5e8e0;
+  --color-text-secondary: rgba(245, 232, 224, 0.78);
+  --color-text-muted: rgba(245, 232, 224, 0.55);
+  --color-deep-forest: #f5e8e0;
+  --color-deep-forest-soft: rgba(245, 232, 224, 0.85);
+  --color-sage-deep: rgba(212, 168, 160, 0.95);
+  --color-graphite: #f5e8e0;
+  --color-graphite-soft: rgba(245, 232, 224, 0.78);
+  --color-border: rgba(245, 232, 224, 0.18);
+  --color-border-soft: rgba(245, 232, 224, 0.08);
+}
+
+/* Mood-aware utility classes for places that bypass brand tokens. */
 .florenza-public .mood-text {
-  color: var(--mood-fg);
-  transition: color 600ms var(--ease-out);
-}
-
-.florenza-public .mood-text-soft {
-  color: var(--mood-fg-soft);
-  transition: color 600ms var(--ease-out);
+  color: var(--color-text-primary);
+  transition: color 500ms var(--ease-out);
 }
 
 .florenza-public .mood-eyebrow {
-  color: var(--mood-eyebrow);
-  transition: color 600ms var(--ease-out);
+  color: var(--color-sage-deep);
+  transition: color 500ms var(--ease-out);
 }
 
 /* Film-grain noise overlay — gives the cream a tactile, magazine-paper feel.
@@ -204,8 +219,7 @@ body {
   font-weight: 400;
   letter-spacing: var(--tracking-tight);
   line-height: var(--leading-tight);
-  color: var(--mood-fg);
-  transition: color 600ms var(--ease-out);
+  color: var(--color-text-primary);
 }
 
 .florenza-public a {
@@ -349,8 +363,8 @@ button:focus-visible {
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  color: var(--mood-eyebrow);
-  transition: color 600ms var(--ease-out);
+  color: var(--color-sage-deep);
+  transition: color 500ms var(--ease-out);
 }
 
 .section-eyebrow::before {
