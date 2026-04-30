@@ -5,7 +5,7 @@ import { BotanicalWatermark } from './effects/BotanicalWatermark';
 export function BalloonsSection({ bouquets }: { bouquets: BouquetCardData[] }) {
   if (!bouquets.length) return null;
   return (
-    <section className="section-linen py-16 md:py-24 relative overflow-hidden">
+    <section className="py-16 md:py-24 relative overflow-hidden">
       <BotanicalWatermark variant="eucalyptus" position="top-right" size={340} opacity={0.08} />
       <div className="editorial-container relative z-10">
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">

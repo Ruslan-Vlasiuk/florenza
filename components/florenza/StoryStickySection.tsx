@@ -43,7 +43,7 @@ export function StoryStickySection({
   return (
     <section
       ref={ref}
-      className="relative py-24 md:py-32 section-parchment overflow-hidden"
+      className="relative py-24 md:py-32 overflow-hidden"
     >
       <BotanicalWatermark variant="fern" position="top-left" size={380} opacity={0.08} rotate={-8} />
       <BotanicalWatermark variant="wreath" position="bottom-right" size={320} opacity={0.07} />

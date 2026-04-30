@@ -48,7 +48,7 @@ function AnimatedNumber({ value, suffix, durationMs = 1400 }: { value: number; s
 
 export function StatsRibbon() {
   return (
-    <section className="border-y border-[var(--color-border-soft)] py-16 md:py-20 section-cream-soft">
+    <section className="border-y border-[var(--color-border-soft)] py-16 md:py-20 relative">
       <div className="editorial-container">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-8">
           {STATS.map((stat, i) => (

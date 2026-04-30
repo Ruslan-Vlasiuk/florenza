@@ -130,7 +130,7 @@ export default async function HomePage() {
         </section>
       </BlurFade>
 
-      <section className="section-cream-soft py-24 md:py-32">
+      <section className="py-24 md:py-32 relative">
         <div className="editorial-container">
           <BlurFade>
             <header className="text-center mb-14 max-w-xl mx-auto flex flex-col items-center">
