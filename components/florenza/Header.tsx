@@ -35,34 +35,61 @@ export function Header() {
           : 'bg-transparent',
       )}
     >
-      <div className="editorial-container flex items-center justify-between py-4">
+      <div className="editorial-container flex items-center justify-between py-4 gap-6">
         <Link
           href="/"
-          className="font-[var(--font-display)] text-2xl tracking-tight text-[var(--color-deep-forest)]"
+          className="font-[var(--font-display)] text-2xl tracking-tight text-[var(--color-deep-forest)] flex items-center gap-2 group"
           aria-label="Florenza — головна"
         >
+          {/* Tiny F monogram in a circle */}
+          <span
+            className="hidden md:inline-flex w-9 h-9 rounded-full items-center justify-center bg-[var(--color-deep-forest)] text-[var(--color-cream)] text-base font-[var(--font-display)] transition-transform duration-500 group-hover:rotate-[-12deg]"
+            style={{ fontStyle: 'italic', fontVariationSettings: "'opsz' 36, 'wght' 320" }}
+            aria-hidden="true"
+          >
+            F
+          </span>
           florenza
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8 text-sm">
+        <nav className="hidden md:flex items-center gap-7 text-sm">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-[var(--color-text-secondary)] hover:text-[var(--color-deep-forest)] transition-colors"
+              className="relative text-[var(--color-text-secondary)] hover:text-[var(--color-deep-forest)] transition-colors group/link"
             >
-              {item.label}
+              <span>{item.label}</span>
+              <span
+                className="absolute -bottom-1 left-0 right-0 h-px bg-[var(--color-deep-forest)] origin-left scale-x-0 group-hover/link:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)]"
+              />
             </Link>
           ))}
         </nav>
 
-        <button
-          className="md:hidden p-2 -mr-2 text-[var(--color-deep-forest)]"
-          onClick={() => setOpen(true)}
-          aria-label="Відкрити меню"
-        >
-          <Menu size={24} />
-        </button>
+        {/* Right rail: live availability + CTA + mobile menu */}
+        <div className="flex items-center gap-4">
+          {/* Live indicator — desktop only */}
+          <div className="hidden lg:flex items-center gap-2 text-xs text-[var(--color-sage-deep)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)] animate-pulse" />
+            <span className="uppercase tracking-[0.18em]">Сьогодні · 60 хв</span>
+          </div>
+
+          <Link
+            href="/buketu"
+            className="hidden md:inline-flex items-center px-4 py-2 rounded-full text-xs uppercase tracking-[0.22em] font-medium bg-[var(--color-deep-forest)] text-[var(--color-cream)] hover:bg-[var(--color-deep-forest-soft)] transition-colors"
+          >
+            Замовити →
+          </Link>
+
+          <button
+            className="md:hidden p-2 -mr-2 text-[var(--color-deep-forest)]"
+            onClick={() => setOpen(true)}
+            aria-label="Відкрити меню"
+          >
+            <Menu size={24} />
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>
