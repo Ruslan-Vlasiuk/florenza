@@ -337,12 +337,40 @@ button:focus-visible {
 /* Editorial drop-cap utility */
 .drop-cap::first-letter {
   font-family: var(--font-display);
+  font-style: italic;
   float: left;
-  font-size: 4.5rem;
-  line-height: 0.85;
-  padding: 0.4rem 0.6rem 0 0;
-  font-weight: 400;
+  font-size: 5.5rem;
+  line-height: 0.78;
+  padding: 0.5rem 0.7rem 0 0;
+  font-weight: 350;
   color: var(--color-deep-forest);
+  font-variation-settings: 'opsz' 144, 'wght' 320;
+}
+
+/* Custom scrollbar — slim, brand-aware */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-sage-deep);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-deep-forest);
+}
+
+/* Firefox scrollbar */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-sage-deep) transparent;
 }
 
 /* Editorial floating-petal animation (used on Particles component) */
