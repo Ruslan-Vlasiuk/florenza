@@ -20,7 +20,12 @@ export function OccasionShowcase({ bouquets }: { bouquets: BouquetCardData[] }) 
       {bouquets.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 mb-16">
           {bouquets.slice(0, 6).map((b, i) => (
-            <BouquetCard key={b.slug} bouquet={b} index={i} />
+            <div
+              key={b.slug}
+              className="bg-[rgba(245,240,232,0.88)] backdrop-blur-sm rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(30,50,35,0.18)]"
+            >
+              <BouquetCard bouquet={b} index={i} />
+            </div>
           ))}
         </div>
       )}

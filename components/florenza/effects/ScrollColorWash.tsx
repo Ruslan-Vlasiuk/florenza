@@ -32,37 +32,40 @@ export function ScrollColorWash() {
   const opacityShowcase = useTransform(scrollYProgress, [0.82, 0.92, 1], [0, 1, 1]);
 
   const layers = [
-    // 1. HERO — Persimmon dawn: warm peach + soft rose
+    // 1. HERO — Twilight persimmon: dusky bronze at top, peach below
     {
       opacity: reduced ? 1 : opacityHero,
       style: {
         background: `
-          radial-gradient(ellipse 90% 70% at 20% 20%, rgba(245, 195, 175, 0.85) 0%, transparent 60%),
-          radial-gradient(ellipse 80% 90% at 80% 80%, rgba(220, 165, 145, 0.7) 0%, transparent 65%),
-          linear-gradient(180deg, #f8e3d9 0%, #f0d4c5 100%)
+          radial-gradient(ellipse 100% 70% at 30% 15%, rgba(120, 60, 50, 0.55) 0%, transparent 60%),
+          radial-gradient(ellipse 90% 70% at 70% 45%, rgba(220, 145, 125, 0.7) 0%, transparent 65%),
+          radial-gradient(ellipse 80% 90% at 80% 80%, rgba(245, 200, 180, 0.7) 0%, transparent 65%),
+          linear-gradient(180deg, #6b3328 0%, #c08775 25%, #e8b8a5 55%, #f5d8c8 85%, #f8e3d9 100%)
         `,
       },
     },
-    // 2. STATS — Sage olive: dusty greens with mist
+    // 2. STATS — Forest twilight: deep moss top, drifting to soft sage below
     {
       opacity: reduced ? 0 : opacityStats,
       style: {
         background: `
-          radial-gradient(ellipse 100% 80% at 50% 30%, rgba(170, 195, 155, 0.7) 0%, transparent 65%),
-          radial-gradient(ellipse 70% 90% at 90% 90%, rgba(110, 140, 105, 0.6) 0%, transparent 70%),
-          linear-gradient(180deg, #d8e0ce 0%, #c4d2b8 100%)
+          radial-gradient(ellipse 100% 80% at 30% 20%, rgba(28, 50, 38, 0.75) 0%, transparent 60%),
+          radial-gradient(ellipse 90% 70% at 70% 50%, rgba(60, 90, 65, 0.7) 0%, transparent 65%),
+          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(120, 150, 115, 0.6) 0%, transparent 65%),
+          linear-gradient(180deg, #1f3328 0%, #3a5a45 35%, #6a8870 65%, #a8bfa3 100%)
         `,
       },
     },
-    // 3. STORY — Golden hour: saturated honey + caramel
+    // 3. STORY — Golden dusk: chestnut at top fading down to honey
     {
       opacity: reduced ? 0 : opacityStory,
       style: {
         background: `
-          radial-gradient(ellipse 100% 80% at 30% 50%, rgba(220, 160, 80, 0.85) 0%, transparent 60%),
-          radial-gradient(ellipse 80% 70% at 90% 20%, rgba(180, 110, 60, 0.7) 0%, transparent 65%),
-          radial-gradient(ellipse 70% 80% at 10% 90%, rgba(140, 85, 40, 0.6) 0%, transparent 70%),
-          linear-gradient(180deg, #d8a868 0%, #b87838 100%)
+          radial-gradient(ellipse 100% 80% at 30% 15%, rgba(80, 45, 25, 0.75) 0%, transparent 60%),
+          radial-gradient(ellipse 90% 70% at 70% 45%, rgba(180, 110, 60, 0.75) 0%, transparent 65%),
+          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(220, 160, 80, 0.7) 0%, transparent 65%),
+          radial-gradient(ellipse 70% 60% at 30% 80%, rgba(245, 200, 130, 0.6) 0%, transparent 70%),
+          linear-gradient(180deg, #4a2818 0%, #8a4f28 25%, #c08850 55%, #d8a868 80%, #e8c08c 100%)
         `,
       },
     },
@@ -93,15 +96,16 @@ export function ScrollColorWash() {
         `,
       },
     },
-    // 6. SHOWCASE — Cool fern garden: soft sage greens with cream highlights
+    // 6. SHOWCASE — Evening garden: deep forest at top, mint-cream at bottom
     {
       opacity: reduced ? 0 : opacityShowcase,
       style: {
         background: `
-          radial-gradient(ellipse 100% 80% at 30% 30%, rgba(155, 185, 145, 0.7) 0%, transparent 65%),
-          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(90, 125, 85, 0.55) 0%, transparent 65%),
-          radial-gradient(ellipse 70% 60% at 50% 50%, rgba(220, 230, 210, 0.7) 0%, transparent 70%),
-          linear-gradient(180deg, #c8d8be 0%, #a0bb98 100%)
+          radial-gradient(ellipse 100% 80% at 30% 20%, rgba(30, 50, 35, 0.7) 0%, transparent 60%),
+          radial-gradient(ellipse 90% 70% at 70% 50%, rgba(80, 110, 85, 0.65) 0%, transparent 65%),
+          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(155, 185, 150, 0.6) 0%, transparent 65%),
+          radial-gradient(ellipse 70% 60% at 50% 80%, rgba(220, 230, 210, 0.6) 0%, transparent 70%),
+          linear-gradient(180deg, #233628 0%, #4a6b50 30%, #88a890 60%, #c8d8be 100%)
         `,
       },
     },

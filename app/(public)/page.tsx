@@ -124,7 +124,12 @@ export default async function HomePage() {
           </header>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-16">
             {featured.map((b, i) => (
-              <BouquetCard key={b.slug} bouquet={b} index={i} />
+              <div
+                key={b.slug}
+                className="bg-[rgba(245,240,232,0.88)] backdrop-blur-sm rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(40,30,40,0.15)]"
+              >
+                <BouquetCard bouquet={b} index={i} />
+              </div>
             ))}
           </div>
         </section>
