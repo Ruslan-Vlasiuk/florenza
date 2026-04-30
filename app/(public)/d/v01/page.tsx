@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { fetchVariantData } from '@/lib/design-variants/data';
+import { FadeUp } from '@/components/florenza/effects/FadeUp';
 
 export const metadata = { title: 'V01 · Aesop · Quiet minimalism' };
 export const revalidate = 300;
@@ -45,34 +46,38 @@ export default async function V01() {
 
       {/* Featured grid — sparse, oversized images, no cards */}
       <section className="py-32 px-6 max-w-7xl mx-auto">
-        <header className="mb-24 text-center">
-          <p className="text-[10px] uppercase tracking-[0.42em] opacity-60 mb-4">
-            Каталог
-          </p>
-          <h2 className="font-[var(--font-display)] text-4xl font-light">
-            Букети сезону
-          </h2>
-        </header>
+        <FadeUp>
+          <header className="mb-24 text-center">
+            <p className="text-[10px] uppercase tracking-[0.42em] opacity-60 mb-4">
+              Каталог
+            </p>
+            <h2 className="font-[var(--font-display)] text-4xl font-light">
+              Букети сезону
+            </h2>
+          </header>
+        </FadeUp>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24">
-          {featured.slice(0, 6).map((b) => (
-            <Link key={b.slug} href={`/buket/${b.slug}`} className="group">
-              <div className="relative aspect-[3/4] overflow-hidden mb-8">
-                <Image
-                  src={b.primaryImageUrl}
-                  alt={b.imageAlt}
-                  fill
-                  sizes="(min-width: 768px) 30vw, 100vw"
-                  className="object-cover transition-transform duration-[1500ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.02]"
-                />
-              </div>
-              <p className="text-xs uppercase tracking-[0.22em] opacity-55 mb-2">
-                Авторський
-              </p>
-              <h3 className="font-[var(--font-display)] text-xl mb-1 font-light">
-                {b.name}
-              </h3>
-              <p className="text-sm opacity-70">{b.price.toLocaleString('uk-UA')} грн</p>
-            </Link>
+          {featured.slice(0, 6).map((b, i) => (
+            <FadeUp key={b.slug} delay={(i % 3) * 0.12}>
+              <Link href={`/buket/${b.slug}`} className="group block">
+                <div className="relative aspect-[3/4] overflow-hidden mb-8">
+                  <Image
+                    src={b.primaryImageUrl}
+                    alt={b.imageAlt}
+                    fill
+                    sizes="(min-width: 768px) 30vw, 100vw"
+                    className="object-cover transition-transform duration-[1500ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.02]"
+                  />
+                </div>
+                <p className="text-xs uppercase tracking-[0.22em] opacity-55 mb-2">
+                  Авторський
+                </p>
+                <h3 className="font-[var(--font-display)] text-xl mb-1 font-light">
+                  {b.name}
+                </h3>
+                <p className="text-sm opacity-70">{b.price.toLocaleString('uk-UA')} грн</p>
+              </Link>
+            </FadeUp>
           ))}
         </div>
       </section>

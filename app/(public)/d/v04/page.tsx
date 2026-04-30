@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { fetchVariantData } from '@/lib/design-variants/data';
+import { FadeUp } from '@/components/florenza/effects/FadeUp';
 
 export const metadata = { title: 'V04 · Cereal · Photography-driven' };
 export const revalidate = 300;
@@ -50,7 +51,8 @@ export default async function V04() {
       {/* Long horizontal photo essay — alternating image/text */}
       <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto space-y-32">
         {[bigRoses[0], featured[2], balloons[0]].filter(Boolean).map((b, i) => (
-          <div key={b!.slug} className="grid grid-cols-12 gap-8 items-center">
+          <FadeUp key={b!.slug} y={48} duration={1.0}>
+          <div className="grid grid-cols-12 gap-8 items-center">
             <div className={`col-span-12 md:col-span-7 ${i % 2 === 1 ? 'md:order-2' : ''}`}>
               <Link href={`/buket/${b!.slug}`}>
                 <div className="relative aspect-[16/10] overflow-hidden">
@@ -86,6 +88,7 @@ export default async function V04() {
               </Link>
             </div>
           </div>
+          </FadeUp>
         ))}
       </section>
 

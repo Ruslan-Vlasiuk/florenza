@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { fetchVariantData } from '@/lib/design-variants/data';
+import { FadeUp } from '@/components/florenza/effects/FadeUp';
 
 export const metadata = { title: 'V10 · Apple · Gallery clean' };
 export const revalidate = 300;
@@ -79,6 +80,7 @@ export default async function V10() {
       </section>
 
       {/* Two big feature blocks side by side, Apple gallery style */}
+      <FadeUp>
       <section className="px-6 py-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Roses card */}
@@ -160,6 +162,7 @@ export default async function V10() {
           </Link>
         </div>
       </section>
+      </FadeUp>
 
       {/* Catalog — apple-clean grid */}
       <section className="px-6 py-24 max-w-7xl mx-auto">
@@ -178,9 +181,9 @@ export default async function V10() {
           </p>
         </header>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {featured.slice(0, 8).map((b) => (
+          {featured.slice(0, 8).map((b, i) => (
+            <FadeUp key={b.slug} delay={(i % 4) * 0.08}>
             <Link
-              key={b.slug}
               href={`/buket/${b.slug}`}
               className="block group rounded-[20px] overflow-hidden p-4 transition-colors hover:bg-[#f5f5f7]"
             >
@@ -201,6 +204,7 @@ export default async function V10() {
                 від {b.price.toLocaleString('uk-UA')} грн
               </p>
             </Link>
+            </FadeUp>
           ))}
         </div>
       </section>
