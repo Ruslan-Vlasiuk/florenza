@@ -1,26 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion, useMotionValueEvent } from 'framer-motion';
-
-/**
- * Scroll bands where the wash is dark and text needs to invert to light.
- * Most of the page is light; dark moments are short transitional flashes
- * plus the one full-section dark mood (Roses).
- */
-const DARK_BANDS: Array<[number, number]> = [
-  [0.12, 0.17],  // brief flash: Hero → Stats
-  [0.30, 0.34],  // brief flash: Stats → Story
-  [0.50, 0.68],  // Roses (sustained dark) + into Balloons dusky top
-  [0.84, 0.88],  // brief flash: Balloons → Showcase
-];
-
-function progressIsDark(p: number): boolean {
-  for (const [start, end] of DARK_BANDS) {
-    if (p >= start && p <= end) return true;
-  }
-  return false;
-}
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 
 /**
  * Scroll-driven color morphing background.
