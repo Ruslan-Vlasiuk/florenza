@@ -113,6 +113,9 @@ body {
 
 /* Florenza public-site colors — scoped so they don't bleed into Payload admin */
 .florenza-public {
+  /* Background-color is provided by ScrollColorWash (drives mood per scroll
+     position). We keep var(--color-bg-primary) here as fallback for SSR /
+     reduced-motion scenarios where the wash is invisible. */
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   min-height: 100vh;
@@ -134,7 +137,10 @@ body {
   background-size: 240px 240px;
 }
 
-.florenza-public > * {
+/* Real content sits above the film-grain pseudo (z=1) and the
+   ScrollColorWash (z=0). We use a data attribute on the wash to
+   exclude it — otherwise this rule would override its `position: fixed`. */
+.florenza-public > *:not([data-bg-layer]) {
   position: relative;
   z-index: 2;
 }

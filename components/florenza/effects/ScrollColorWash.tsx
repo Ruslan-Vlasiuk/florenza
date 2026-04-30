@@ -97,7 +97,12 @@ export function ScrollColorWash() {
   ];
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div
+      data-bg-layer
+      className="fixed inset-0 pointer-events-none overflow-hidden"
+      style={{ zIndex: 0 }}
+      aria-hidden="true"
+    >
       {layers.map((layer, i) => (
         <motion.div
           key={i}
