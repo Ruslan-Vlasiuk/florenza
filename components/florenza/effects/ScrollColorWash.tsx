@@ -22,12 +22,14 @@ export function ScrollColorWash() {
   const reduced = useReducedMotion();
 
   // 6 mood layers, each fades in/out at its scroll range.
+  // Roses → Balloons overlap is wider (8% instead of 4%) so the burgundy
+  // bleeds into the dusky-rose top of Balloons without showing a seam.
   const opacityHero = useTransform(scrollYProgress, [0, 0.1, 0.18], [1, 1, 0]);
   const opacityStats = useTransform(scrollYProgress, [0.12, 0.22, 0.32], [0, 1, 0]);
   const opacityStory = useTransform(scrollYProgress, [0.28, 0.4, 0.5], [0, 1, 0]);
-  const opacityRoses = useTransform(scrollYProgress, [0.46, 0.56, 0.66], [0, 1, 0]);
-  const opacityBalloons = useTransform(scrollYProgress, [0.62, 0.72, 0.82], [0, 1, 0]);
-  const opacityShowcase = useTransform(scrollYProgress, [0.78, 0.9, 1], [0, 1, 1]);
+  const opacityRoses = useTransform(scrollYProgress, [0.46, 0.56, 0.7], [0, 1, 0]);
+  const opacityBalloons = useTransform(scrollYProgress, [0.58, 0.74, 0.86], [0, 1, 0]);
+  const opacityShowcase = useTransform(scrollYProgress, [0.82, 0.92, 1], [0, 1, 1]);
 
   const layers = [
     // 1. HERO — Persimmon dawn: warm peach + soft rose
@@ -76,15 +78,18 @@ export function ScrollColorWash() {
         `,
       },
     },
-    // 5. BALLOONS — Cotton-candy sky: pastel pink + powder blue
+    // 5. BALLOONS — Dusky rose dawn fading to pastel sky.
+    // Top of viewport keeps burgundy/plum tones (so the Roses transition
+    // never shows a colour seam); bottom drifts toward cotton-candy.
     {
       opacity: reduced ? 0 : opacityBalloons,
       style: {
         background: `
-          radial-gradient(ellipse 90% 70% at 30% 30%, rgba(230, 175, 195, 0.85) 0%, transparent 65%),
-          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(155, 195, 225, 0.8) 0%, transparent 65%),
-          radial-gradient(ellipse 70% 60% at 50% 60%, rgba(250, 220, 230, 0.7) 0%, transparent 70%),
-          linear-gradient(180deg, #f0d8e0 0%, #d8e0eb 100%)
+          radial-gradient(ellipse 100% 80% at 30% 20%, rgba(140, 60, 90, 0.55) 0%, transparent 60%),
+          radial-gradient(ellipse 90% 70% at 70% 50%, rgba(220, 160, 180, 0.7) 0%, transparent 65%),
+          radial-gradient(ellipse 80% 80% at 80% 80%, rgba(170, 195, 220, 0.75) 0%, transparent 65%),
+          radial-gradient(ellipse 70% 60% at 50% 70%, rgba(245, 220, 230, 0.7) 0%, transparent 70%),
+          linear-gradient(180deg, #5e2030 0%, #c8a0b0 35%, #e0c8d4 65%, #d8e0eb 100%)
         `,
       },
     },
