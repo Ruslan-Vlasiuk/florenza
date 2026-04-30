@@ -17,6 +17,7 @@ import { PressStrip } from '@/components/florenza/PressStrip';
 import { FloristsDiary } from '@/components/florenza/FloristsDiary';
 import { FaqSection } from '@/components/florenza/FaqSection';
 import { TelegramSubscribe } from '@/components/florenza/TelegramSubscribe';
+import { PhotoMosaic } from '@/components/florenza/PhotoMosaic';
 import { ScrollProgress } from '@/components/florenza/effects/ScrollProgress';
 import { SectionDivider } from '@/components/florenza/effects/SectionDivider';
 import { BlurFade } from '@/components/florenza/effects/BlurFade';
@@ -169,6 +170,8 @@ export default async function HomePage() {
           <ReviewsMarquee reviews={reviews} />
         </div>
       </section>
+
+      <PhotoMosaic />
 
       <SectionDivider variant="sprig" />
 
