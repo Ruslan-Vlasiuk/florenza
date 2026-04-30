@@ -10,13 +10,19 @@ export function BalloonsSection({ bouquets }: { bouquets: BouquetCardData[] }) {
       <div className="editorial-container relative z-10">
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
         <div className="max-w-xl">
-          <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-dusty-rose)] mb-3">
+          <p className="text-xs uppercase tracking-[0.22em] mb-3" style={{ color: '#f0c8d0' }}>
             Повітряні шари
           </p>
-          <h2 className="font-[var(--font-display)] text-3xl md:text-4xl text-[var(--color-deep-forest)] leading-tight">
+          <h2
+            className="font-[var(--font-display)] text-3xl md:text-4xl leading-tight"
+            style={{ color: '#fdf3ee' }}
+          >
             Шари і фольговані сети
           </h2>
-          <p className="mt-4 text-base md:text-lg text-[var(--color-text-secondary)] leading-relaxed">
+          <p
+            className="mt-4 text-base md:text-lg leading-relaxed"
+            style={{ color: 'rgba(253,243,238,0.88)' }}
+          >
             Гелієві набори в палітрі бренду — самостійно або як доповнення до квітів.
             Тримаються 8–14 годин.
           </p>
@@ -24,7 +30,7 @@ export function BalloonsSection({ bouquets }: { bouquets: BouquetCardData[] }) {
         <MagneticButton
           href="/buketu?type=shari"
           variant="ghost"
-          className="self-start md:self-end shrink-0"
+          className="self-start md:self-end shrink-0 [&]:text-[#fdf3ee] [&]:border-[#f0c8d0]"
         >
           Усі шари →
         </MagneticButton>
