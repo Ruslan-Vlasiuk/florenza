@@ -1,11 +1,14 @@
 import { BouquetCard, type BouquetCardData } from './BouquetCard';
 import { MagneticButton } from './MagneticButton';
+import { BotanicalWatermark } from './effects/BotanicalWatermark';
 
 export function BigRosesSection({ bouquets }: { bouquets: BouquetCardData[] }) {
   if (!bouquets.length) return null;
   return (
-    <section className="bg-[var(--color-cream-soft)] py-16 md:py-24">
-      <div className="editorial-container">
+    <section className="section-rose-tint py-16 md:py-24 relative overflow-hidden">
+      <BotanicalWatermark variant="peony" position="top-right" size={420} opacity={0.07} rotate={-12} />
+      <BotanicalWatermark variant="branch" position="bottom-left" size={360} opacity={0.06} />
+      <div className="editorial-container relative z-10">
         <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
           <div className="max-w-xl">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-dusty-rose)] mb-3">

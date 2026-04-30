@@ -6,6 +6,7 @@ import { Footer } from '@/components/florenza/Footer';
 import { LiyaChatLauncher } from '@/components/florenza/LiyaChatLauncher';
 import { LenisProvider } from '@/components/florenza/LenisProvider';
 import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
+import { AuroraBackground } from '@/components/florenza/effects/AuroraBackground';
 import '../globals.css';
 
 const fraunces = Fraunces({
@@ -85,6 +86,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="uk" className={`${fraunces.variable} ${inter.variable}`}>
       <body className="florenza-public">
+        <AuroraBackground />
         <LenisProvider>
           <LocalBusinessSchema />
           <Header />

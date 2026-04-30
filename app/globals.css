@@ -222,10 +222,92 @@ button:focus-visible {
   padding-inline: 1.5rem;
 }
 
-/* Editorial section variants — three subtle background tones for rhythm */
+/* Editorial section variants — five tones in the same warm family, like
+   different paper stocks in a magazine. */
 .section-cream { background-color: var(--color-cream); }
 .section-cream-soft { background-color: var(--color-cream-soft); }
 .section-cream-deep { background-color: #e9e2d4; }
+.section-parchment { background-color: #ece1cd; }   /* warmer tan */
+.section-linen { background-color: #f7f3ec; }       /* lighter, near-white */
+.section-sage-tint {                                 /* very subtle green wash */
+  background-color: #ebe8df;
+  background-image: linear-gradient(180deg, rgba(138,154,123,0.04) 0%, transparent 50%);
+}
+.section-rose-tint {                                 /* very subtle warm wash */
+  background-color: #efe6dc;
+  background-image: linear-gradient(180deg, rgba(201,163,149,0.08) 0%, transparent 60%);
+}
+
+/* Aurora gradient mesh — very slow, atmospheric. Soft radial blobs that
+   drift behind everything else and give the cream "page" subtle depth. */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.aurora-bg::before,
+.aurora-bg::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.42;
+  will-change: transform;
+}
+
+.aurora-bg::before {
+  width: 65vw;
+  height: 65vw;
+  left: -15vw;
+  top: -15vw;
+  background: radial-gradient(circle, rgba(201,163,149,0.55) 0%, rgba(201,163,149,0) 70%);
+  animation: florenza-aurora-1 28s ease-in-out infinite alternate;
+}
+
+.aurora-bg::after {
+  width: 55vw;
+  height: 55vw;
+  right: -10vw;
+  bottom: -20vw;
+  background: radial-gradient(circle, rgba(138,154,123,0.45) 0%, rgba(138,154,123,0) 70%);
+  animation: florenza-aurora-2 32s ease-in-out infinite alternate;
+}
+
+@keyframes florenza-aurora-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(15vw, 8vw) scale(1.15); }
+}
+
+@keyframes florenza-aurora-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-12vw, -10vw) scale(1.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-bg::before,
+  .aurora-bg::after {
+    animation: none;
+  }
+}
+
+/* Botanical watermark — wraps decorative SVG, positioned absolutely in section.
+   Default: 12% opacity, deep-forest tint, blends multiplicatively. */
+.botanical-watermark {
+  position: absolute;
+  pointer-events: none;
+  color: var(--color-sage-deep);
+  opacity: 0.1;
+  mix-blend-mode: multiply;
+  z-index: 0;
+}
+
+.botanical-watermark svg {
+  width: 100%;
+  height: 100%;
+}
 
 /* Decorative section eyebrow — used for small uppercase labels above H2 */
 .section-eyebrow {

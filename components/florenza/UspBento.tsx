@@ -28,8 +28,8 @@ const ITEMS = [
 
 export function UspBento() {
   return (
-    <section className="editorial-container py-16 md:py-24">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+    <section className="editorial-container py-16 md:py-24 relative">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 relative z-10">
         {ITEMS.map((item, i) => (
           <motion.div
             key={item.title}
@@ -37,7 +37,7 @@ export function UspBento() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5, delay: i * 0.06 }}
-            className="p-8 md:p-10 rounded-[var(--radius-lg)] bg-[var(--color-bg-elevated)] border border-[var(--color-border-soft)]"
+            className="p-8 md:p-10 rounded-[var(--radius-lg)] bg-white/65 backdrop-blur-[2px] border border-[var(--color-border-soft)]"
           >
             <item.icon
               className="text-[var(--color-sage-deep)]"

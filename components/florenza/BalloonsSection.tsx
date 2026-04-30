@@ -1,10 +1,13 @@
 import { BouquetCard, type BouquetCardData } from './BouquetCard';
 import { MagneticButton } from './MagneticButton';
+import { BotanicalWatermark } from './effects/BotanicalWatermark';
 
 export function BalloonsSection({ bouquets }: { bouquets: BouquetCardData[] }) {
   if (!bouquets.length) return null;
   return (
-    <section className="editorial-container py-16 md:py-24">
+    <section className="section-linen py-16 md:py-24 relative overflow-hidden">
+      <BotanicalWatermark variant="eucalyptus" position="top-right" size={340} opacity={0.08} />
+      <div className="editorial-container relative z-10">
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
         <div className="max-w-xl">
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-dusty-rose)] mb-3">
@@ -30,6 +33,7 @@ export function BalloonsSection({ bouquets }: { bouquets: BouquetCardData[] }) {
         {bouquets.slice(0, 6).map((b, i) => (
           <BouquetCard key={b.slug} bouquet={b} index={i} />
         ))}
+      </div>
       </div>
     </section>
   );

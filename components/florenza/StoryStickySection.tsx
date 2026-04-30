@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { BlurFade } from './effects/BlurFade';
+import { BotanicalWatermark } from './effects/BotanicalWatermark';
 
 interface Chapter {
   eyebrow: string;
@@ -42,8 +43,11 @@ export function StoryStickySection({
   return (
     <section
       ref={ref}
-      className="relative editorial-container py-24 md:py-32"
+      className="relative py-24 md:py-32 section-parchment overflow-hidden"
     >
+      <BotanicalWatermark variant="fern" position="top-left" size={380} opacity={0.08} rotate={-8} />
+      <BotanicalWatermark variant="wreath" position="bottom-right" size={320} opacity={0.07} />
+      <div className="editorial-container relative z-10">
       <BlurFade>
         <p className="section-eyebrow mb-4">Філософія {brand}</p>
         <h2 className="font-[var(--font-display)] text-[clamp(2.25rem,4.5vw,3.75rem)] leading-[1.05] text-[var(--color-deep-forest)] max-w-2xl mb-16 md:mb-24">
@@ -103,6 +107,7 @@ export function StoryStickySection({
             </BlurFade>
           ))}
         </div>
+      </div>
       </div>
     </section>
   );
