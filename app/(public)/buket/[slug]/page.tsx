@@ -140,11 +140,11 @@ export default async function BouquetPage({
             )}
 
             <div className="space-y-3">
-              <MagneticButton href="#liya" variant="primary" className="w-full">
-                Замовити через Лію
+              <MagneticButton href={`/checkout?bouquet=${(bouquet as any).slug}`} variant="primary" className="w-full">
+                Замовити
               </MagneticButton>
-              <MagneticButton href={`/checkout?bouquet=${(bouquet as any).slug}`} variant="outline" className="w-full">
-                Швидкий чекаут
+              <MagneticButton href="#liya" variant="outline" className="w-full">
+                Запитати в чаті
               </MagneticButton>
             </div>
 

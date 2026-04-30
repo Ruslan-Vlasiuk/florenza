@@ -257,7 +257,7 @@ export const DEMO_BOUQUETS: DemoBouquet[] = [
 ];
 
 function generateAdditionalBouquets(): DemoBouquet[] {
-  const data: Array<Partial<DemoBouquet> & { name: string; slug: string; price: number }> = [
+  const data: Array<Partial<DemoBouquet> & { name: string; slug: string; price: number; _roses?: number; _balloons?: number }> = [
     { name: 'Стара книгарня', slug: 'stara-knyharnia', price: 2100, type: 'avtorski', mainFlower: 'sezonni', occasions: ['bez-pryvodu'], emotionalTone: ['classic'], forWhom: 'neutral' },
     { name: 'Холодна вода', slug: 'kholodna-voda', price: 1600, type: 'monobukety', mainFlower: 'gortenziyi', occasions: ['bez-pryvodu'], emotionalTone: ['minimal'], forWhom: 'neutral' },
     { name: 'Дитячий сміх', slug: 'dytiachyi-smikh', price: 1400, type: 'avtorski', mainFlower: 'tyulpany', occasions: ['narodzhennia-dytyny'], emotionalTone: ['gentle'], forWhom: 'female' },
@@ -278,15 +278,77 @@ function generateAdditionalBouquets(): DemoBouquet[] {
     { name: 'Букет нареченої', slug: 'buket-narechenoyi', price: 5500, type: 'avtorski', mainFlower: 'pivonii', occasions: ['na-vesillya'], emotionalTone: ['lush', 'classic'], forWhom: 'female' },
     { name: 'Тюльпановий парк', slug: 'tyulpanovyi-park', price: 1350, type: 'monobukety', mainFlower: 'tyulpany', occasions: ['na-8-bereznya'], emotionalTone: ['natural'], forWhom: 'female' },
     { name: 'Прохолодний нічний бриз', slug: 'prokholodnyi-nichnyi-bryz', price: 2400, type: 'avtorski', mainFlower: 'troyandy', occasions: ['richnytsia'], emotionalTone: ['classic'], forWhom: 'female' },
+    // === Великі букети троянд ===
+    { name: '51 троянда «Доля»', slug: '51-troyanda-dolia', price: 4900, type: 'veliki-troyandy', mainFlower: 'troyandy', occasions: ['richnytsia', 'na-14-lyutogo'], emotionalTone: ['classic', 'lush'], forWhom: 'female', _roses: 51 },
+    { name: '75 троянд «Зустріч»', slug: '75-troyand-zustrich', price: 6900, type: 'veliki-troyandy', mainFlower: 'troyandy', occasions: ['richnytsia', 'na-den-narodzhennya'], emotionalTone: ['classic', 'lush'], forWhom: 'female', _roses: 75 },
+    { name: '101 троянда «Освідчення»', slug: '101-troyanda-osvidchennya', price: 8900, type: 'veliki-troyandy', mainFlower: 'troyandy', occasions: ['richnytsia', 'na-14-lyutogo'], emotionalTone: ['classic', 'lush', 'bold'], forWhom: 'female', _roses: 101 },
+    { name: '151 троянда «Обіцянка»', slug: '151-troyanda-obitsianka', price: 12900, type: 'veliki-troyandy', mainFlower: 'troyandy', occasions: ['richnytsia'], emotionalTone: ['lush', 'bold'], forWhom: 'female', _roses: 151 },
+    { name: '201 троянда «Безмірна»', slug: '201-troyanda-bezmirna', price: 16900, type: 'veliki-troyandy', mainFlower: 'troyandy', occasions: ['richnytsia'], emotionalTone: ['lush', 'bold'], forWhom: 'female', _roses: 201 },
+    { name: '301 троянда «Неможлива»', slug: '301-troyanda-nemozhlyva', price: 24900, type: 'veliki-troyandy', mainFlower: 'troyandy', occasions: ['richnytsia'], emotionalTone: ['lush', 'bold'], forWhom: 'female', _roses: 301, discount: { type: 'percent', amount: 10, daysFromNow: 14 } },
+    // === Повітряні шари ===
+    { name: 'Композиція «10 серцевих»', slug: 'shari-10-sertsevykh', price: 850, type: 'shari', mainFlower: 'sezonni', occasions: ['na-14-lyutogo', 'richnytsia'], emotionalTone: ['gentle', 'classic'], forWhom: 'female', _balloons: 10 },
+    { name: 'Set «Це хлопчик»', slug: 'shari-tse-khlopchyk', price: 1250, type: 'shari', mainFlower: 'sezonni', occasions: ['narodzhennia-dytyny'], emotionalTone: ['gentle', 'classic'], forWhom: 'neutral', _balloons: 15 },
+    { name: 'Set «Це дівчинка»', slug: 'shari-tse-divchynka', price: 1250, type: 'shari', mainFlower: 'sezonni', occasions: ['narodzhennia-dytyny'], emotionalTone: ['gentle'], forWhom: 'neutral', _balloons: 15 },
+    { name: '100 хром-шарів', slug: 'shari-100-khrom', price: 4500, type: 'shari', mainFlower: 'sezonni', occasions: ['na-den-narodzhennya', 'na-vypusknyi'], emotionalTone: ['bold', 'lush'], forWhom: 'neutral', _balloons: 100 },
+    { name: 'Букет «День народження»', slug: 'shari-den-narodzhennia', price: 1850, type: 'shari', mainFlower: 'sezonni', occasions: ['na-den-narodzhennya'], emotionalTone: ['gentle', 'natural'], forWhom: 'neutral', _balloons: 7 },
+    { name: 'Фольговані «Love»', slug: 'shari-love', price: 1450, type: 'shari', mainFlower: 'sezonni', occasions: ['na-14-lyutogo', 'richnytsia'], emotionalTone: ['gentle', 'classic'], forWhom: 'female', _balloons: 9 },
   ];
-  return data.map((d) => ({
-    composition: [{ item: 'Сезонні квіти за каталогом', count: 1 }],
-    size: { heightCm: 30, diameterCm: 28, tShirtSize: 'M' },
-    preparationHours: 2,
-    descriptionShort: `${d.name} — авторський букет Florenza.`,
-    descriptionFull: `${d.name} — авторський букет, складений у фірмовому editorial-стилі Florenza. Унікальна композиція в палітрі бренду.`,
-    imagePrompt: `Editorial florist bouquet "${d.name}", soft natural light, painterly, muted palette.`,
-    unsplashKeywords: ['editorial flowers', 'bouquet', 'florist'],
-    ...d,
-  }) as DemoBouquet);
+  return data.map((d) => {
+    const roses = (d as any)._roses as number | undefined;
+    const balloons = (d as any)._balloons as number | undefined;
+    const isBigRose = !!roses;
+    const isBalloon = !!balloons;
+    let composition: DemoBouquet['composition'];
+    let size: DemoBouquet['size'];
+    let preparationHours: number;
+    let descriptionShort: string;
+    let descriptionFull: string;
+    let imagePrompt: string;
+    let unsplashKeywords: string[];
+
+    if (isBigRose) {
+      composition = [
+        { item: 'Червона троянда преміум сорту 60 см', count: roses! },
+        { item: 'Декоративна стрічка з оксамиту', count: 1 },
+        { item: 'Крафтова обгортка ручної роботи', count: 1 },
+      ];
+      size = { heightCm: roses! >= 151 ? 80 : 65, diameterCm: roses! >= 151 ? 75 : 55, tShirtSize: roses! >= 151 ? 'XL' : 'L' };
+      preparationHours = roses! >= 151 ? 24 : 2;
+      descriptionShort = `${roses} червоних троянд — букет для жесту, який запам'ятовується.`;
+      descriptionFull = `${roses} преміум червоних троянд (60 см стебло) у класичному оформленні. Букет збирається вручну за день до доставки.`;
+      imagePrompt = `Massive bouquet of ${roses} red premium roses, 60cm stems, wrapped in craft paper with velvet ribbon, dramatic editorial photography, dark moody background.`;
+      unsplashKeywords = ['red roses bouquet', '101 roses', 'huge rose bouquet', 'rose arrangement'];
+    } else if (isBalloon) {
+      composition = [
+        { item: 'Гелієві латексні шари (хром / макарон)', count: balloons! },
+        { item: 'Декоративна стрічка', count: 1 },
+        { item: 'Крафт-картка з побажанням', count: 1 },
+      ];
+      size = { heightCm: balloons! >= 50 ? 130 : 80, diameterCm: balloons! >= 50 ? 90 : 50, tShirtSize: balloons! >= 50 ? 'XL' : 'M' };
+      preparationHours = balloons! >= 50 ? 6 : 2;
+      descriptionShort = `${balloons} гелієвих шарів — святковий настрій, який літає над усіма.`;
+      descriptionFull = `${balloons} гелієвих шарів у фірмовій палітрі Florenza. Шари тримаються 8–14 годин залежно від матеріалу. Можна доповнити квітами.`;
+      imagePrompt = `${balloons} helium balloons in chrome and macaron pastel colors, tied with silk ribbon, editorial party photography, soft window light, cream background.`;
+      unsplashKeywords = ['helium balloons', 'balloon bouquet', 'party balloons', 'pastel balloons'];
+    } else {
+      composition = [{ item: 'Сезонні квіти за каталогом', count: 1 }];
+      size = { heightCm: 30, diameterCm: 28, tShirtSize: 'M' };
+      preparationHours = 2;
+      descriptionShort = `${d.name} — авторський букет Florenza.`;
+      descriptionFull = `${d.name} — авторський букет, складений у фірмовому editorial-стилі Florenza. Унікальна композиція в палітрі бренду.`;
+      imagePrompt = `Editorial florist bouquet "${d.name}", soft natural light, painterly, muted palette.`;
+      unsplashKeywords = ['editorial flowers', 'bouquet', 'florist'];
+    }
+
+    return ({
+      composition,
+      size,
+      preparationHours,
+      descriptionShort,
+      descriptionFull,
+      imagePrompt,
+      unsplashKeywords,
+      ...d,
+    }) as DemoBouquet;
+  });
 }

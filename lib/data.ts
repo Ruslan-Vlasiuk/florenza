@@ -48,6 +48,72 @@ export async function fetchFeaturedBouquets(limit = 8): Promise<BouquetCardData[
   }
 }
 
+export async function fetchBouquetsByType(typeSlug: string, limit = 6, sortBy: string = 'price'): Promise<BouquetCardData[]> {
+  try {
+    const payload = await getPayloadClient();
+    const types = await payload.find({
+      collection: 'categories-type',
+      where: { slug: { equals: typeSlug } },
+      limit: 1,
+    });
+    const typeId = types.docs[0]?.id;
+    if (!typeId) return [];
+    const r = await payload.find({
+      collection: 'bouquets',
+      where: {
+        and: [
+          { status: { equals: 'published' } },
+          { type: { equals: typeId } },
+        ],
+      },
+      limit,
+      sort: sortBy,
+      depth: 1,
+    });
+    return r.docs.map(bouquetToCard);
+  } catch (e) {
+    console.error(`[fetchBouquetsByType ${typeSlug}] error:`, e);
+    return [];
+  }
+}
+
+export async function fetchBalloons(limit = 6): Promise<BouquetCardData[]> {
+  return fetchBouquetsByType('shari', limit, 'price');
+}
+
+export async function fetchAuthorBouquets(limit = 6): Promise<BouquetCardData[]> {
+  return fetchBouquetsByType('avtorski', limit, '-publishedAt');
+}
+
+export async function fetchBigRoseBouquets(limit = 6): Promise<BouquetCardData[]> {
+  try {
+    const payload = await getPayloadClient();
+    const types = await payload.find({
+      collection: 'categories-type',
+      where: { slug: { equals: 'veliki-troyandy' } },
+      limit: 1,
+    });
+    const typeId = types.docs[0]?.id;
+    if (!typeId) return [];
+    const r = await payload.find({
+      collection: 'bouquets',
+      where: {
+        and: [
+          { status: { equals: 'published' } },
+          { type: { equals: typeId } },
+        ],
+      },
+      limit,
+      sort: 'price',
+      depth: 1,
+    });
+    return r.docs.map(bouquetToCard);
+  } catch (e) {
+    console.error('[fetchBigRoseBouquets] error:', e);
+    return [];
+  }
+}
+
 export async function fetchActiveDiscounts(limit = 6): Promise<BouquetCardData[]> {
   try {
     const payload = await getPayloadClient();

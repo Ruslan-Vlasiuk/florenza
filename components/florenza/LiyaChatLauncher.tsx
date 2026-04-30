@@ -16,10 +16,10 @@ export function LiyaChatLauncher() {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: open ? 0 : 1, scale: open ? 0.95 : 1, pointerEvents: open ? 'none' : 'auto' }}
         transition={{ duration: 0.3 }}
-        aria-label="Чат з Лією"
+        aria-label="Написати в чат"
       >
         <MessageCircle size={18} />
-        <span className="text-sm">Чат з Лією</span>
+        <span className="text-sm">Написати</span>
       </motion.button>
 
       <AnimatePresence>
@@ -34,10 +34,10 @@ export function LiyaChatLauncher() {
             <header className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-soft)]">
               <div>
                 <p className="font-[var(--font-display)] text-lg leading-tight text-[var(--color-deep-forest)]">
-                  Лія
+                  Florenza
                 </p>
                 <p className="text-xs text-[var(--color-text-muted)]">
-                  AI-консультантка Florenza
+                  Зазвичай відповідаємо за хвилину
                 </p>
               </div>
               <button

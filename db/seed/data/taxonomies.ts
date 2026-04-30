@@ -5,6 +5,8 @@ export const TYPES = [
   { name: 'Весільна флористика', slug: 'vesilna', sortOrder: 4, description: 'Букети нареченої, бутоньєрки, оформлення — для дня, який пам\'ятатимуть.' },
   { name: 'Корпоративна флористика', slug: 'korporatyvna', sortOrder: 5, description: 'B2B-флористика для офісів, готелів, ресторанів і корпоративних подарунків.' },
   { name: 'Подарунки і доповнення', slug: 'podarunky', sortOrder: 6, description: 'Шоколад, листівки, шари — для повноти подарунка.' },
+  { name: 'Великі букети троянд', slug: 'veliki-troyandy', sortOrder: 7, description: 'Букети троянд від 51 до 301 шт. Для жестів, які запам\'ятовуються.' },
+  { name: 'Повітряні шари', slug: 'shari', sortOrder: 8, description: 'Гелієві набори, фольговані фігури і «букети» шарів — самостійно або як доповнення до квітів.' },
 ];
 
 export const FLOWERS = [

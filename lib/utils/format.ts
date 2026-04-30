@@ -1,9 +1,10 @@
 export function formatPrice(amount: number, currency = 'UAH'): string {
-  return new Intl.NumberFormat('uk-UA', {
-    style: 'currency',
-    currency,
+  const number = new Intl.NumberFormat('uk-UA', {
     maximumFractionDigits: 0,
+    useGrouping: true,
   }).format(amount);
+  const suffix = currency === 'UAH' ? 'грн' : currency;
+  return `${number} ${suffix}`;
 }
 
 export function formatDateUk(date: Date | string): string {

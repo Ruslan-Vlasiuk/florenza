@@ -1,18 +1,15 @@
-/* Florenza admin tweaks. Override Payload defaults softly. */
-:root {
-  --theme-elevation-0: #ffffff;
-  --theme-elevation-50: #f5f0e8;
-  --theme-success-500: #7b9a7e;
-  --theme-warning-500: #c9954a;
-  --theme-error-500: #b85b5b;
+/* Florenza admin: minimal tweaks only.
+   We do NOT override Payload's --theme-* variables — that breaks contrast on
+   the create-first-user page (white text on white background, etc).
+   Payload's default light/dark themes work correctly out of the box. */
+
+/* Fraunces serif for top-level admin headings (subtle brand touch) */
+.dashboard h1,
+.collection-edit h1 {
+  font-family: 'Fraunces', Georgia, serif;
 }
 
-.payload-admin .dashboard h1,
-.payload-admin .collection-edit h1 {
-  font-family: 'Fraunces', serif;
-}
-
-/* Demo content yellow banner */
+/* Demo content marker */
 .field-type.is-demo-row {
   position: relative;
 }
