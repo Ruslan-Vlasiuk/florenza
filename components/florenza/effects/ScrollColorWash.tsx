@@ -41,17 +41,6 @@ export function ScrollColorWash() {
   const { scrollYProgress } = useScroll();
   const reduced = useReducedMotion();
 
-  // Toggle the .is-mood-dark class on the body when wash is dark. CSS handles
-  // the brand-token swaps (deep-forest, text-primary, text-secondary, etc.)
-  // so any existing `text-[var(--color-deep-forest)]` etc. inverts automatically.
-  useMotionValueEvent(scrollYProgress, 'change', (p) => {
-    document.body.classList.toggle('is-mood-dark', progressIsDark(p));
-  });
-
-  useEffect(() => {
-    document.body.classList.toggle('is-mood-dark', progressIsDark(scrollYProgress.get()));
-  }, [scrollYProgress]);
-
   // 6 main mood layers — light throughout, each fades in/out at its range
   const opacityHero = useTransform(scrollYProgress, [0, 0.1, 0.18], [1, 1, 0]);
   const opacityStats = useTransform(scrollYProgress, [0.12, 0.22, 0.32], [0, 1, 0]);
@@ -60,17 +49,21 @@ export function ScrollColorWash() {
   const opacityBalloons = useTransform(scrollYProgress, [0.58, 0.74, 0.86], [0, 1, 0]);
   const opacityShowcase = useTransform(scrollYProgress, [0.82, 0.92, 1], [0, 1, 1]);
 
-  // DARK FLASH layer — brief moody passes at section transitions where there
-  // would otherwise be no dark moment. Three peaks across the page:
-  //   ~14%  Hero → Stats boundary
-  //   ~32%  Stats → Story boundary
-  //   ~86%  Balloons → Showcase boundary
-  // Roses already provides a sustained dark zone in the middle, no flash
-  // needed there.
-  const opacityDarkFlash = useTransform(
+  // LIGHTNING flash — brief brilliant white pulse at section transitions.
+  // Three peaks across the page (~14%, ~32%, ~86%), each ~1% scroll wide
+  // so the flash lasts ~150ms of normal scrolling — like lightning.
+  const opacityLightning = useTransform(
     scrollYProgress,
-    [0.09, 0.14, 0.19, 0.28, 0.32, 0.37, 0.81, 0.86, 0.91],
-    [0,    0.55, 0,    0,    0.45, 0,    0,    0.5,  0]
+    [
+      0.125, 0.135, 0.140, 0.150,
+      0.305, 0.315, 0.320, 0.330,
+      0.845, 0.855, 0.860, 0.870,
+    ],
+    [
+      0, 0.95, 0.7, 0,
+      0, 0.92, 0.65, 0,
+      0, 0.95, 0.7, 0,
+    ]
   );
 
   const layers = [
@@ -147,15 +140,15 @@ export function ScrollColorWash() {
         `,
       },
     },
-    // 7. DARK FLASH — brief moody overlay at section transitions.
-    // Painted on top of the active mood, so it briefly darkens then clears.
+    // 7. LIGHTNING — bright white flash with cool blue undertone.
+    // Subtle radial vignette keeps the flash from looking flat;
+    // peak opacity 0.95 briefly washes the page like a camera bulb.
     {
-      opacity: reduced ? 0 : opacityDarkFlash,
+      opacity: reduced ? 0 : opacityLightning,
       style: {
         background: `
-          radial-gradient(ellipse 100% 80% at 30% 30%, rgba(40, 25, 30, 0.85) 0%, transparent 60%),
-          radial-gradient(ellipse 90% 70% at 70% 70%, rgba(20, 15, 22, 0.95) 0%, transparent 65%),
-          linear-gradient(180deg, #1a0d14 0%, #0d0608 100%)
+          radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 1) 0%, rgba(248, 252, 255, 0.85) 45%, rgba(235, 240, 250, 0.75) 100%),
+          linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%)
         `,
       },
     },

@@ -60,10 +60,10 @@ export function StatsRibbon() {
               transition={{ delay: i * 0.08, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="text-center md:text-left"
             >
-              <p className="font-[var(--font-display)] text-[clamp(2.25rem,4vw,3.5rem)] leading-none mood-text">
+              <p className="font-[var(--font-display)] text-[clamp(2.25rem,4vw,3.5rem)] leading-none text-[var(--color-deep-forest)]">
                 <AnimatedNumber value={stat.value} suffix={stat.suffix} />
               </p>
-              <p className="mt-3 text-xs uppercase tracking-[0.2em] mood-eyebrow leading-relaxed">
+              <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[var(--color-sage-deep)] leading-relaxed">
                 {stat.label}
               </p>
             </motion.div>
