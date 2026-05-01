@@ -28,16 +28,16 @@ const POINTS = [
   },
   {
     icon: (
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" className="w-full h-full">
-        <path d="M24 8 L 24 28" strokeWidth="1.4" />
-        <path d="M24 28 L 16 38" />
-        <path d="M24 28 L 32 38" />
-        <circle cx="24" cy="14" r="6" fill="currentColor" fillOpacity="0.18" />
-        <path d="M14 28 L 34 28" strokeWidth="0.6" strokeOpacity="0.5" />
+      // Shield with a small leaf inside — guarantee of freshness
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
+        <path d="M24 6 L 38 12 V 24 C 38 32, 32 38, 24 42 C 16 38, 10 32, 10 24 V 12 Z" />
+        <path d="M24 18 L 24 30" />
+        <path d="M24 22 C 19 21, 16 22, 15 24 C 18 24, 22 23, 24 22" fill="currentColor" fillOpacity="0.2" />
+        <path d="M24 26 C 29 25, 32 26, 33 28 C 30 28, 26 27, 24 26" fill="currentColor" fillOpacity="0.2" />
       </svg>
     ),
-    title: 'Складає Варвара особисто',
-    body: 'Не цех і не складальник. Кожен букет проходить через її руки — і це видно.',
+    title: 'Гарантія свіжості 5 днів',
+    body: 'Не зів\'яне швидше — або замінимо букет безкоштовно. Без зайвих питань і чеків.',
   },
   {
     icon: (
