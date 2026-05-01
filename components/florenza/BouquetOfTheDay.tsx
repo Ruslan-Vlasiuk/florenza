@@ -18,12 +18,15 @@ export function BouquetOfTheDay({ bouquet }: BouquetOfTheDayProps) {
     <section className="editorial-container py-24 md:py-32 relative">
       <BlurFade>
         <div className="grid grid-cols-12 gap-8 lg:gap-16 items-center">
-          {/* Image — oversized, asymmetric */}
+          {/* Image — oversized, asymmetric. Hardcoded to a curated
+              bouquet photograph so this hero feature always reads as a
+              real florist composition (the seed-time Unsplash auto-picks
+              occasionally returned unrelated stock). */}
           <div className="col-span-12 md:col-span-7 relative">
             <div className="relative aspect-[4/5] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--color-cream-soft)] shadow-[0_30px_80px_rgba(44,62,45,0.18)]">
               <Image
-                src={bouquet.primaryImageUrl}
-                alt={bouquet.imageAlt}
+                src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=1600&q=88&auto=format&fit=crop"
+                alt="Сьогоднішній букет — півонії та троянди в льняній обгортці"
                 fill
                 sizes="(min-width: 768px) 60vw, 100vw"
                 className="object-cover"
@@ -48,15 +51,15 @@ export function BouquetOfTheDay({ bouquet }: BouquetOfTheDayProps) {
           {/* Editorial copy */}
           <div className="col-span-12 md:col-span-5 md:pl-4">
             <p className="section-eyebrow mb-6">
-              Вибір Варвари — сьогодні
+              Підбір на сьогодні
             </p>
             <h2 className="font-[var(--font-display)] text-[clamp(2.25rem,4.5vw,3.75rem)] leading-[1.05] text-[var(--color-deep-forest)] mb-6">
               <em style={{ fontStyle: 'italic' }}>{bouquet.name}</em>
             </h2>
             <p className="text-base md:text-lg leading-[1.85] text-[var(--color-text-secondary)] mb-8">
-              Сьогоднішній фаворит Варвари — авторська композиція, складена
-              спеціально для цього сезону. Кількість обмежена: ми не повторюємо
-              букет дня двічі за місяць.
+              Сьогоднішній фаворит — авторська композиція, складена спеціально
+              для цього сезону. Кількість обмежена: ми не повторюємо букет дня
+              двічі за місяць.
             </p>
 
             {/* Mini composition list */}
