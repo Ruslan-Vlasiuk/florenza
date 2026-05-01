@@ -148,6 +148,11 @@ export function ScrollColorWash() {
           style={{
             opacity: layer.opacity,
             ...layer.style,
+            // Force the layer onto its own GPU compositing layer so
+            // opacity transitions don't trigger main-thread repaints
+            willChange: 'opacity',
+            transform: 'translateZ(0)',
+            backfaceVisibility: 'hidden',
           }}
         />
       ))}

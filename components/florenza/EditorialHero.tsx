@@ -38,9 +38,9 @@ export function EditorialHero({
     target: heroRef,
     offset: ['start start', 'end start'],
   });
-  const imageY = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
-  const textY = useTransform(scrollYProgress, [0, 1], [0, -40]);
+  // Single scroll-driven motion value reused for both image transforms
+  // (avoids multiple subscribers on the same source).
+  const imageY = useTransform(scrollYProgress, [0, 1], [0, 80]);
   const indicatorOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
 
   const words = title.split(' ');
@@ -58,9 +58,8 @@ export function EditorialHero({
       </div>
 
       {/* Text side */}
-      <motion.div
+      <div
         className="md:col-span-6 lg:col-span-7 order-2 md:order-1 flex items-center editorial-container py-16 md:py-24 relative z-10"
-        style={reduced ? undefined : { y: textY }}
       >
         <div className="max-w-xl">
           {eyebrow && (
@@ -134,7 +133,7 @@ export function EditorialHero({
             </motion.div>
           )}
         </div>
-      </motion.div>
+      </div>
 
       {/* Image side */}
       <div className="md:col-span-6 lg:col-span-5 order-1 md:order-2 relative aspect-[4/5] md:aspect-auto md:min-h-[92svh] overflow-hidden">
@@ -143,7 +142,7 @@ export function EditorialHero({
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
-          style={reduced ? undefined : { y: imageY, scale: imageScale }}
+          style={reduced ? undefined : { y: imageY, willChange: 'transform' }}
         >
           <Image
             src={imageUrl}
