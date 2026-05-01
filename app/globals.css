@@ -465,7 +465,11 @@ html.lenis body {
   overflow: hidden;
 }
 
-/* Image hover swap */
+/* Image hover swap. The :has(img:nth-of-type(2)) check makes the hover
+   only apply when there is actually a second image to swap to —
+   otherwise hovering over a single-image card hid the only image and
+   exposed the cream background underneath (looked like the photo went
+   white). */
 .bouquet-card-image {
   position: relative;
   overflow: hidden;
@@ -483,12 +487,14 @@ html.lenis body {
 }
 
 @media (hover: hover) {
-  .bouquet-card-image:hover > img:first-of-type {
+  /* Only fade out the primary image when a hover image exists. */
+  .bouquet-card-image:has(img:nth-of-type(2)):hover > img:first-of-type {
     opacity: 0;
   }
   .bouquet-card-image:hover > img:nth-of-type(2) {
     opacity: 1;
   }
+  /* Soft zoom always applies on hover */
   .bouquet-card-image:hover > img {
     transform: scale(1.04);
   }
