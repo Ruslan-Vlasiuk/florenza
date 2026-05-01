@@ -1,8 +1,4 @@
-'use client';
-
 import Image from 'next/image';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
 import { BlurFade } from './effects/BlurFade';
 import { BotanicalWatermark } from './effects/BotanicalWatermark';
 
@@ -31,20 +27,8 @@ export function StoryStickySection({
   chapters,
   brand = 'Florenza',
 }: StoryStickySectionProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start end', 'end start'],
-  });
-
-  // Image pans slightly during sticky range
-  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '-8%']);
-
   return (
-    <section
-      ref={ref}
-      className="relative py-24 md:py-32 overflow-hidden"
-    >
+    <section className="relative py-24 md:py-32 overflow-hidden">
       <BotanicalWatermark variant="fern" position="top-left" size={380} opacity={0.08} rotate={-8} />
       <BotanicalWatermark variant="wreath" position="bottom-right" size={320} opacity={0.07} />
       <div className="editorial-container relative z-10">
@@ -62,18 +46,13 @@ export function StoryStickySection({
         <div className="md:col-span-5 lg:col-span-5 order-1">
           <div className="md:sticky md:top-24">
             <div className="relative aspect-[4/5] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--color-cream-soft)]">
-              <motion.div
-                className="absolute -inset-[6%]"
-                style={{ y: imageY }}
-              >
-                <Image
-                  src={imageUrl}
-                  alt={imageAlt}
-                  fill
-                  sizes="(min-width: 768px) 40vw, 100vw"
-                  className="object-cover"
-                />
-              </motion.div>
+              <Image
+                src={imageUrl}
+                alt={imageAlt}
+                fill
+                sizes="(min-width: 768px) 40vw, 100vw"
+                className="object-cover"
+              />
               {/* Soft vignette */}
               <div
                 className="absolute inset-0 pointer-events-none"
