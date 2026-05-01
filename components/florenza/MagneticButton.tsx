@@ -90,11 +90,13 @@ export function MagneticButton({
   }
 
   const base = 'relative inline-flex items-center justify-center px-6 py-3 rounded-md font-medium text-sm transition-colors overflow-hidden';
+  // Hardcoded colours (not CSS vars) on the primary variant so the contrast
+  // stays guaranteed even if a parent component swaps brand tokens.
   const variants = {
-    primary: 'bg-[var(--color-deep-forest)] text-[var(--color-cream)] hover:bg-[var(--color-deep-forest-soft)]',
-    ghost: 'text-[var(--color-deep-forest)] hover:text-[var(--color-deep-forest-soft)]',
+    primary: 'bg-[#2c3e2d] !text-[#f5f0e8] hover:bg-[#3d5240] hover:!text-white',
+    ghost: '!text-[#2c3e2d] hover:!text-[#3d5240]',
     outline:
-      'border border-[var(--color-deep-forest)] text-[var(--color-deep-forest)] hover:bg-[var(--color-deep-forest)] hover:text-[var(--color-cream)]',
+      'border border-[#2c3e2d] !text-[#2c3e2d] hover:bg-[#2c3e2d] hover:!text-[#f5f0e8]',
   };
 
   const Tag: any = href ? motion.a : motion.button;

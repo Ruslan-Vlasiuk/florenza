@@ -77,7 +77,7 @@ export function Header() {
 
           <Link
             href="/buketu"
-            className="hidden md:inline-flex items-center px-4 py-2 rounded-full text-xs uppercase tracking-[0.22em] font-medium bg-[var(--color-deep-forest)] text-[var(--color-cream)] hover:bg-[var(--color-deep-forest-soft)] transition-colors"
+            className="hidden md:inline-flex items-center px-4 py-2 rounded-full text-xs uppercase tracking-[0.22em] font-medium bg-[#2c3e2d] !text-[#f5f0e8] hover:bg-[#3d5240] hover:!text-white transition-colors"
           >
             Замовити →
           </Link>
