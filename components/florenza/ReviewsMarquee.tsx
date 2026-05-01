@@ -38,6 +38,7 @@ export function ReviewsMarquee({ reviews }: { reviews: Review[] }) {
   return (
     <div
       className="overflow-hidden"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: '320px' }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={() => setPaused(true)}
