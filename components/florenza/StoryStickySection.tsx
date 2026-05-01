@@ -28,9 +28,13 @@ export function StoryStickySection({
   brand = 'Florenza',
 }: StoryStickySectionProps) {
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden">
-      <BotanicalWatermark variant="fern" position="top-left" size={380} opacity={0.08} rotate={-8} />
-      <BotanicalWatermark variant="wreath" position="bottom-right" size={320} opacity={0.07} />
+    <section className="relative py-24 md:py-32">
+      {/* Watermarks live in their own clipping wrapper so the SECTION can
+          stay overflow:visible — otherwise sticky positioning breaks. */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <BotanicalWatermark variant="fern" position="top-left" size={380} opacity={0.08} rotate={-8} />
+        <BotanicalWatermark variant="wreath" position="bottom-right" size={320} opacity={0.07} />
+      </div>
       <div className="editorial-container relative z-10">
       <BlurFade>
         <p className="section-eyebrow mb-4">Філософія {brand}</p>
