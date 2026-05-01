@@ -16,7 +16,7 @@ import { InventoryTicker } from '@/components/florenza/InventoryTicker';
 import { PressStrip } from '@/components/florenza/PressStrip';
 import { FloristsDiary } from '@/components/florenza/FloristsDiary';
 import { FaqSection } from '@/components/florenza/FaqSection';
-import { TelegramSubscribe } from '@/components/florenza/TelegramSubscribe';
+import { MessengerOrder } from '@/components/florenza/MessengerOrder';
 import { PhotoMosaic } from '@/components/florenza/PhotoMosaic';
 import { SectionDivider } from '@/components/florenza/effects/SectionDivider';
 import { BlurFade } from '@/components/florenza/effects/BlurFade';
@@ -184,7 +184,7 @@ export default async function HomePage() {
         <OccasionShowcase bouquets={authorShowcase} />
       </BlurFade>
 
-      <TelegramSubscribe />
+      <MessengerOrder />
     </>
   );
 }
