@@ -24,8 +24,8 @@ const ROW_TOP = [
     alt: 'Рожевий весняний букет',
   },
   {
-    src: 'https://images.unsplash.com/photo-1457089328389-f2efeb6b6ba6?w=900&q=85&auto=format&fit=crop',
-    alt: 'Півонії крупним планом',
+    src: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?w=900&q=85&auto=format&fit=crop',
+    alt: 'Букет крупним планом',
   },
 ];
 
