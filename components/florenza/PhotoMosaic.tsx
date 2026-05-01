@@ -1,7 +1,4 @@
-'use client';
-
 import Image from 'next/image';
-import { useState } from 'react';
 import { BlurFade } from './effects/BlurFade';
 
 // Curated bouquet-only Unsplash IDs — verified flowers/bouquets, no
@@ -55,11 +52,9 @@ const ROW_BOTTOM = [
 function PhotoRow({
   photos,
   direction,
-  paused,
 }: {
   photos: typeof ROW_TOP;
   direction: 'left' | 'right';
-  paused: boolean;
 }) {
   // Triple the array so the loop stays seamless when one set scrolls out.
   const items = [...photos, ...photos, ...photos];
@@ -69,22 +64,19 @@ function PhotoRow({
     <div className="overflow-hidden">
       <div
         className="flex gap-3 md:gap-4 will-change-transform"
-        style={{
-          animation: `${animation} 60s linear infinite`,
-          animationPlayState: paused ? 'paused' : 'running',
-        }}
+        style={{ animation: `${animation} 60s linear infinite` }}
       >
         {items.map((p, i) => (
           <div
             key={`${p.src}-${i}`}
-            className="relative w-[260px] md:w-[340px] aspect-[4/5] flex-shrink-0 overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-cream-soft)] group"
+            className="relative w-[260px] md:w-[340px] aspect-[4/5] flex-shrink-0 overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-cream-soft)]"
           >
             <Image
               src={p.src}
               alt={p.alt}
               fill
               sizes="340px"
-              className="object-cover transition-transform duration-[1500ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.06]"
+              className="object-cover"
             />
           </div>
         ))}
@@ -99,16 +91,8 @@ function PhotoRow({
  * can study individual frames. Visually "alive" without being distracting.
  */
 export function PhotoMosaic() {
-  const [paused, setPaused] = useState(false);
-
   return (
-    <section
-      className="py-24 md:py-32"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onTouchStart={() => setPaused(true)}
-      onTouchEnd={() => setPaused(false)}
-    >
+    <section className="py-24 md:py-32">
       <BlurFade>
         <header className="text-center mb-14 max-w-2xl mx-auto px-6">
           <p className="section-eyebrow justify-center inline-flex mb-4">
@@ -118,15 +102,14 @@ export function PhotoMosaic() {
             <em style={{ fontStyle: 'italic' }}>Кадри</em> з нашої студії
           </h2>
           <p className="mt-4 text-base text-[var(--color-text-secondary)]">
-            Ранковий завоз, готова композиція, букет у руках клієнтки. Ведіть
-            мишею щоб призупинити.
+            Ранковий завоз, готова композиція, букет у руках клієнтки.
           </p>
         </header>
       </BlurFade>
 
       <div className="space-y-3 md:space-y-4">
-        <PhotoRow photos={ROW_TOP} direction="left" paused={paused} />
-        <PhotoRow photos={ROW_BOTTOM} direction="right" paused={paused} />
+        <PhotoRow photos={ROW_TOP} direction="left" />
+        <PhotoRow photos={ROW_BOTTOM} direction="right" />
       </div>
 
       <style>{`
