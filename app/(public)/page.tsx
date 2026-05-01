@@ -13,7 +13,7 @@ import { StatsRibbon } from '@/components/florenza/StatsRibbon';
 import { BouquetOfTheDay } from '@/components/florenza/BouquetOfTheDay';
 import { ProcessSection } from '@/components/florenza/ProcessSection';
 import { InventoryTicker } from '@/components/florenza/InventoryTicker';
-import { PressStrip } from '@/components/florenza/PressStrip';
+import { WhyFlorenza } from '@/components/florenza/WhyFlorenza';
 import { FloristsDiary } from '@/components/florenza/FloristsDiary';
 import { FaqSection } from '@/components/florenza/FaqSection';
 import { MessengerOrder } from '@/components/florenza/MessengerOrder';
@@ -85,7 +85,7 @@ export default async function HomePage() {
 
       <StatsRibbon />
 
-      <PressStrip />
+      <WhyFlorenza />
 
       <BlurFade>
         <UspBento />
@@ -94,8 +94,8 @@ export default async function HomePage() {
       <SectionDivider variant="sprig" />
 
       <StoryStickySection
-        imageUrl="https://images.unsplash.com/photo-1487070183336-b863922373d4?w=1400&q=85&auto=format&fit=crop"
-        imageAlt="Студія Florenza — робочий стіл флориста"
+        imageUrl="https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?w=1400&q=88&auto=format&fit=crop"
+        imageAlt="Білі півонії в студії Florenza"
         chapters={STORY_CHAPTERS}
       />
 

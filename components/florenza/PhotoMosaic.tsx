@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import { BlurFade } from './effects/BlurFade';
 
+// span classes apply directly to grid items so the grid auto-placement
+// algorithm sees their col-span / row-span values.
+
 interface MosaicEntry {
   src: string;
   alt: string;
@@ -81,32 +84,40 @@ export function PhotoMosaic() {
       </BlurFade>
 
       <div className="px-3 md:px-6">
+        {/* Span classes are now applied to the grid item directly (the
+            BlurFade wrapper used to break grid auto-placement, causing
+            items below the mosaic to overlap with the next section). */}
         <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[140px] md:auto-rows-[200px] gap-3">
           {ENTRIES.map((e, i) => (
-            <BlurFade key={e.src} delay={(i % 4) * 0.08}>
-              <div
-                className={`relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-cream-soft)] group transition-all duration-500 hover:shadow-[0_20px_60px_rgba(44,62,45,0.18)] ${SPAN_CLASSES[e.span]}`}
-              >
-                <Image
-                  src={e.src}
-                  alt={e.alt}
-                  fill
-                  sizes="(min-width: 768px) 25vw, 50vw"
-                  className="object-cover transition-transform duration-[1500ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.06]"
-                />
-                {/* Caption strip on hover */}
-                <div
-                  className="absolute inset-x-0 bottom-0 px-4 py-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                >
-                  <p className="text-xs uppercase tracking-[0.32em] text-white">
-                    Florenza · Spring 2026
-                  </p>
-                </div>
+            <div
+              key={e.src}
+              className={`relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-cream-soft)] group transition-shadow duration-500 hover:shadow-[0_20px_60px_rgba(44,62,45,0.18)] ${SPAN_CLASSES[e.span]}`}
+              style={{
+                animation: `florenza-mosaic-in 0.7s ${(i % 4) * 0.08}s both ease-out`,
+              }}
+            >
+              <Image
+                src={e.src}
+                alt={e.alt}
+                fill
+                sizes="(min-width: 768px) 25vw, 50vw"
+                className="object-cover transition-transform duration-[1500ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.06]"
+              />
+              <div className="absolute inset-x-0 bottom-0 px-4 py-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <p className="text-xs uppercase tracking-[0.32em] text-white">
+                  Florenza · Spring 2026
+                </p>
               </div>
-            </BlurFade>
+            </div>
           ))}
         </div>
       </div>
+      <style>{`
+        @keyframes florenza-mosaic-in {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </section>
   );
 }

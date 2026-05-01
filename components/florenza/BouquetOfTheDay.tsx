@@ -48,7 +48,7 @@ export function BouquetOfTheDay({ bouquet }: BouquetOfTheDayProps) {
           {/* Editorial copy */}
           <div className="col-span-12 md:col-span-5 md:pl-4">
             <p className="section-eyebrow mb-6">
-              Florist&apos;s pick — сьогодні
+              Вибір Варвари — сьогодні
             </p>
             <h2 className="font-[var(--font-display)] text-[clamp(2.25rem,4.5vw,3.75rem)] leading-[1.05] text-[var(--color-deep-forest)] mb-6">
               <em style={{ fontStyle: 'italic' }}>{bouquet.name}</em>
