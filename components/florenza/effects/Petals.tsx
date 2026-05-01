@@ -11,8 +11,12 @@ interface PetalsProps {
  * Drifting petals — performant canvas particles.
  * Uses requestAnimationFrame, transform-only updates, respects reduced-motion.
  * Petals are abstract teardrop shapes in dusty-rose / sage tones.
+ *
+ * Perf: pauses the RAF loop when the canvas is scrolled out of viewport
+ * (IntersectionObserver) and when the tab is hidden (visibilitychange).
+ * No work happens once the user scrolls past the hero.
  */
-export function Petals({ count = 14, className }: PetalsProps) {
+export function Petals({ count = 8, className }: PetalsProps) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -28,6 +32,8 @@ export function Petals({ count = 14, className }: PetalsProps) {
     let width = 0;
     let height = 0;
     let dpr = 1;
+    let isVisible = true;
+    let isPageVisible = true;
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -108,13 +114,44 @@ export function Petals({ count = 14, className }: PetalsProps) {
       }
       raf = requestAnimationFrame(tick);
     };
-    tick();
+
+    const start = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+
+    // Pause when scrolled out of view
+    const io = new IntersectionObserver(
+      (entries) => {
+        isVisible = entries[0]?.isIntersecting ?? true;
+        if (isVisible && isPageVisible) start();
+        else stop();
+      },
+      { rootMargin: '50px' }
+    );
+    io.observe(canvas);
+
+    // Pause when tab hidden
+    const onVisibility = () => {
+      isPageVisible = document.visibilityState === 'visible';
+      if (isVisible && isPageVisible) start();
+      else stop();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
 
     const onResize = () => setup();
     window.addEventListener('resize', onResize);
 
+    start();
+
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('resize', onResize);
     };
   }, [count]);

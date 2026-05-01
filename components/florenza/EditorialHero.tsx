@@ -52,9 +52,9 @@ export function EditorialHero({
       ref={heroRef}
       className="relative w-full min-h-[92svh] grid grid-cols-1 md:grid-cols-12 gap-0 overflow-hidden"
     >
-      {/* Petals drift across whole hero */}
+      {/* Petals drift across whole hero — pauses when scrolled out */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <Petals count={10} />
+        <Petals count={6} />
       </div>
 
       {/* Text side */}
