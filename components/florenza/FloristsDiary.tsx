@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { BlurFade } from './effects/BlurFade';
 
+// Curated bouquet-only hero images for each diary entry.
 const ENTRIES = [
   {
     date: '14 квітня',
@@ -10,7 +11,7 @@ const ENTRIES = [
     excerpt:
       'Стандартний штамп «зробіть якнайбільше квіток» псує композицію. Натомість ми працюємо з трьома висотами — і букет дихає.',
     image:
-      'https://images.unsplash.com/photo-1487070183336-b863922373d4?w=1000&q=85&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1000&q=85&auto=format&fit=crop',
     href: '/zhurnal',
   },
   {
@@ -30,7 +31,7 @@ const ENTRIES = [
     excerpt:
       'Косий зріз під холодною водою, чисті ножиці, поживний засіб (cryzal — у нас завжди безкоштовно). Дрібниці, які роблять різницю.',
     image:
-      'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1000&q=85&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=1000&q=85&auto=format&fit=crop',
     href: '/zhurnal',
   },
 ];

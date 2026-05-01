@@ -27,10 +27,11 @@ const STEPS = [
   },
 ];
 
+// Curated bouquet-only photos — one per process step.
 const IMAGES = [
-  'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=1200&q=85&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1498611247071-c1c4cf9f1c5d?w=1200&q=85&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?w=1200&q=85&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1200&q=85&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=1200&q=85&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=1200&q=85&auto=format&fit=crop',
 ];
 

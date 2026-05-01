@@ -1,69 +1,49 @@
 import Image from 'next/image';
 import { BlurFade } from './effects/BlurFade';
 
-// span classes apply directly to grid items so the grid auto-placement
-// algorithm sees their col-span / row-span values.
-
-interface MosaicEntry {
-  src: string;
-  alt: string;
-  span: 'wide' | 'tall' | 'square' | 'normal';
-}
-
-const ENTRIES: MosaicEntry[] = [
+// Curated bouquet-only Unsplash IDs — verified to be flowers/bouquets, not
+// stock office / coffee / lifestyle drift. Aspect ratio is uniform 4/5
+// across the whole grid for clean editorial cadence.
+const PHOTOS: Array<{ src: string; alt: string }> = [
   {
-    src: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=1000&q=85&auto=format&fit=crop',
-    alt: 'Букет півоній на дерев\'яному столі',
-    span: 'wide',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=900&q=85&auto=format&fit=crop',
-    alt: 'Робоче місце флориста',
-    span: 'tall',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=900&q=85&auto=format&fit=crop',
-    alt: 'Композиція з трояндами',
-    span: 'square',
+    src: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=900&q=85&auto=format&fit=crop&crop=faces',
+    alt: 'Букет півоній у льняній обгортці',
   },
   {
     src: 'https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?w=900&q=85&auto=format&fit=crop',
-    alt: 'Білі півонії в крафті',
-    span: 'square',
+    alt: 'Білі півонії в студії',
   },
   {
-    src: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=1000&q=85&auto=format&fit=crop',
-    alt: 'Темні троянди',
-    span: 'wide',
+    src: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=900&q=85&auto=format&fit=crop',
+    alt: 'Композиція з півоній',
   },
   {
-    src: 'https://images.unsplash.com/photo-1487070183336-b863922373d4?w=900&q=85&auto=format&fit=crop',
-    alt: 'Студія Florenza',
-    span: 'tall',
+    src: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?w=900&q=85&auto=format&fit=crop',
+    alt: 'Темні червоні троянди',
   },
   {
-    src: 'https://images.unsplash.com/photo-1498611247071-c1c4cf9f1c5d?w=900&q=85&auto=format&fit=crop',
-    alt: 'Жінка з букетом',
-    span: 'square',
+    src: 'https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=900&q=85&auto=format&fit=crop',
+    alt: 'Букет у вазі',
   },
   {
-    src: 'https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=1000&q=85&auto=format&fit=crop',
-    alt: 'Ваза з букетом',
-    span: 'normal',
+    src: 'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=900&q=85&auto=format&fit=crop',
+    alt: 'Букет на дерев\'яному столі',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1494972308805-463bc619d34e?w=900&q=85&auto=format&fit=crop',
+    alt: 'Рожевий весняний букет',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1457089328389-f2efeb6b6ba6?w=900&q=85&auto=format&fit=crop',
+    alt: 'Півонії крупним планом',
   },
 ];
 
-const SPAN_CLASSES: Record<MosaicEntry['span'], string> = {
-  wide: 'col-span-2 row-span-1 aspect-[2/1]',
-  tall: 'col-span-1 row-span-2 aspect-[1/2]',
-  square: 'col-span-1 row-span-1 aspect-square',
-  normal: 'col-span-1 row-span-1 aspect-[4/5]',
-};
-
 /**
- * Customer photo wall — Pinterest/Instagram-style mosaic of mixed-aspect
- * images. On desktop, mixes widths and heights for editorial composition;
- * on mobile, all become 1:1.
+ * Customer photo wall — uniform 4:5 portrait grid. All bouquets, no mixed
+ * spans (the previous span-mosaic looked chaotic and overflowed into the
+ * next section because grid auto-placement couldnt see the BlurFade-
+ * wrapped span classes).
  */
 export function PhotoMosaic() {
   return (
@@ -77,33 +57,30 @@ export function PhotoMosaic() {
             <em style={{ fontStyle: 'italic' }}>Кадри</em> з нашої студії
           </h2>
           <p className="mt-4 text-base text-[var(--color-text-secondary)]">
-            Пасма дня в Florenza: ранковий завоз, букет на столі, готова композиція в
-            руках кур&apos;єра.
+            Ранковий завоз, готова композиція, букет у руках клієнтки — кадри з
+            нашої щоденної роботи.
           </p>
         </header>
       </BlurFade>
 
-      <div className="px-3 md:px-6">
-        {/* Span classes are now applied to the grid item directly (the
-            BlurFade wrapper used to break grid auto-placement, causing
-            items below the mosaic to overlap with the next section). */}
-        <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[140px] md:auto-rows-[200px] gap-3">
-          {ENTRIES.map((e, i) => (
+      <div className="editorial-container">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          {PHOTOS.map((p, i) => (
             <div
-              key={e.src}
-              className={`relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-cream-soft)] group transition-shadow duration-500 hover:shadow-[0_20px_60px_rgba(44,62,45,0.18)] ${SPAN_CLASSES[e.span]}`}
+              key={p.src}
+              className="relative aspect-[4/5] overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-cream-soft)] group transition-shadow duration-500 hover:shadow-[0_20px_60px_rgba(44,62,45,0.18)]"
               style={{
                 animation: `florenza-mosaic-in 0.7s ${(i % 4) * 0.08}s both ease-out`,
               }}
             >
               <Image
-                src={e.src}
-                alt={e.alt}
+                src={p.src}
+                alt={p.alt}
                 fill
                 sizes="(min-width: 768px) 25vw, 50vw"
                 className="object-cover transition-transform duration-[1500ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.06]"
               />
-              <div className="absolute inset-x-0 bottom-0 px-4 py-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <div className="absolute inset-x-0 bottom-0 px-4 py-3 bg-gradient-to-t from-black/55 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 <p className="text-xs uppercase tracking-[0.32em] text-white">
                   Florenza · Spring 2026
                 </p>
@@ -112,6 +89,7 @@ export function PhotoMosaic() {
           ))}
         </div>
       </div>
+
       <style>{`
         @keyframes florenza-mosaic-in {
           from { opacity: 0; transform: translateY(20px); }
