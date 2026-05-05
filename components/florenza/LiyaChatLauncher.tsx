@@ -1,12 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { LiyaChat } from './LiyaChat';
+import { subscribeLiyaOpen, type LiyaEntryContext } from '@/lib/liya-bridge';
 
 export function LiyaChatLauncher() {
   const [open, setOpen] = useState(false);
+  const [entryContext, setEntryContext] = useState<LiyaEntryContext | null>(null);
+
+  useEffect(() => {
+    return subscribeLiyaOpen((ctx) => {
+      setEntryContext(ctx);
+      setOpen(true);
+    });
+  }, []);
 
   return (
     <>
@@ -48,7 +57,10 @@ export function LiyaChatLauncher() {
                 <X size={20} />
               </button>
             </header>
-            <LiyaChat />
+            <LiyaChat
+              entryContext={entryContext}
+              onContextConsumed={() => setEntryContext(null)}
+            />
           </motion.div>
         )}
       </AnimatePresence>

@@ -3,11 +3,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send } from 'lucide-react';
+import type { LiyaEntryContext } from '@/lib/liya-bridge';
 
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   text: string;
   pending?: boolean;
+}
+
+interface LiyaChatProps {
+  entryContext?: LiyaEntryContext | null;
+  onContextConsumed?: () => void;
 }
 
 const DISCLOSURE = `Вітаю! Я Лія — AI-консультантка Florenza. Допоможу обрати букет та оформити замовлення. Якщо знадобиться особистий контакт — підключу нашу флористку Варвару Олександрівну.
@@ -25,7 +31,9 @@ function getOrCreateSessionId(): string {
   return id;
 }
 
-export function LiyaChat() {
+export function LiyaChat({ entryContext, onContextConsumed }: LiyaChatProps = {}) {
+  void entryContext;
+  void onContextConsumed;
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', text: DISCLOSURE },
   ]);
