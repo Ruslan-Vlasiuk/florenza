@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, useRef } from 'react';
 
 type Props = {
   label: string;
@@ -13,17 +13,42 @@ const PLACEHOLDER = '+380 __ ___ __ __';
 
 /**
  * Ukrainian phone input with auto-format `+380 50 123 45 67`.
- * Stores normalized E.164 (`+380501234567`) in parent state, displays
- * the formatted version. User can paste any common form (`0501234567`,
- * `+380501234567`, `380501234567`, `(050) 123-45-67`) — all normalize.
+ * - Stores normalized E.164 (`+380501234567`) in parent state.
+ * - On focus, prefills `+380` and places cursor at the end so user
+ *   types the operator code immediately.
+ * - On blur, if nothing was typed beyond the prefix, clears back to
+ *   empty so the placeholder shows next time.
+ * - Accepts paste in any common form (0501234567, +380501234567,
+ *   380501234567, (050) 123-45-67) and normalizes.
  */
 export function PhoneField({ label, value, onChange, required }: Props) {
   const id = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
   const display = formatUkrainianPhone(value).display;
 
   function handle(e: React.ChangeEvent<HTMLInputElement>) {
     const formatted = formatUkrainianPhone(e.target.value);
     onChange(formatted.e164);
+  }
+
+  function handleFocus() {
+    if (!value) {
+      onChange('+380');
+      // Move caret to end after re-render
+      requestAnimationFrame(() => {
+        const el = inputRef.current;
+        if (el) {
+          const len = el.value.length;
+          el.setSelectionRange(len, len);
+        }
+      });
+    }
+  }
+
+  function handleBlur() {
+    // If user only got as far as the auto-prefix, drop it so the
+    // placeholder reappears next time the field is empty.
+    if (value === '+380') onChange('');
   }
 
   return (
@@ -37,11 +62,14 @@ export function PhoneField({ label, value, onChange, required }: Props) {
       </label>
       <input
         id={id}
+        ref={inputRef}
         type="tel"
         inputMode="tel"
         autoComplete="tel"
         value={display}
         onChange={handle}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         placeholder={PLACEHOLDER}
         required={required}
         pattern="\+380 \d{2} \d{3} \d{2} \d{2}"
