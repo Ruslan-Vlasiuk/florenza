@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getPayloadClient } from '@/lib/payload-client';
+import { sendAdminAlert } from '@/lib/messengers/admin-notify';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -149,7 +150,43 @@ export async function POST(req: NextRequest) {
       } as any,
     });
 
-    // Sandbox short-circuit: no real payment link, return success.
+    // Telegram admin alert (best-effort — never blocks order success).
+    const itemsLine = data.items
+      .map((i) => `${i.quantity}× ${i.name}`)
+      .join(', ');
+    const paymentLabel =
+      data.paymentMethod === 'mono_online'
+        ? 'Mono online'
+        : data.paymentMethod === 'card_on_delivery'
+          ? 'картка кур\'єру'
+          : 'готівка кур\'єру';
+    const recipient = data.recipient?.sameAsBuyer
+      ? 'отримувач = замовник'
+      : `${data.recipient?.name ?? '—'} · ${data.recipient?.phone ?? '—'}`;
+    const addressLine = `${data.delivery.addressStreet}, ${data.delivery.addressBuilding}${
+      data.delivery.addressApartment ? `, кв. ${data.delivery.addressApartment}` : ''
+    }`;
+
+    sendAdminAlert({
+      kind: 'new_paid_order',
+      title: `🌸 Нове замовлення ${(order as any).orderNumber}${isSandbox ? ' · sandbox' : ''}`,
+      body: [
+        `Сума: ${totalAmount} грн (${paymentLabel})`,
+        `Букети: ${itemsLine}`,
+        `Замовник: ${data.buyer.name} · ${data.buyer.phone}`,
+        `Отримувач: ${recipient}`,
+        `Адреса: ${addressLine}`,
+        `Доставка: ${data.delivery.deliveryDate} ${data.delivery.deliverySlot}${data.delivery.isUrgent ? ' · ТЕРМІНОВА' : ''}`,
+        data.cardMessage ? `Листівка: ${data.cardMessage}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n'),
+      urgency: data.delivery.isUrgent ? 'high' : 'normal',
+      meta: { orderId: order.id, orderNumber: (order as any).orderNumber },
+    }).catch((err) => {
+      console.error('[admin-notify] failed to send Telegram alert:', err);
+    });
+
     return NextResponse.json({
       ok: true,
       orderNumber: (order as any).orderNumber,

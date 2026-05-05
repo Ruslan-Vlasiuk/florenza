@@ -6,6 +6,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart, cartTotal } from '@/lib/cart/store';
 import { formatPrice } from '@/lib/utils/format';
+import { StreetCombobox } from './StreetCombobox';
+
+const CITY_OPTIONS = [
+  { value: 'irpin', label: 'Ірпінь' },
+  { value: 'bucha', label: 'Буча' },
+  { value: 'hostomel', label: 'Гостомель' },
+  { value: 'kyiv', label: 'Київ' },
+] as const;
+type CityKey = (typeof CITY_OPTIONS)[number]['value'];
 
 type PaymentMode = 'sandbox' | 'production';
 
@@ -45,6 +54,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
   const [recipientPhone, setRecipientPhone] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
 
+  const [addressCity, setAddressCity] = useState<CityKey>('irpin');
   const [addressStreet, setAddressStreet] = useState('');
   const [addressBuilding, setAddressBuilding] = useState('');
   const [addressApartment, setAddressApartment] = useState('');
@@ -126,7 +136,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
               },
           isAnonymous,
           delivery: {
-            addressStreet: addressStreet.trim(),
+            addressStreet: `${CITY_OPTIONS.find((c) => c.value === addressCity)?.label ?? ''}, ${addressStreet.trim()}`,
             addressBuilding: addressBuilding.trim(),
             addressApartment: addressApartment.trim() || undefined,
             addressFloor: addressFloor.trim() || undefined,
@@ -210,14 +220,39 @@ export function CheckoutFlow({ paymentMode }: Props) {
         </Section>
 
         <Section title="Доставка">
-          <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4">
-            <Field
-              label="Вулиця"
-              value={addressStreet}
-              onChange={setAddressStreet}
-              placeholder="Наприклад: Київська"
+          <div>
+            <label className="block text-xs uppercase tracking-wider text-[var(--color-text-muted)] mb-2">
+              Місто <span className="text-[var(--color-deep-forest)]">*</span>
+            </label>
+            <select
+              value={addressCity}
+              onChange={(e) => {
+                setAddressCity(e.target.value as CityKey);
+                setAddressStreet('');
+              }}
+              className="w-full px-4 py-3 rounded-md bg-[var(--color-cream-soft)] text-[var(--color-deep-forest)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]"
               required
-            />
+            >
+              {CITY_OPTIONS.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-4">
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-[var(--color-text-muted)] mb-2">
+                Вулиця <span className="text-[var(--color-deep-forest)]">*</span>
+              </label>
+              <StreetCombobox
+                value={addressStreet}
+                onChange={setAddressStreet}
+                city={addressCity}
+                placeholder="Почніть вводити — підкажемо"
+                required
+              />
+            </div>
             <Field
               label="Будинок"
               value={addressBuilding}
