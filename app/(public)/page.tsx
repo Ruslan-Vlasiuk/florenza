@@ -29,6 +29,11 @@ import {
   fetchFeaturedReviews,
 } from '@/lib/data';
 
+// Server-render on every request — DB is unavailable during docker build,
+// so static prerendering would bake in empty bouquet arrays.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Florenza — флористичний бутік в Ірпені',
   description:
