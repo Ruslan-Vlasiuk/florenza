@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useCart, cartTotal } from '@/lib/cart/store';
 import { formatPrice } from '@/lib/utils/format';
 import { StreetCombobox } from './StreetCombobox';
+import { PhoneField } from './PhoneField';
 
 const CITY_OPTIONS = [
   { value: 'irpin', label: 'Ірпінь' },
@@ -106,8 +107,8 @@ export function CheckoutFlow({ paymentMode }: Props) {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!buyerName.trim() || buyerPhone.trim().length < 10) {
-      setErrorMsg('Заповніть ім’я та телефон замовника.');
+    if (!buyerName.trim() || !/^\+380\d{9}$/.test(buyerPhone)) {
+      setErrorMsg('Заповніть ім’я та телефон замовника у форматі +380 XX XXX XX XX.');
       return;
     }
     if (!addressStreet.trim() || !addressBuilding.trim()) {
@@ -177,12 +178,10 @@ export function CheckoutFlow({ paymentMode }: Props) {
             placeholder="Як до вас звертатись"
             required
           />
-          <Field
+          <PhoneField
             label="Телефон"
-            type="tel"
             value={buyerPhone}
             onChange={setBuyerPhone}
-            placeholder="+380…"
             required
           />
         </Section>
@@ -201,12 +200,10 @@ export function CheckoutFlow({ paymentMode }: Props) {
                 onChange={setRecipientName}
                 placeholder="Кому везти"
               />
-              <Field
+              <PhoneField
                 label="Телефон отримувача"
-                type="tel"
                 value={recipientPhone}
                 onChange={setRecipientPhone}
-                placeholder="+380…"
               />
             </div>
           )}

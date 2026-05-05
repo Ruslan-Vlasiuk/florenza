@@ -172,15 +172,38 @@ export async function POST(req: NextRequest) {
     const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
     if (adminChatId) {
       const orderNumber = (order as any).orderNumber as string;
+
+      // Full address with every optional sub-field user filled
+      const addressBlock: string[] = [
+        `${data.delivery.addressStreet}, ${data.delivery.addressBuilding}`,
+      ];
+      const sub: string[] = [];
+      if (data.delivery.addressApartment) sub.push(`кв. ${data.delivery.addressApartment}`);
+      if (data.delivery.addressFloor) sub.push(`поверх ${data.delivery.addressFloor}`);
+      if (data.delivery.addressEntrance) sub.push(`під'їзд ${data.delivery.addressEntrance}`);
+      if (data.delivery.addressIntercom) sub.push(`домофон ${data.delivery.addressIntercom}`);
+      if (sub.length) addressBlock.push(sub.join(', '));
+      const fullAddress = addressBlock.join('\n   ');
+
+      const recipientLine = data.recipient?.sameAsBuyer
+        ? '= замовник'
+        : `${data.recipient?.name ?? '—'} · <code>${data.recipient?.phone ?? '—'}</code>${data.isAnonymous ? ' 🤐 анонімне' : ''}`;
+
       const lines = [
         `<b>🌸 Нове замовлення ${orderNumber}</b>${isSandbox ? ' · sandbox' : ''}${data.delivery.isUrgent ? ' · ⚠️ ТЕРМІНОВА' : ''}`,
         '',
         `<b>Сума:</b> ${totalAmount} грн (${paymentLabel})`,
         `<b>Букети:</b> ${itemsLine}`,
+        '',
         `<b>Замовник:</b> ${data.buyer.name} · <code>${data.buyer.phone}</code>`,
-        `<b>Отримувач:</b> ${recipient}`,
-        `<b>Адреса:</b> ${addressLine}`,
-        `<b>Доставка:</b> ${data.delivery.deliveryDate} ${data.delivery.deliverySlot}`,
+        `<b>Отримувач:</b> ${recipientLine}`,
+        '',
+        `<b>Адреса:</b>\n   ${fullAddress}`,
+        data.delivery.courierInstructions
+          ? `<b>Курʼєру:</b> ${data.delivery.courierInstructions}`
+          : null,
+        '',
+        `<b>Доставка:</b> ${data.delivery.deliveryDate} · ${data.delivery.deliverySlot}`,
         data.cardMessage ? `<b>Листівка:</b> ${data.cardMessage}` : null,
         '',
         '<i>Чекаємо коли клієнт привʼяже Telegram через посилання на сторінці замовлення.</i>',
