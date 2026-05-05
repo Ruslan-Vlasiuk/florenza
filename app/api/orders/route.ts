@@ -98,13 +98,22 @@ export async function POST(req: NextRequest) {
       customerId = created.id as number | string;
     }
 
+    // Payload+Postgres expects numeric IDs for relationships
+    const bouquetIdNum = Number(primary.bouquetId);
+    if (!Number.isFinite(bouquetIdNum)) {
+      return NextResponse.json(
+        { error: 'Невалідний ID букета' },
+        { status: 400 },
+      );
+    }
+
     const order = await payload.create({
       collection: 'orders',
       overrideAccess: true,
       data: {
         orderNumber: makeOrderNumber(),
         status: data.paymentMethod === 'mono_online' && !isSandbox ? 'pending_payment' : 'new',
-        bouquet: primary.bouquetId,
+        bouquet: bouquetIdNum,
         bouquetSnapshot: {
           items: data.items,
           itemsSubtotal,
