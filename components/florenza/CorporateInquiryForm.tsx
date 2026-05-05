@@ -50,7 +50,7 @@ export function CorporateInquiryForm() {
           Прийняли запит
         </h3>
         <p className="text-[var(--color-text-secondary)]">
-          Варвара особисто зв'яжеться з вами протягом робочого дня.
+          Варвара особисто зв&apos;яжеться з вами протягом робочого дня.
         </p>
       </motion.div>
     );

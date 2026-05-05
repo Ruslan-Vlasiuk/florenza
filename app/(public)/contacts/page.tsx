@@ -17,7 +17,7 @@ export default function ContactsPage() {
           Контакти
         </p>
         <h1 className="font-[var(--font-display)] text-4xl md:text-5xl text-[var(--color-deep-forest)] max-w-2xl">
-          Як з нами зв'язатися
+          Як з нами зв&apos;язатися
         </h1>
       </header>
 

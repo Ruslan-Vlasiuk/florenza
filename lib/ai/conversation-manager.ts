@@ -270,7 +270,7 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
   };
 
   // 6. Tool loop
-  let toolsCalled: string[] = [];
+  const toolsCalled: string[] = [];
   let totalCost = 0;
   let totalLatency = 0;
   let assistantText = '';
