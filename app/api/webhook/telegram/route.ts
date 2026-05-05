@@ -115,10 +115,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Plain /start without payload
     if (text.toLowerCase() === '/start') {
-      await sendTelegramMessage(
-        chatId,
-        'Вітаю! Я бот Florenza. Тут ви можете:\n• Слідкувати за замовленням, оформленим на сайті\n• Запитати щось про букети — підкажемо\n\nЯкщо у вас є номер замовлення — надішліть його у форматі <code>FL-YYYYMMDD-XXXXX</code> і ми привʼяжемо чат.',
-      );
+      await sendTelegramMessage(chatId, 'Я АІ-помічник сайту florenza-irpin.com');
       return NextResponse.json({ ok: true });
     }
 
