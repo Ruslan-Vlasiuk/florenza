@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 /**
  * Scroll-driven color morphing background.
@@ -16,10 +17,38 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion
  *
  * Each layer is a layered radial-gradient mesh — not flat — so the transitions
  * never look like "color blocks", they breathe.
+ *
+ * Only mounted on the home page (`/`). Inner pages get a calm static
+ * cream background — short pages would otherwise compress the whole
+ * 6-layer choreography into a tiny scroll range and feel jittery.
  */
 export function ScrollColorWash() {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
   const { scrollYProgress } = useScroll();
   const reduced = useReducedMotion();
+
+  if (!isHome) {
+    return (
+      <div
+        data-bg-layer
+        className="fixed inset-0 pointer-events-none overflow-hidden"
+        style={{ zIndex: 0 }}
+        aria-hidden="true"
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `
+              radial-gradient(ellipse 100% 80% at 50% 0%, rgba(245, 230, 215, 0.55) 0%, transparent 70%),
+              radial-gradient(ellipse 80% 60% at 100% 100%, rgba(200, 195, 178, 0.35) 0%, transparent 65%),
+              linear-gradient(180deg, #F5F0E8 0%, #EFE7D8 100%)
+            `,
+          }}
+        />
+      </div>
+    );
+  }
 
   // 6 main mood layers — light throughout, each fades in/out at its range
   const opacityHero = useTransform(scrollYProgress, [0, 0.1, 0.18], [1, 1, 0]);
