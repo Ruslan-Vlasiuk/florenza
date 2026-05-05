@@ -57,7 +57,13 @@ function buildCurrentTimeSection(): string {
   const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const dayAfter = new Date(now.getTime() + 48 * 60 * 60 * 1000);
 
-  return `## Поточний час (Київ)
+  return `## Доставка та слоти
+
+«Слот доставки» = <b>30-хвилинне вікно для кур'єра</b> (наприклад «14:00–14:30»). Один слот = один кур'єр приїде в межах цього вікна. Завжди коли пишеш про слоти — поясни клієнту, що це 30-хв вікно, не 2-годинне.
+
+Можливі вікна: 10:00–10:30, 10:30–11:00, 11:00–11:30 … 19:30–20:00.
+
+## Поточний час (Київ)
 
 Зараз: <b>${timeFmt.format(today)}</b>, ${dateFmt.format(today)}
 Сьогодні (ISO): <code>${isoFmt.format(today)}</code>
@@ -253,7 +259,7 @@ ${ctx.activeDeliveryZones
 - check_today_availability — що зараз недоступне
 - calculate_order_price — точна сума з знижкою + доставкою
 - create_pending_order — створити заказ "очікує оплати"
-- generate_payment_link — посилання на Mono/LiqPay
+- (НЕМАЄ generate_payment_link — оплата завжди через Telegram-бот після create_pending_order)
 - escalate_to_human — передати ескалацію
 - lookup_previous_order — попередні заказы клієнта (для повторного адресата)
 

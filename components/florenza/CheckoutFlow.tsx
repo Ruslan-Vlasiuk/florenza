@@ -24,13 +24,22 @@ type Props = {
 };
 
 type DeliverySlotOption = { value: string; label: string };
-const DELIVERY_SLOTS: DeliverySlotOption[] = [
-  { value: '10:00-12:00', label: '10:00–12:00' },
-  { value: '12:00-14:00', label: '12:00–14:00' },
-  { value: '14:00-16:00', label: '14:00–16:00' },
-  { value: '16:00-18:00', label: '16:00–18:00' },
-  { value: '18:00-20:00', label: '18:00–20:00' },
-];
+// 30-минутні вікна — за один слот резервується кур'єр для одного замовлення.
+const DELIVERY_SLOTS: DeliverySlotOption[] = (() => {
+  const slots: DeliverySlotOption[] = [];
+  for (let h = 10; h < 20; h++) {
+    for (const m of [0, 30]) {
+      const startH = String(h).padStart(2, '0');
+      const startM = String(m).padStart(2, '0');
+      const endH = String(m === 30 ? h + 1 : h).padStart(2, '0');
+      const endM = m === 30 ? '00' : '30';
+      const value = `${startH}:${startM}-${endH}:${endM}`;
+      const label = `${startH}:${startM}–${endH}:${endM}`;
+      slots.push({ value, label });
+    }
+  }
+  return slots;
+})();
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
@@ -281,7 +290,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
             </div>
             <div>
               <label className="block text-xs uppercase tracking-wider text-[var(--color-text-muted)] mb-2">
-                Часовий слот
+                Вікно для кур&apos;єра (30 хв)
               </label>
               <select
                 value={deliverySlot}
@@ -295,6 +304,9 @@ export function CheckoutFlow({ paymentMode }: Props) {
                   </option>
                 ))}
               </select>
+              <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                Кур&apos;єр приїде в межах цих 30 хвилин.
+              </p>
             </div>
           </div>
 

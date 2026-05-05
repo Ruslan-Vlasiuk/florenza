@@ -10,7 +10,6 @@ import { getDeliverySlots } from './get-delivery-slots';
 import { checkTodayAvailability } from './check-today-availability';
 import { calculateOrderPrice } from './calculate-order-price';
 import { createPendingOrder } from './create-pending-order';
-import { generatePaymentLink } from './generate-payment-link';
 import { escalateToVarvara } from './escalate-to-varvara';
 import { lookupPreviousOrder } from './lookup-previous-order';
 import { saveClientPreference } from './save-client-preference';
@@ -39,7 +38,8 @@ export const TOOLS: ToolDef[] = [
   checkTodayAvailability,
   calculateOrderPrice,
   createPendingOrder,
-  generatePaymentLink,
+  // generatePaymentLink — REMOVED. Лія must redirect customer to TG-bot
+  // for prepayment after create_pending_order — bot handles invoice.
   escalateToVarvara,
   lookupPreviousOrder,
   saveClientPreference,

@@ -148,6 +148,8 @@ export const createPendingOrder: ToolDef = {
     const orderNumber = (order as any).orderNumber;
     const tgDeepLink = `https://t.me/FLORENZA_irpin_bot?start=order_${orderNumber}`;
 
+    const halfAmount = Math.round(input.total_amount / 2);
+
     return {
       orderId: order.id,
       orderNumber,
@@ -155,8 +157,8 @@ export const createPendingOrder: ToolDef = {
       tgDeepLink,
       message:
         ctx.channel === 'telegram'
-          ? `Замовлення створено: ${orderNumber}, до оплати ${input.total_amount} грн. Скажи клієнту: "Замовлення прийнято — ${orderNumber}. Чекаємо передоплату 50% (${Math.round(input.total_amount / 2)} грн) — посилання на оплату надішлемо у цей чат за хвилину." Не вживай особистих імен.`
-          : `Замовлення створено: ${orderNumber}, до оплати ${input.total_amount} грн. Скажи клієнту: "Замовлення прийнято — ${orderNumber}. Перейдіть у наш Telegram-бот для підтвердження і передоплати 50% (${Math.round(input.total_amount / 2)} грн): ${tgDeepLink}". Без особистих імен.`,
+          ? `Замовлення створено: ${orderNumber}. Клієнт уже у Telegram. Скажи коротко (БЕЗ запиту даних, БЕЗ особистих імен, БЕЗ створення посилань на оплату): "Замовлення прийнято — ${orderNumber} ✅ Сума ${input.total_amount} грн. Передоплата 50% (${halfAmount} грн) — натисніть кнопку нижче. Решта при доставці." Бот сам надішле кнопку оплати.`
+          : `Замовлення створено: ${orderNumber}. Скажи клієнту коротко (БЕЗ створення Mono-посилань — тільки TG): "Замовлення прийнято — ${orderNumber} ✅ Сума ${input.total_amount} грн. Передоплата 50% (${halfAmount} грн). Перейдіть у наш Telegram-бот: ${tgDeepLink} — там одна кнопка для оплати. Решта 50% при доставці." Не вживай особистих імен. НЕ генеруй жодних інших посилань. Завершуй розмову.`,
     };
   },
 };
