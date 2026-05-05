@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPayloadClient } from '@/lib/payload-client';
 import { formatPrice } from '@/lib/utils/format';
+import { OrderTelegramRedirect } from '@/components/florenza/OrderTelegramRedirect';
 
 export const metadata: Metadata = {
   title: 'Замовлення',
@@ -36,12 +37,16 @@ async function loadPaymentMode() {
 
 export default async function OrderPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ number: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { number } = await params;
+  const { from } = await searchParams;
   const [order, paymentMode] = await Promise.all([loadOrder(number), loadPaymentMode()]);
   if (!order) notFound();
+  const fromCheckout = from === 'checkout';
 
   const isSandbox = paymentMode === 'sandbox';
   const items = (order.bouquetSnapshot?.items as any[]) ?? [];
@@ -148,31 +153,11 @@ export default async function OrderPage({
         </div>
       </section>
 
-      <div className="rounded-[var(--radius-lg)] border border-[#229ED9]/30 bg-[#229ED9]/8 p-6 md:p-8 mb-8">
-        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-          <div className="flex-1">
-            <h2 className="font-[var(--font-display)] text-xl text-[var(--color-deep-forest)] mb-2">
-              Слідкуйте за замовленням у Telegram
-            </h2>
-            <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-              Натисніть кнопку — бот привʼяже замовлення до вашого Telegram і
-              надсилатиме статуси: підтвердження, збір, передача курʼєру, доставка.
-              Через цей же чат можна зв&apos;язатись із нами в один тап.
-            </p>
-          </div>
-          <a
-            href={`https://t.me/FLORENZA_irpin_bot?start=order_${order.orderNumber}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#229ED9] text-white text-sm font-medium hover:-translate-y-0.5 hover:shadow-lg transition-transform"
-          >
-            <svg viewBox="0 0 240 240" className="w-5 h-5" fill="currentColor" aria-hidden="true">
-              <path d="M120 0C53.7 0 0 53.7 0 120s53.7 120 120 120 120-53.7 120-120S186.3 0 120 0zm54.3 81.4l-19 89.6c-1.5 6.6-5.3 8.3-10.7 5.2l-29.6-21.8-14.3 13.7c-1.6 1.6-2.9 2.9-5.9 2.9l2.1-30.1 54.7-49.5c2.4-2.1-.5-3.3-3.7-1.2l-67.6 42.6-29.1-9.1c-6.3-2-6.5-6.3 1.3-9.4l113.8-43.8c5.3-1.9 9.9 1.3 8.2 9.4z" />
-            </svg>
-            Відкрити в Telegram
-          </a>
-        </div>
-      </div>
+      <OrderTelegramRedirect
+        orderNumber={order.orderNumber}
+        delay={2500}
+        autoRedirect={fromCheckout}
+      />
 
       <div className="flex gap-3 justify-center">
         <Link

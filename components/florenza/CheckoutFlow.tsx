@@ -156,7 +156,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
         throw new Error(data.error ?? 'Помилка');
       }
       clear();
-      router.push(`/order/${data.orderNumber}`);
+      router.push(`/order/${data.orderNumber}?from=checkout`);
     } catch (err) {
       setErrorMsg((err as Error).message ?? 'Помилка обробки замовлення.');
       setSubmitting(false);
