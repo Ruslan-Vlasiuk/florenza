@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getPayloadClient } from '@/lib/payload-client';
-import { sendAdminAlert } from '@/lib/messengers/admin-notify';
-import { sendTelegramMessageWithButtons } from '@/lib/messengers/telegram-commands';
+import { sendNewOrderAdminAlert } from '@/lib/messengers/order-alert';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -43,15 +42,12 @@ const orderRequestSchema = z.object({
     courierInstructions: z.string().max(500).optional(),
   }),
   cardMessage: z.string().max(500).optional(),
-  paymentMethod: z.enum(['mono_online', 'cash_on_delivery', 'card_on_delivery']),
+  paymentMethod: z.enum(['full_online', 'prepayment_50']),
 });
 
-function makeOrderNumber() {
-  const d = new Date();
-  const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-  const rand = Math.random().toString(36).slice(2, 7).toUpperCase();
-  return `FL-${ymd}-${rand}`;
-}
+// Order number generation lives in the Orders collection beforeChange hook
+// (FL-YYYYMMDD-XXXXX format) — keeps the number unified between web checkout
+// and create_pending_order tool.
 
 export async function POST(req: NextRequest) {
   try {
@@ -113,8 +109,8 @@ export async function POST(req: NextRequest) {
       collection: 'orders',
       overrideAccess: true,
       data: {
-        orderNumber: makeOrderNumber(),
-        status: data.paymentMethod === 'mono_online' && !isSandbox ? 'pending_payment' : 'new',
+        // orderNumber filled by beforeChange hook (FL-YYYYMMDD-XXXXX)
+        status: 'new',
         bouquet: bouquetIdNum,
         bouquetSnapshot: {
           items: data.items,
@@ -145,105 +141,18 @@ export async function POST(req: NextRequest) {
         deliverySlot: data.delivery.deliverySlot,
         isUrgent: data.delivery.isUrgent,
         cardMessage: data.cardMessage,
-        paymentProvider:
-          data.paymentMethod === 'mono_online' ? 'mono' : 'cash_on_delivery',
+        paymentProvider: 'mono',
         createdBy: 'web_checkout',
       } as any,
     });
 
-    // Telegram admin alert (best-effort — never blocks order success).
-    const itemsLine = data.items
-      .map((i) => `${i.quantity}× ${i.name}`)
-      .join(', ');
-    const paymentLabel =
-      data.paymentMethod === 'mono_online'
-        ? 'Mono online'
-        : data.paymentMethod === 'card_on_delivery'
-          ? 'картка кур\'єру'
-          : 'готівка кур\'єру';
-    const recipient = data.recipient?.sameAsBuyer
-      ? 'отримувач = замовник'
-      : `${data.recipient?.name ?? '—'} · ${data.recipient?.phone ?? '—'}`;
-    const addressLine = `${data.delivery.addressStreet}, ${data.delivery.addressBuilding}${
-      data.delivery.addressApartment ? `, кв. ${data.delivery.addressApartment}` : ''
-    }`;
-
-    // Telegram admin alert with inline action buttons (admin bot).
-    const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
-    if (adminChatId) {
-      const orderNumber = (order as any).orderNumber as string;
-
-      // Full address with every optional sub-field user filled
-      const addressBlock: string[] = [
-        `${data.delivery.addressStreet}, ${data.delivery.addressBuilding}`,
-      ];
-      const sub: string[] = [];
-      if (data.delivery.addressApartment) sub.push(`кв. ${data.delivery.addressApartment}`);
-      if (data.delivery.addressFloor) sub.push(`поверх ${data.delivery.addressFloor}`);
-      if (data.delivery.addressEntrance) sub.push(`під'їзд ${data.delivery.addressEntrance}`);
-      if (data.delivery.addressIntercom) sub.push(`домофон ${data.delivery.addressIntercom}`);
-      if (sub.length) addressBlock.push(sub.join(', '));
-      const fullAddress = addressBlock.join('\n   ');
-
-      const recipientLine = data.recipient?.sameAsBuyer
-        ? '= замовник'
-        : `${data.recipient?.name ?? '—'} · <code>${data.recipient?.phone ?? '—'}</code>${data.isAnonymous ? ' 🤐 анонімне' : ''}`;
-
-      const lines = [
-        `<b>🌸 Нове замовлення ${orderNumber}</b>${isSandbox ? ' · sandbox' : ''}${data.delivery.isUrgent ? ' · ⚠️ ТЕРМІНОВА' : ''}`,
-        '',
-        `<b>Сума:</b> ${totalAmount} грн (${paymentLabel})`,
-        `<b>Букети:</b> ${itemsLine}`,
-        '',
-        `<b>Замовник:</b> ${data.buyer.name} · <code>${data.buyer.phone}</code>`,
-        `<b>Отримувач:</b> ${recipientLine}`,
-        '',
-        `<b>Адреса:</b>\n   ${fullAddress}`,
-        data.delivery.courierInstructions
-          ? `<b>Курʼєру:</b> ${data.delivery.courierInstructions}`
-          : null,
-        '',
-        `<b>Доставка:</b> ${data.delivery.deliveryDate} · ${data.delivery.deliverySlot}`,
-        data.cardMessage ? `<b>Листівка:</b> ${data.cardMessage}` : null,
-        '',
-        '<i>Чекаємо коли клієнт привʼяже Telegram через посилання на сторінці замовлення.</i>',
-      ]
-        .filter(Boolean)
-        .join('\n');
-
-      try {
-        const sent = await sendTelegramMessageWithButtons(
-          adminChatId,
-          lines,
-          [
-            [
-              { text: '📋 Деталі', callback_data: `details:${orderNumber}` },
-              { text: '📞 Телефон', callback_data: `phone:${orderNumber}` },
-            ],
-          ],
-          { useAdminBot: true },
-        );
-        if (sent.messageId) {
-          await payload
-            .update({
-              collection: 'orders',
-              id: order.id,
-              overrideAccess: true,
-              data: { adminAlertMessageId: sent.messageId } as any,
-            })
-            .catch(() => {});
-        }
-      } catch (err) {
-        console.error('[admin-notify] inline button alert failed:', err);
-        await sendAdminAlert({
-          kind: 'new_paid_order',
-          title: `🌸 ${orderNumber}${isSandbox ? ' · sandbox' : ''}`,
-          body: lines,
-          urgency: data.delivery.isUrgent ? 'high' : 'normal',
-          meta: { orderId: order.id, orderNumber },
-        }).catch(() => {});
-      }
-    }
+    // Telegram admin alert (best-effort; never blocks order success)
+    await sendNewOrderAdminAlert({
+      orderId: order.id,
+      isSandbox,
+      source: 'web_checkout',
+      prepaymentRequired: data.paymentMethod === 'prepayment_50',
+    });
 
     return NextResponse.json({
       ok: true,

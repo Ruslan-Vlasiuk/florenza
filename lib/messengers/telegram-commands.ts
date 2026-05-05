@@ -198,8 +198,78 @@ export async function linkOrderToTelegramChat(args: {
     }
   }
 
+  // Move order into "awaiting prepayment" state — customer must now pay 50%.
+  if (order.status === 'new') {
+    await payload
+      .update({
+        collection: 'orders',
+        id: order.id,
+        overrideAccess: true,
+        data: { status: 'awaiting_prepayment' } as any,
+      })
+      .catch(() => {});
+  }
+
   const summary = formatCustomerOrderSummary(order);
   return { ok: true, orderSummary: summary };
+}
+
+/**
+ * After customer is linked, the bot prompts them to pay the 50% deposit
+ * (or full amount if they chose full_online). Returns the payment block
+ * that the webhook sends as a follow-up message.
+ */
+export async function buildPrepaymentPrompt(order: any): Promise<{
+  text: string;
+  buttons: InlineButton[][];
+}> {
+  const total = Number(order.totalAmount ?? 0);
+  const prepayAmount = Math.round(total / 2);
+  const orderNumber = order.orderNumber as string;
+
+  const payload = await getPayloadClient();
+  const brandSettings: any = await payload
+    .findGlobal({ slug: 'brand-settings' as any })
+    .catch(() => ({}));
+  const isSandbox = brandSettings?.paymentMode !== 'production';
+
+  const text = isSandbox
+    ? [
+        `<b>💳 Передоплата за замовленням ${orderNumber}</b>`,
+        '',
+        `Сума передоплати: <b>${prepayAmount} грн</b> (50% від ${total} грн)`,
+        'Решта — при доставці кур’єру.',
+        '',
+        '🌿 <b>Тестовий режим:</b> онлайн-оплата увімкнеться після модерації мерчанта Mono. Зараз ваше замовлення вже в обробці — ми з вами на звʼязку прямо в цьому чаті.',
+      ].join('\n')
+    : [
+        `<b>💳 Передоплата за замовленням ${orderNumber}</b>`,
+        '',
+        `Сума передоплати: <b>${prepayAmount} грн</b> (50% від ${total} грн)`,
+        'Решта — при доставці кур’єру.',
+        '',
+        'Натисніть кнопку нижче — згенеруємо посилання на оплату через Monobank.',
+      ].join('\n');
+
+  const buttons: InlineButton[][] = isSandbox
+    ? [
+        [
+          {
+            text: `💬 Написати у замовлення`,
+            callback_data: `cust_help:${orderNumber}`,
+          },
+        ],
+      ]
+    : [
+        [
+          {
+            text: `💳 Сплатити ${prepayAmount} грн`,
+            callback_data: `pay:${orderNumber}`,
+          },
+        ],
+      ];
+
+  return { text, buttons };
 }
 
 export function formatCustomerOrderSummary(order: any): string {

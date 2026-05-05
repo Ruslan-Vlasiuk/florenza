@@ -69,9 +69,9 @@ export function CheckoutFlow({ paymentMode }: Props) {
   const [isUrgent, setIsUrgent] = useState(false);
 
   const [cardMessage, setCardMessage] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<
-    'mono_online' | 'cash_on_delivery' | 'card_on_delivery'
-  >(paymentMode === 'sandbox' ? 'cash_on_delivery' : 'mono_online');
+  const [paymentMethod, setPaymentMethod] = useState<'full_online' | 'prepayment_50'>(
+    'prepayment_50',
+  );
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -330,39 +330,29 @@ export function CheckoutFlow({ paymentMode }: Props) {
         </Section>
 
         <Section title="Оплата">
-          {paymentMode === 'sandbox' && (
-            <div className="rounded-md bg-[var(--color-sage)]/15 border border-[var(--color-sage)]/30 px-4 py-3 text-sm text-[var(--color-deep-forest)] mb-4">
-              🌿 Тестовий режим: онлайн-оплата тимчасово недоступна. Оберіть «При доставці» — після оформлення з вами зв’яжуться для підтвердження.
-            </div>
-          )}
+          <div className="rounded-md bg-[#229ED9]/8 border border-[#229ED9]/30 px-4 py-3 text-sm text-[var(--color-deep-forest)] mb-4">
+            💳 Передоплата йде через наш Telegram-бот після оформлення.{' '}
+            {paymentMode === 'sandbox' && (
+              <span className="block mt-1 text-xs text-[var(--color-text-muted)]">
+                Тестовий режим: онлайн-оплата увімкнеться після модерації мерчанта Mono.
+              </span>
+            )}
+          </div>
           <PaymentRadio
-            id="cash_on_delivery"
-            label="При доставці — готівка"
-            description="Оплачуєте кур’єру готівкою при отриманні."
-            value="cash_on_delivery"
+            id="prepayment_50"
+            label={`Передоплата 50% (${Math.round(totalAmount / 2)} грн) онлайн + 50% при доставці`}
+            description="Передоплата гарантує підготовку букета. Решта — кур’єру готівкою або карткою."
+            value="prepayment_50"
             current={paymentMethod}
             onChange={(v) => setPaymentMethod(v as typeof paymentMethod)}
           />
           <PaymentRadio
-            id="card_on_delivery"
-            label="При доставці — картка"
-            description="Оплачуєте кур’єру карткою через термінал при отриманні."
-            value="card_on_delivery"
+            id="full_online"
+            label={`Повна оплата онлайн (${totalAmount} грн)`}
+            description="Сплачуєте все одразу — кур’єру нічого передавати не потрібно."
+            value="full_online"
             current={paymentMethod}
             onChange={(v) => setPaymentMethod(v as typeof paymentMethod)}
-          />
-          <PaymentRadio
-            id="mono_online"
-            label="Monobank Acquiring (Apple/Google Pay)"
-            description={
-              paymentMode === 'sandbox'
-                ? 'Тимчасово недоступна — увімкнеться після завершення модерації мерчанта.'
-                : 'Onсли посиланням після оформлення.'
-            }
-            value="mono_online"
-            current={paymentMethod}
-            onChange={(v) => setPaymentMethod(v as typeof paymentMethod)}
-            disabled={paymentMode === 'sandbox'}
           />
         </Section>
 

@@ -26,8 +26,10 @@ export const Orders: CollectionConfig = {
       defaultValue: 'new',
       required: true,
       options: [
-        { label: 'Новий', value: 'new' },
-        { label: 'Очікує оплати', value: 'pending_payment' },
+        { label: 'Новий (TG не привʼязаний)', value: 'new' },
+        { label: 'Очікує передоплати 50%', value: 'awaiting_prepayment' },
+        { label: 'Очікує повної оплати', value: 'pending_payment' },
+        { label: 'Передоплата отримана', value: 'prepayment_received' },
         { label: 'Оплачений', value: 'paid' },
         { label: 'Часткова оплата', value: 'paid_partial' },
         { label: 'У роботі', value: 'in_progress' },
@@ -137,15 +139,23 @@ export const Orders: CollectionConfig = {
         description: 'Telegram message_id новоприйшлого алерта в @djirickeosiifj832838bot — для thread-реплаїв на ті ж самі замовлення.',
       },
     },
+    {
+      name: 'followupSentAt',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        description: 'Коли пішов 1-годинний нагадник адміну (cron orders-followup).',
+      },
+    },
   ],
   hooks: {
     beforeChange: [
-      async ({ data, operation, req }) => {
+      async ({ data, operation }) => {
         if (operation === 'create' && !data.orderNumber) {
-          const date = new Date();
-          const yymmdd = date.toISOString().slice(2, 10).replace(/-/g, '');
-          const random = String(Math.floor(Math.random() * 999)).padStart(3, '0');
-          data.orderNumber = `F-${yymmdd}-${random}`;
+          const d = new Date();
+          const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+          const rand = Math.random().toString(36).slice(2, 7).toUpperCase();
+          data.orderNumber = `FL-${ymd}-${rand}`;
         }
         return data;
       },

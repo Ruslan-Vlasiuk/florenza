@@ -1,5 +1,6 @@
 import type { ToolDef } from './index';
 import { getPayloadClient } from '../../payload-client';
+import { sendNewOrderAdminAlert } from '../../messengers/order-alert';
 
 export const createPendingOrder: ToolDef = {
   name: 'create_pending_order',
@@ -129,11 +130,33 @@ export const createPendingOrder: ToolDef = {
       } as any,
     });
 
+    // Determine sandbox mode (mirrors /api/orders behavior)
+    const brandSettings: any = await payload
+      .findGlobal({ slug: 'brand-settings' as any })
+      .catch(() => ({}));
+    const isSandbox = brandSettings?.paymentMode !== 'production';
+
+    // Notify admin — always, regardless of channel (was missing before:
+    // Лія-created orders silently went to DB without admin alert)
+    await sendNewOrderAdminAlert({
+      orderId: order.id,
+      isSandbox,
+      source: ctx.channel === 'telegram' ? 'liya_telegram' : 'liya_web_chat',
+      prepaymentRequired: true, // Лія orders default to 50% prepayment
+    });
+
+    const orderNumber = (order as any).orderNumber;
+    const tgDeepLink = `https://t.me/FLORENZA_irpin_bot?start=order_${orderNumber}`;
+
     return {
       orderId: order.id,
-      orderNumber: (order as any).orderNumber,
+      orderNumber,
       status: 'pending_payment',
-      message: `Замовлення створено: ${(order as any).orderNumber}, до оплати ${input.total_amount} грн`,
+      tgDeepLink,
+      message:
+        ctx.channel === 'telegram'
+          ? `Замовлення створено: ${orderNumber}, до оплати ${input.total_amount} грн. Скажи клієнту: "Замовлення прийнято — ${orderNumber}. Чекаємо передоплату 50% (${Math.round(input.total_amount / 2)} грн) — посилання на оплату надішлемо у цей чат за хвилину." Не вживай особистих імен.`
+          : `Замовлення створено: ${orderNumber}, до оплати ${input.total_amount} грн. Скажи клієнту: "Замовлення прийнято — ${orderNumber}. Перейдіть у наш Telegram-бот для підтвердження і передоплати 50% (${Math.round(input.total_amount / 2)} грн): ${tgDeepLink}". Без особистих імен.`,
     };
   },
 };

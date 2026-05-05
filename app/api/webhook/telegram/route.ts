@@ -16,6 +16,7 @@ import {
   findCustomerByTelegramChatId,
   findLatestOrderForCustomer,
   forwardCustomerMessageToAdmin,
+  buildPrepaymentPrompt,
 } from '@/lib/messengers/telegram-commands';
 
 export const runtime = 'nodejs';
@@ -107,6 +108,12 @@ export async function POST(req: NextRequest) {
         );
       } else {
         await sendTelegramMessage(chatId, result.orderSummary ?? 'Замовлення прийнято.');
+        // Send the prepayment / payment-method follow-up
+        const order = await findOrderByNumber(orderNumber);
+        if (order) {
+          const prep = await buildPrepaymentPrompt(order);
+          await sendTelegramMessageWithButtons(chatId, prep.text, prep.buttons);
+        }
         // Notify admin that customer linked themselves
         await notifyAdminCustomerLinked(orderNumber, chatId, fromName, fromUsername);
       }
@@ -130,6 +137,11 @@ export async function POST(req: NextRequest) {
       });
       if (result.ok) {
         await sendTelegramMessage(chatId, result.orderSummary ?? 'Привʼязали.');
+        const order = await findOrderByNumber(numMatch[1].toUpperCase());
+        if (order) {
+          const prep = await buildPrepaymentPrompt(order);
+          await sendTelegramMessageWithButtons(chatId, prep.text, prep.buttons);
+        }
         await notifyAdminCustomerLinked(
           numMatch[1].toUpperCase(),
           chatId,
