@@ -20,6 +20,8 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PAYLOAD_SECRET=build_time_placeholder
 ENV DATABASE_URI=postgres://build:build@localhost:5432/build
+# Generate Payload's admin importMap (gitignored, must be built fresh)
+RUN pnpm payload generate:importmap || true
 RUN pnpm build
 
 # --- Stage 2.5: seed runner (one-off jobs) ---
