@@ -61,7 +61,7 @@ export function Footer() {
               <p className="uppercase tracking-[0.22em] text-[var(--color-sage-deep)] mb-1">
                 Юридична
               </p>
-              <p>ФОП Каракой Варвара Олександрівна</p>
+              <p>ФОП Каракой В. О.</p>
             </div>
           </div>
 

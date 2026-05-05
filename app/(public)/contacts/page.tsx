@@ -52,22 +52,21 @@ export default function ContactsPage() {
             title="Месенджери"
             body={
               <div className="flex flex-wrap gap-3 mt-2">
-                <MagneticButton
-                  href={`https://t.me/${process.env.TELEGRAM_BOT_USERNAME ?? 'florenza_bot'}`}
-                  variant="outline"
+                <a
+                  href="https://t.me/FLORENZA_irpin_bot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-6 py-3 rounded-md border border-[#2c3e2d] !text-[#2c3e2d] hover:bg-[#2c3e2d] hover:!text-[#f5f0e8] font-medium text-sm transition-colors"
                 >
                   Telegram
-                </MagneticButton>
-                <MagneticButton href="viber://chat?number=%2B380000000000" variant="outline">
-                  Viber
-                </MagneticButton>
+                </a>
               </div>
             }
           />
           <ContactItem
             icon={Phone}
             title="Телефон"
-            body={<>Напишіть нам в чаті — підключимо особисто Варвару за необхідності</>}
+            body={<>Напишіть у чаті — підключимо живу флористку за необхідності</>}
           />
         </div>
 
@@ -94,7 +93,7 @@ export default function ContactsPage() {
             <dt className="text-[var(--color-text-muted)] uppercase tracking-wider text-xs mb-1">
               Юридична особа
             </dt>
-            <dd>ФОП Каракой Варвара Олександрівна</dd>
+            <dd>ФОП Каракой В. О.</dd>
           </div>
           <div>
             <dt className="text-[var(--color-text-muted)] uppercase tracking-wider text-xs mb-1">

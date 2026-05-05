@@ -145,6 +145,8 @@ export default async function BouquetPage({
                 bouquetSlug={(bouquet as any).slug}
                 bouquetId={String((bouquet as any).id)}
                 bouquetName={(bouquet as any).name}
+                bouquetPrice={finalPrice}
+                bouquetImageUrl={(bouquet as any).primaryImage?.url ?? '/images/placeholder.jpg'}
                 variant="primary"
                 className="w-full"
               >

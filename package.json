@@ -52,7 +52,8 @@
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.6.0",
     "viber-bot": "^1.0.18",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",

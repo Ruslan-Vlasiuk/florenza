@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Florenza' }],
   creator: 'Florenza',
-  publisher: 'ФОП Каракой Варвара Олександрівна',
+  publisher: 'ФОП Каракой В. О.',
   formatDetection: { email: false, address: false, telephone: false },
   alternates: { canonical: '/' },
   openGraph: {

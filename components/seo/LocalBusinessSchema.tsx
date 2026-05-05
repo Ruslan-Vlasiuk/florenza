@@ -8,7 +8,7 @@ export function LocalBusinessSchema() {
     '@type': 'Florist',
     '@id': 'https://florenza-irpin.com/#business',
     name: 'Florenza',
-    legalName: 'ФОП Каракой Варвара Олександрівна',
+    legalName: 'ФОП Каракой В. О.',
     url: 'https://florenza-irpin.com',
     image: 'https://florenza-irpin.com/og-default.png',
     logo: 'https://florenza-irpin.com/logo.svg',

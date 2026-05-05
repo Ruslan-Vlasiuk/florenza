@@ -13,7 +13,7 @@ export function OccasionShowcase({ bouquets }: { bouquets: BouquetCardData[] }) 
         </h2>
         <p className="mt-6 text-[var(--color-text-secondary)] text-lg leading-relaxed">
           Для подій, де букет — не просто подарунок, а частина історії. Подивіться авторські
-          композиції Варвари або розкажіть деталі — і ми складемо персональну пропозицію.
+          наші композиції або розкажіть деталі — і ми складемо персональну пропозицію.
         </p>
       </header>
 

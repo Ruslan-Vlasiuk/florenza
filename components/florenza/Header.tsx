@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
+import { CartIcon } from './CartIcon';
 
 const NAV_ITEMS = [
   { label: 'Каталог', href: '/buketu' },
@@ -75,11 +76,13 @@ export function Header() {
             <span className="uppercase tracking-[0.18em]">Сьогодні · 60 хв</span>
           </div>
 
+          <CartIcon />
+
           <Link
             href="/buketu"
             className="hidden md:inline-flex items-center px-4 py-2 rounded-full text-xs uppercase tracking-[0.22em] font-medium bg-[#2c3e2d] !text-[#f5f0e8] hover:bg-[#3d5240] hover:!text-white transition-colors"
           >
-            Замовити →
+            Каталог →
           </Link>
 
           <button

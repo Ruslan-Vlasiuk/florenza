@@ -99,6 +99,8 @@ export function BouquetOfTheDay({ bouquet }: BouquetOfTheDayProps) {
                 bouquetSlug={bouquet.slug}
                 bouquetId={bouquet.id}
                 bouquetName={bouquet.name}
+                bouquetPrice={bouquet.price}
+                bouquetImageUrl={bouquet.primaryImageUrl}
                 variant="primary"
               >
                 Замовити сьогодні
