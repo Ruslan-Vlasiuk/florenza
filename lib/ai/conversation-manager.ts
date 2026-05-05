@@ -232,6 +232,7 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
     channel: msg.channel,
     entryContext: conversationEntryContext,
     includeEntryContextSection,
+    paymentMode: (brandSettings as any)?.paymentMode,
   };
 
   const systemPrompt = buildSystemPrompt(promptContext);

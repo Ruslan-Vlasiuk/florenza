@@ -26,6 +26,21 @@ export interface SystemPromptContext {
   channel: 'web_chat' | 'telegram' | 'viber';
   entryContext?: LiyaEntryContext | null;
   includeEntryContextSection?: boolean;
+  paymentMode?: 'sandbox' | 'production' | string;
+}
+
+export function buildPaymentModeSection(paymentMode?: 'sandbox' | 'production' | string): string {
+  if (paymentMode !== 'sandbox') return '';
+
+  return `## Тестовий режим оплат
+
+ВАЖЛИВО: зараз сайт у sandbox-режимі. Реальні онлайн-платежі НЕ приймаються.
+
+Коли клієнт готовий оформити замовлення:
+1. Зберігай замовлення через create_pending_order як зазвичай
+2. НЕ викликай generate_payment_link (інструмент сам поверне sandbox-відповідь, не покажи її дослівно клієнту)
+3. Скажи клієнту: "Замовлення прийнято, дякую! Варвара зв'яжеться з вами протягом години для підтвердження. Оплата — готівкою або карткою кур'єру при доставці."
+4. За потреби передай Варварі через escalate_to_varvara з reason='confirm_order_sandbox'`;
 }
 
 export function buildEntryContextSection(
@@ -203,6 +218,10 @@ ${ctx.activeDeliveryZones
   // === Voice transcripts ===
   sections.push(`## Голосові повідомлення
 Якщо клієнт прислав voice — у user-message буде текст з префіксом "[голосове, транскрипт]:". Працюй з ним як зі звичайним текстом. Якщо транскрипт неякісний (мало слів, плутанина) — попроси переписати: "Виникли проблеми з розпізнаванням голосового. Можете коротко написати або повторити?"`);
+
+  // === Payment sandbox mode (always rendered while sandbox is active) ===
+  const paymentSection = buildPaymentModeSection(ctx.paymentMode);
+  if (paymentSection) sections.push(paymentSection);
 
   // === Entry context (only on first turn with context) ===
   if (ctx.includeEntryContextSection && ctx.entryContext) {

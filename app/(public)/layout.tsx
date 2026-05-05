@@ -8,6 +8,8 @@ import { LenisProvider } from '@/components/florenza/LenisProvider';
 import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
 import { ScrollColorWash } from '@/components/florenza/effects/ScrollColorWash';
 import { BackToTop } from '@/components/florenza/BackToTop';
+import { SandboxPaymentBanner } from '@/components/florenza/SandboxPaymentBanner';
+import { getPayloadClient } from '@/lib/payload-client';
 import '../globals.css';
 
 const fraunces = Fraunces({
@@ -83,10 +85,28 @@ export const viewport: Viewport = {
   themeColor: '#F5F0E8',
 };
 
-export default function PublicLayout({ children }: { children: ReactNode }) {
+async function loadPaymentBanner() {
+  try {
+    const payload = await getPayloadClient();
+    const settings: any = await payload.findGlobal({ slug: 'brand-settings' as any });
+    return {
+      enabled: settings?.paymentMode === 'sandbox',
+      text:
+        settings?.sandboxBannerText ??
+        '🌿 Прийом онлайн-платежів — тестовий режим. Замовлення приймаються, оплата при доставці готівкою або карткою.',
+    };
+  } catch {
+    return { enabled: false, text: '' };
+  }
+}
+
+export default async function PublicLayout({ children }: { children: ReactNode }) {
+  const banner = await loadPaymentBanner();
+
   return (
     <html lang="uk" className={`${fraunces.variable} ${inter.variable}`}>
       <body className="florenza-public">
+        <SandboxPaymentBanner enabled={banner.enabled} text={banner.text} />
         <ScrollColorWash />
         <LenisProvider>
           <LocalBusinessSchema />
