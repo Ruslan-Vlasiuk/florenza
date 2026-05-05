@@ -29,6 +29,47 @@ export interface SystemPromptContext {
   paymentMode?: 'sandbox' | 'production' | string;
 }
 
+function buildCurrentTimeSection(): string {
+  const now = new Date();
+
+  // Format in Ukrainian timezone (Europe/Kyiv handles DST).
+  const dateFmt = new Intl.DateTimeFormat('uk-UA', {
+    timeZone: 'Europe/Kyiv',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+  const isoFmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Kyiv',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  const timeFmt = new Intl.DateTimeFormat('uk-UA', {
+    timeZone: 'Europe/Kyiv',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+
+  const today = now;
+  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const dayAfter = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+
+  return `## Поточний час (Київ)
+
+Зараз: <b>${timeFmt.format(today)}</b>, ${dateFmt.format(today)}
+Сьогодні (ISO): <code>${isoFmt.format(today)}</code>
+Завтра: ${dateFmt.format(tomorrow)} → <code>${isoFmt.format(tomorrow)}</code>
+Післязавтра: ${dateFmt.format(dayAfter)} → <code>${isoFmt.format(dayAfter)}</code>
+
+ВАЖЛИВО:
+- Коли клієнт каже «сьогодні», «завтра», «післязавтра» — підставляй конкретну ISO-дату з блока вище БЕЗ запитування уточнень.
+- Якщо клієнт називає день тижня («у пʼятницю», «на середу») — обчисли дату відносно «Сьогодні» вище і теж не питай уточнень.
+- Передавай дату в tools у форматі YYYY-MM-DD (наприклад: get_delivery_slots, create_pending_order).`;
+}
+
 export function buildPaymentModeSection(paymentMode?: 'sandbox' | 'production' | string): string {
   if (paymentMode !== 'sandbox') return '';
 
@@ -82,6 +123,9 @@ Florenza — флористичний бутік в Ірпені. Ти не лю
 Канали зв'язку: Telegram, Viber, чат на сайті florenza-irpin.com.
 
 Ти спілкуєшся ${ctx.channel === 'telegram' ? 'у Telegram' : ctx.channel === 'viber' ? 'у Viber' : 'у чаті на сайті'}.`);
+
+  // === Поточний час (Київ) — обов'язково для слотів і "завтра/сьогодні" ===
+  sections.push(buildCurrentTimeSection());
 
   // === Disclosure on first message ===
   if (ctx.isFirstMessageInSession) {
