@@ -109,7 +109,7 @@ export function StreetCombobox({
           setOpen(true);
         }}
         onKeyDown={handleKey}
-        className="w-full px-4 py-3 rounded-md bg-[var(--color-cream-soft)] text-[var(--color-deep-forest)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]"
+        className="w-full px-4 py-3 rounded-md bg-white border border-[var(--color-border-soft)] text-[var(--color-deep-forest)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-deep-forest)] focus:ring-2 focus:ring-[var(--color-sage)]/40 transition-colors"
         autoComplete="off"
         aria-autocomplete="list"
         aria-expanded={open && suggestions.length > 0}

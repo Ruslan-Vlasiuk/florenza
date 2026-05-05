@@ -67,51 +67,71 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ suggestions: hit.data, cached: true });
   }
 
-  // Nominatim structured query: street + city + country
-  const url = new URL('https://nominatim.openstreetmap.org/search');
-  url.searchParams.set('street', q);
-  url.searchParams.set('city', city.name);
-  url.searchParams.set('country', 'Україна');
-  url.searchParams.set('format', 'json');
-  url.searchParams.set('addressdetails', '1');
-  url.searchParams.set('accept-language', 'uk');
-  url.searchParams.set('limit', '8');
-  url.searchParams.set('viewbox', city.viewbox);
-  url.searchParams.set('bounded', '1');
-
-  try {
-    const res = await fetch(url.toString(), {
-      headers: {
-        // Required by Nominatim usage policy
-        'User-Agent': 'florenza-irpin.com (street-autocomplete)',
-        Accept: 'application/json',
-      },
-      // Nominatim recommends not parallelising; one request per call is fine.
-      signal: AbortSignal.timeout(4000),
-    });
-
-    if (!res.ok) {
-      return NextResponse.json({ suggestions: [] }, { status: 200 });
-    }
-
-    const raw: any[] = await res.json();
+  function dedupeSuggestions(raw: any[]): Suggestion[] {
     const seen = new Set<string>();
-    const suggestions: Suggestion[] = [];
-
+    const out: Suggestion[] = [];
     for (const r of raw) {
       const a = r.address ?? {};
       const street = a.road ?? a.pedestrian ?? a.cycleway ?? a.path ?? a.residential;
       if (!street) continue;
-      if (seen.has(street)) continue;
-      seen.add(street);
-      suggestions.push({
+      const k = street.toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push({
         street,
         displayName: r.display_name,
         lat: r.lat,
         lon: r.lon,
         osmId: String(r.osm_id),
       });
-      if (suggestions.length >= 7) break;
+      if (out.length >= 7) break;
+    }
+    return out;
+  }
+
+  async function nominatim(params: Record<string, string>) {
+    const url = new URL('https://nominatim.openstreetmap.org/search');
+    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+    const res = await fetch(url.toString(), {
+      headers: {
+        'User-Agent': 'florenza-irpin.com (street-autocomplete)',
+        Accept: 'application/json',
+      },
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) return [] as any[];
+    return (await res.json()) as any[];
+  }
+
+  try {
+    // Stage 1: strict structured search — fast and exact when user types correctly.
+    const strict = await nominatim({
+      street: q,
+      city: city.name,
+      country: 'Україна',
+      format: 'json',
+      addressdetails: '1',
+      'accept-language': 'uk',
+      limit: '8',
+      viewbox: city.viewbox,
+      bounded: '1',
+    });
+    let suggestions = dedupeSuggestions(strict);
+
+    // Stage 2: fuzzy free-form fallback when strict returns nothing.
+    // Nominatim's `q=` accepts typos, partial words, and transliteration.
+    if (suggestions.length === 0) {
+      const fuzzy = await nominatim({
+        q: `${q} ${city.name}`,
+        format: 'json',
+        addressdetails: '1',
+        'accept-language': 'uk',
+        limit: '12',
+        viewbox: city.viewbox,
+        bounded: '1',
+        countrycodes: 'ua',
+      });
+      suggestions = dedupeSuggestions(fuzzy);
     }
 
     cache.set(cacheKey, { data: suggestions, until: Date.now() + TTL_MS });

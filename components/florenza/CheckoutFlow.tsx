@@ -230,7 +230,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
                 setAddressCity(e.target.value as CityKey);
                 setAddressStreet('');
               }}
-              className="w-full px-4 py-3 rounded-md bg-[var(--color-cream-soft)] text-[var(--color-deep-forest)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]"
+              className="w-full px-4 py-3 rounded-md bg-white border border-[var(--color-border-soft)] text-[var(--color-deep-forest)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-deep-forest)] focus:ring-2 focus:ring-[var(--color-sage)]/40 transition-colors"
               required
             >
               {CITY_OPTIONS.map((c) => (
@@ -278,7 +278,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
                 value={deliveryDate}
                 min={minDate}
                 onChange={(e) => setDeliveryDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-md bg-[var(--color-cream-soft)] text-[var(--color-deep-forest)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]"
+                className="w-full px-4 py-3 rounded-md bg-white border border-[var(--color-border-soft)] text-[var(--color-deep-forest)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-deep-forest)] focus:ring-2 focus:ring-[var(--color-sage)]/40 transition-colors"
                 required
               />
             </div>
@@ -289,7 +289,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
               <select
                 value={deliverySlot}
                 onChange={(e) => setDeliverySlot(e.target.value)}
-                className="w-full px-4 py-3 rounded-md bg-[var(--color-cream-soft)] text-[var(--color-deep-forest)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]"
+                className="w-full px-4 py-3 rounded-md bg-white border border-[var(--color-border-soft)] text-[var(--color-deep-forest)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-deep-forest)] focus:ring-2 focus:ring-[var(--color-sage)]/40 transition-colors"
                 required
               >
                 {DELIVERY_SLOTS.map((s) => (
@@ -316,7 +316,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
               onChange={(e) => setCourierInstructions(e.target.value)}
               rows={2}
               placeholder="Наприклад: подзвонити за 15 хв"
-              className="w-full px-4 py-3 rounded-md bg-[var(--color-cream-soft)] text-[var(--color-deep-forest)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]"
+              className="w-full px-4 py-3 rounded-md bg-white border border-[var(--color-border-soft)] text-[var(--color-deep-forest)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-deep-forest)] focus:ring-2 focus:ring-[var(--color-sage)]/40 transition-colors"
             />
           </div>
         </Section>
@@ -327,7 +327,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
             onChange={(e) => setCardMessage(e.target.value)}
             rows={3}
             placeholder="Текст листівки до букета (необов’язково)"
-            className="w-full px-4 py-3 rounded-md bg-[var(--color-cream-soft)] text-[var(--color-deep-forest)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]"
+            className="w-full px-4 py-3 rounded-md bg-white border border-[var(--color-border-soft)] text-[var(--color-deep-forest)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-deep-forest)] focus:ring-2 focus:ring-[var(--color-sage)]/40 transition-colors"
             maxLength={500}
           />
         </Section>
@@ -379,7 +379,7 @@ export function CheckoutFlow({ paymentMode }: Props) {
         )}
       </div>
 
-      <aside className="lg:sticky lg:top-24 rounded-[var(--radius-lg)] border border-[var(--color-border-soft)] bg-[var(--color-cream-soft)] p-6 md:p-8">
+      <aside className="lg:sticky lg:top-24 rounded-[var(--radius-lg)] border border-[var(--color-border-soft)] bg-white shadow-sm p-6 md:p-8">
         <h2 className="font-[var(--font-display)] text-xl text-[var(--color-deep-forest)] mb-5">
           Ваше замовлення
         </h2>
@@ -495,7 +495,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        className="w-full px-4 py-3 rounded-md bg-[var(--color-cream-soft)] text-[var(--color-deep-forest)] focus:outline-none focus:ring-2 focus:ring-[var(--color-sage)]"
+        className="w-full px-4 py-3 rounded-md bg-white border border-[var(--color-border-soft)] text-[var(--color-deep-forest)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-deep-forest)] focus:ring-2 focus:ring-[var(--color-sage)]/40 transition-colors"
       />
     </div>
   );

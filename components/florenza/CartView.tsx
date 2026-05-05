@@ -98,7 +98,7 @@ export function CartView() {
         ))}
       </ul>
 
-      <aside className="sticky top-24 rounded-[var(--radius-lg)] border border-[var(--color-border-soft)] bg-[var(--color-cream-soft)] p-6 md:p-8">
+      <aside className="sticky top-24 rounded-[var(--radius-lg)] border border-[var(--color-border-soft)] bg-white shadow-sm p-6 md:p-8">
         <h2 className="font-[var(--font-display)] text-xl text-[var(--color-deep-forest)] mb-5">
           Підсумок
         </h2>
