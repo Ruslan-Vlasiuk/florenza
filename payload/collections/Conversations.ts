@@ -105,6 +105,26 @@ export const Conversations: CollectionConfig = {
       type: 'text',
       admin: { description: 'Версія системного промпту, з якою стартував діалог (для відладки)' },
     },
+    {
+      name: 'entryContext',
+      type: 'json',
+      admin: {
+        description:
+          'Контекст входу користувача в розмову (з якого CTA прийшов: букет, інтент order/question/general).',
+        readOnly: true,
+      },
+      required: false,
+    },
+    {
+      name: 'firstTurnHandled',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description:
+          'Прапорець: чи відпрацьовано перший turn з entryContext-секцією у системному промпті. Після true секція не повторюється.',
+        readOnly: true,
+      },
+    },
     { name: 'isDemo', type: 'checkbox', defaultValue: false },
   ],
   indexes: [
