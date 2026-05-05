@@ -106,6 +106,13 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || 'postgres://florenza:florenza_dev@localhost:5432/florenza',
     },
+    // push is enabled in dev OR when explicitly forced via PAYLOAD_PUSH=true.
+    // Production: leave PAYLOAD_PUSH=true on the FIRST deploy (so the schema
+    // gets created), then unset it on subsequent deploys.
+    // TODO: replace with explicit migrations once Payload+tsx+Node 22 bin
+    // resolution is fixed (currently throws ERR_REQUIRE_ASYNC_MODULE).
+    push: process.env.NODE_ENV !== 'production' || process.env.PAYLOAD_PUSH === 'true',
+    migrationDir: path.resolve(dirname, 'db/migrations'),
   }),
 
   upload: {
