@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { Send } from 'lucide-react';
 import type { LiyaEntryContext } from '@/lib/liya-bridge';
+import { LiyaContextChip } from './LiyaContextChip';
 
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
@@ -32,14 +33,13 @@ function getOrCreateSessionId(): string {
 }
 
 export function LiyaChat({ entryContext, onContextConsumed }: LiyaChatProps = {}) {
-  void entryContext;
-  void onContextConsumed;
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', text: DISCLOSURE },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState('');
+  const [openingTurnConsumed, setOpeningTurnConsumed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,11 +50,71 @@ export function LiyaChat({ entryContext, onContextConsumed }: LiyaChatProps = {}
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
+  const userMessageCount = messages.filter((m) => m.role === 'user').length;
+  const showChip = !!entryContext && entryContext.intent !== 'general' && userMessageCount === 0;
+
+  const sendOpeningTurn = useCallback(
+    async (ctx: LiyaEntryContext, sid: string) => {
+      // Replace the static greeting with a contextual opening turn.
+      setMessages([{ role: 'assistant', text: '...', pending: true }]);
+      setLoading(true);
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: sid,
+            message: null,
+            entryContext: ctx,
+          }),
+        });
+        const data = await res.json();
+        setMessages([
+          {
+            role: 'assistant',
+            text: data.text || DISCLOSURE,
+          },
+        ]);
+      } catch {
+        setMessages([
+          {
+            role: 'assistant',
+            text: 'Не вдалось зв\'язатись з сервером. Спробуйте через хвилину.',
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  // Trigger an opening turn once when we mount with a fresh context.
+  useEffect(() => {
+    if (!entryContext) return;
+    if (!sessionId) return;
+    if (openingTurnConsumed) return;
+    if (entryContext.intent === 'general') {
+      // Nothing contextual to say; consume the context silently.
+      setOpeningTurnConsumed(true);
+      onContextConsumed?.();
+      return;
+    }
+
+    setOpeningTurnConsumed(true);
+    void sendOpeningTurn(entryContext, sessionId);
+    onContextConsumed?.();
+  }, [entryContext, sessionId, openingTurnConsumed, sendOpeningTurn, onContextConsumed]);
+
   async function send() {
     const text = input.trim();
     if (!text || loading) return;
     setInput('');
-    setMessages((m) => [...m, { role: 'user', text }, { role: 'assistant', text: '...', pending: true }]);
+    setMessages((m) => [
+      ...m,
+      { role: 'user', text },
+      { role: 'assistant', text: '...', pending: true },
+    ]);
     setLoading(true);
     try {
       const res = await fetch('/api/chat', {
@@ -74,7 +134,7 @@ export function LiyaChat({ entryContext, onContextConsumed }: LiyaChatProps = {}
         };
         return copy;
       });
-    } catch (e) {
+    } catch {
       setMessages((m) => {
         const copy = [...m];
         copy[copy.length - 1] = {
@@ -94,6 +154,8 @@ export function LiyaChat({ entryContext, onContextConsumed }: LiyaChatProps = {}
         {messages.map((m, i) => (
           <motion.div
             key={i}
+            data-testid="liya-message"
+            data-role={m.role}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
@@ -123,6 +185,7 @@ export function LiyaChat({ entryContext, onContextConsumed }: LiyaChatProps = {}
           </motion.div>
         ))}
       </div>
+      {showChip && entryContext ? <LiyaContextChip context={entryContext} /> : null}
       <form
         className="border-t border-[var(--color-border-soft)] p-3 flex gap-2"
         onSubmit={(e) => {
