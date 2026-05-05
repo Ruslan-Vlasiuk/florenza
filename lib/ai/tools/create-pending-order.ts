@@ -47,7 +47,7 @@ export const createPendingOrder: ToolDef = {
     const payload = await getPayloadClient();
 
     // Find or create customer
-    let customer = await payload.find({
+    const customer = await payload.find({
       collection: 'customers',
       where: { phone: { equals: input.buyer_phone } },
       limit: 1,

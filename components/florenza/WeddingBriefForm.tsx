@@ -62,7 +62,7 @@ export function WeddingBriefForm() {
           Прийняли бриф 🤍
         </h3>
         <p className="text-[var(--color-text-secondary)]">
-          Варвара зв'яжеться з вами протягом доби особисто.
+          Варвара зв&apos;яжеться з вами протягом доби особисто.
         </p>
       </motion.div>
     );
@@ -133,7 +133,7 @@ export function WeddingBriefForm() {
         {submitting ? 'Надсилаю...' : 'Надіслати бриф'}
       </button>
       <p className="text-xs text-[var(--color-text-muted)] text-center">
-        Варвара зв'яжеться з вами особисто протягом 24 годин.
+        Варвара зв&apos;яжеться з вами особисто протягом 24 годин.
       </p>
     </form>
   );

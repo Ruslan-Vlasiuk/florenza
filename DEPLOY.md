@@ -364,14 +364,59 @@ sudo systemctl status certbot.timer
 
 ## Крок 12 — Telegram + Viber webhooks
 
+### Telegram
+
+Швидкий шлях — npm-скрипт:
+
 ```bash
-# Telegram webhook
-curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" \
-  -d "url=https://florenza-irpin.com/api/webhook/telegram?secret=<WEBHOOK_SECRET>"
+# .env вже має TELEGRAM_BOT_TOKEN і TELEGRAM_WEBHOOK_SECRET
+pnpm tg:setup https://florenza-irpin.com
 
-# Перевірка
-curl "https://api.telegram.org/bot<TOKEN>/getWebhookInfo"
+# Перевірка стану
+pnpm tg:info
+```
 
+Очікуваний `getWebhookInfo`:
+
+```json
+{
+  "ok": true,
+  "result": {
+    "url": "https://florenza-irpin.com/api/webhook/telegram",
+    "has_custom_certificate": false,
+    "pending_update_count": 0,
+    "last_error_date": 0,
+    "max_connections": 40,
+    "allowed_updates": ["message", "callback_query"]
+  }
+}
+```
+
+Скрипт виставляє `secret_token` через нативний механізм Telegram (передається у заголовку `X-Telegram-Bot-Api-Secret-Token`), — обробник `app/api/webhook/telegram/route.ts` його перевіряє.
+
+### Якщо `last_error_date != 0`
+
+Подивись `last_error_message`. Типові причини:
+
+- SSL невалідний → `sudo certbot renew`
+- 502/504 від Nginx → `docker compose ps`, перевір що `app` живий
+- Secret token mismatch → звір `.env` на VPS і поточний webhook
+- 404 на `/api/webhook/telegram` → застосунок не задеплоєний
+
+### Дебаг на VPS
+
+```bash
+docker compose logs --tail=200 app | grep -iE "telegram|webhook"
+sudo tail -f /var/log/nginx/access.log | grep "/api/webhook/telegram"
+
+# Скинути pending updates і перевиставити
+pnpm tg:drop
+pnpm tg:setup https://florenza-irpin.com
+```
+
+### Viber
+
+```bash
 # Viber webhook (через панель Viber Partners)
 # Зайди на https://partners.viber.com → твій PA → Webhook URL:
 # https://florenza-irpin.com/api/webhook/viber

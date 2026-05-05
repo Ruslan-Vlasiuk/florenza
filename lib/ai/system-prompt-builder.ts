@@ -5,10 +5,13 @@
  *  - BrandSettings (current state: emergency mode, holiday mode, today cutoff)
  *  - Active discounts (real-time from bouquets collection)
  *  - Active delivery zones (real-time)
+ *  - Optional entryContext (CTA the user came from — bouquet card / FAB / etc.)
+ *    Only included on the first turn (firstTurnHandled flag in Conversations).
  *
  * This runs on every Лія call. The compiled prompt is also versioned
  * (when admin saves global edits) and stored in prompts-versions for traceability.
  */
+import type { LiyaEntryContext } from '../liya-bridge';
 
 export interface SystemPromptContext {
   brandVoice: any;
@@ -21,6 +24,51 @@ export interface SystemPromptContext {
   customerName?: string;
   isFirstMessageInSession: boolean;
   channel: 'web_chat' | 'telegram' | 'viber';
+  entryContext?: LiyaEntryContext | null;
+  includeEntryContextSection?: boolean;
+  paymentMode?: 'sandbox' | 'production' | string;
+}
+
+export function buildPaymentModeSection(paymentMode?: 'sandbox' | 'production' | string): string {
+  if (paymentMode !== 'sandbox') return '';
+
+  return `## Тестовий режим оплат
+
+ВАЖЛИВО: зараз сайт у sandbox-режимі. Реальні онлайн-платежі НЕ приймаються.
+
+Коли клієнт готовий оформити замовлення:
+1. Зберігай замовлення через create_pending_order як зазвичай
+2. НЕ викликай generate_payment_link (інструмент сам поверне sandbox-відповідь, не покажи її дослівно клієнту)
+3. Скажи клієнту: "Замовлення прийнято, дякую! Варвара зв'яжеться з вами протягом години для підтвердження. Оплата — готівкою або карткою кур'єру при доставці."
+4. За потреби передай Варварі через escalate_to_varvara з reason='confirm_order_sandbox'`;
+}
+
+export function buildEntryContextSection(
+  entryContext: LiyaEntryContext | null | undefined,
+): string {
+  if (!entryContext) return '';
+  if (entryContext.intent === 'general') return '';
+
+  const intentText =
+    entryContext.intent === 'order'
+      ? 'Користувач хоче замовити цей букет.'
+      : 'Користувач хоче поставити питання про цей букет.';
+
+  const firstTurnInstruction =
+    entryContext.intent === 'order'
+      ? 'У першій репліці привітайся коротко, згадай букет ОДИН раз і запитай "На коли і кому везти?". Не починай з нуля — користувач уже зацікавлений.'
+      : 'У першій репліці привітайся коротко, згадай букет ОДИН раз і запитай "Що цікавить про цей букет?". Не пропонуй замовити одразу — людина прийшла з питанням.';
+
+  return `## Контекст входу користувача
+
+Джерело: картка букета на сайті
+Букет: «${entryContext.bouquetName}» (slug: ${entryContext.bouquetSlug}, id: ${entryContext.bouquetId})
+Намір: ${intentText}
+
+Інструкція на перший turn:
+${firstTurnInstruction}
+
+Цей контекст видається ТІЛЬКИ на першому turn. На наступних — він уже частина історії розмови, не повторюй його штучно.`;
 }
 
 export function buildSystemPrompt(ctx: SystemPromptContext): string {
@@ -170,6 +218,16 @@ ${ctx.activeDeliveryZones
   // === Voice transcripts ===
   sections.push(`## Голосові повідомлення
 Якщо клієнт прислав voice — у user-message буде текст з префіксом "[голосове, транскрипт]:". Працюй з ним як зі звичайним текстом. Якщо транскрипт неякісний (мало слів, плутанина) — попроси переписати: "Виникли проблеми з розпізнаванням голосового. Можете коротко написати або повторити?"`);
+
+  // === Payment sandbox mode (always rendered while sandbox is active) ===
+  const paymentSection = buildPaymentModeSection(ctx.paymentMode);
+  if (paymentSection) sections.push(paymentSection);
+
+  // === Entry context (only on first turn with context) ===
+  if (ctx.includeEntryContextSection && ctx.entryContext) {
+    const section = buildEntryContextSection(ctx.entryContext);
+    if (section) sections.push(section);
+  }
 
   // === Anti-pattern reminder ===
   sections.push(`## Анти-приклади (так НЕ пишемо)

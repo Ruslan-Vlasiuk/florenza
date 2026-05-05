@@ -62,6 +62,44 @@ export const BrandSettings: GlobalConfig = {
           ],
         },
         {
+          label: 'Платежі',
+          fields: [
+            {
+              name: 'paymentMode',
+              type: 'select',
+              defaultValue: 'sandbox',
+              required: true,
+              options: [
+                { label: 'Sandbox (тестовий) — реальні платежі вимкнені', value: 'sandbox' },
+                { label: 'Production (реальні платежі)', value: 'production' },
+              ],
+              admin: {
+                description:
+                  'Sandbox: банер на сайті, ПРРО заглушка, Лія попереджає клієнтів. Перемикай на Production після підтвердження мерчанта Mono.',
+              },
+            },
+            {
+              name: 'sandboxBannerText',
+              type: 'textarea',
+              defaultValue:
+                '🌿 Прийом онлайн-платежів — тестовий режим. Замовлення приймаються, оплата при доставці готівкою або карткою.',
+              admin: {
+                description: 'Текст банера що показується коли paymentMode = sandbox.',
+                condition: (d) => d?.paymentMode === 'sandbox',
+              },
+            },
+            {
+              name: 'fiscalReceiptsEnabled',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: {
+                description:
+                  'Чи генерувати фіскальні чеки через Checkbox. Залиш OFF поки sandbox і немає Checkbox credentials.',
+              },
+            },
+          ],
+        },
+        {
           label: 'Час прийому замовлень',
           fields: [
             { name: 'todayCutoffTime', type: 'text', defaultValue: '19:00',

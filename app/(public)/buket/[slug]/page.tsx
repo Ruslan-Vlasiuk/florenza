@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { fetchBouquetBySlug, fetchAllBouquets } from '@/lib/data';
 import { formatPrice } from '@/lib/utils/format';
 import { DiscountTimer } from '@/components/florenza/DiscountTimer';
-import { MagneticButton } from '@/components/florenza/MagneticButton';
+import { OrderButton } from '@/components/florenza/OrderButton';
+import { AskInChatButton } from '@/components/florenza/AskInChatButton';
 import { BouquetCard } from '@/components/florenza/BouquetCard';
 import { ProductSchema } from '@/components/seo/ProductSchema';
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema';
@@ -140,12 +141,23 @@ export default async function BouquetPage({
             )}
 
             <div className="space-y-3">
-              <MagneticButton href={`/checkout?bouquet=${(bouquet as any).slug}`} variant="primary" className="w-full">
+              <OrderButton
+                bouquetSlug={(bouquet as any).slug}
+                bouquetId={String((bouquet as any).id)}
+                bouquetName={(bouquet as any).name}
+                variant="primary"
+                className="w-full"
+              >
                 Замовити
-              </MagneticButton>
-              <MagneticButton href="#liya" variant="outline" className="w-full">
+              </OrderButton>
+              <AskInChatButton
+                bouquetSlug={(bouquet as any).slug}
+                bouquetId={String((bouquet as any).id)}
+                bouquetName={(bouquet as any).name}
+                className="w-full"
+              >
                 Запитати в чаті
-              </MagneticButton>
+              </AskInChatButton>
             </div>
 
             {/* Composition */}

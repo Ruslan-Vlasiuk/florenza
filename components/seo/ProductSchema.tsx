@@ -1,3 +1,7 @@
+// NOTE: schema.org BuyAction is intentionally absent. Florenza has no public
+// checkout URL — orders flow through Лія (web chat / Telegram / Viber), so
+// BuyAction.target would have no valid handler. Product.offers covers Google
+// rich results without it.
 export function ProductSchema({
   bouquet,
   finalPrice,

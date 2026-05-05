@@ -10,8 +10,9 @@ interface Ripple {
   y: number;
 }
 
-interface MagneticButtonProps extends Omit<HTMLAttributes<HTMLButtonElement>, 'children'> {
+interface MagneticButtonProps extends Omit<HTMLAttributes<HTMLButtonElement>, 'children' | 'onClick'> {
   href?: string;
+  onClick?: (e: React.MouseEvent) => void;
   variant?: 'primary' | 'ghost' | 'outline';
   children: ReactNode;
 }
@@ -26,8 +27,12 @@ export function MagneticButton({
   variant = 'primary',
   className,
   href,
+  onClick,
   ...rest
 }: PropsWithChildren<MagneticButtonProps>) {
+  if (process.env.NODE_ENV !== 'production' && href && onClick) {
+    console.warn('MagneticButton: provide either href or onClick, not both. onClick wins.');
+  }
   const ref = useRef<HTMLButtonElement | HTMLAnchorElement | null>(null);
   const [pressed, setPressed] = useState(false);
   const [ripples, setRipples] = useState<Ripple[]>([]);
@@ -49,6 +54,7 @@ export function MagneticButton({
 
   function onClickFire(e: React.MouseEvent) {
     fireRipple(e.clientX, e.clientY);
+    onClick?.(e);
   }
 
   const x = useMotionValue(0);
@@ -99,12 +105,15 @@ export function MagneticButton({
       'border border-[#2c3e2d] !text-[#2c3e2d] hover:bg-[#2c3e2d] hover:!text-[#f5f0e8]',
   };
 
-  const Tag: any = href ? motion.a : motion.button;
+  // onClick takes precedence over href (we still allow href for legacy
+  // navigation cases, but a behaviour-button always renders as <button>).
+  const useAnchor = !!href && !onClick;
+  const Tag: any = useAnchor ? motion.a : motion.button;
 
   return (
     <Tag
       ref={ref as any}
-      href={href}
+      {...(useAnchor ? { href } : { type: 'button' as const })}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       onTouchStart={onTouchStart}

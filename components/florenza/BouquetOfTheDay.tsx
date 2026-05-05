@@ -1,7 +1,7 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import type { BouquetCardData } from './BouquetCard';
 import { MagneticButton } from './MagneticButton';
+import { OrderButton } from './OrderButton';
 import { BlurFade } from './effects/BlurFade';
 
 interface BouquetOfTheDayProps {
@@ -95,9 +95,14 @@ export function BouquetOfTheDay({ bouquet }: BouquetOfTheDayProps) {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <MagneticButton href={`/checkout?bouquet=${bouquet.slug}`} variant="primary">
+              <OrderButton
+                bouquetSlug={bouquet.slug}
+                bouquetId={bouquet.id}
+                bouquetName={bouquet.name}
+                variant="primary"
+              >
                 Замовити сьогодні
-              </MagneticButton>
+              </OrderButton>
               <MagneticButton href={`/buket/${bouquet.slug}`} variant="outline">
                 Деталі →
               </MagneticButton>

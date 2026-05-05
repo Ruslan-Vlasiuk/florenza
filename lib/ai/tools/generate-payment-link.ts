@@ -27,6 +27,20 @@ export const generatePaymentLink: ToolDef = {
   },
   handler: async (input, _ctx) => {
     const payload = await getPayloadClient();
+
+    // Sandbox guard — block real payment-link generation when paymentMode=sandbox.
+    const brandSettings: any = await payload
+      .findGlobal({ slug: 'brand-settings' as any })
+      .catch(() => ({}));
+    if (brandSettings?.paymentMode === 'sandbox') {
+      return {
+        sandbox: true,
+        paymentUrl: null,
+        message:
+          'Sandbox: посилання на оплату не генерується. Скажи клієнту: "Замовлення прийнято, дякую! Варвара зв\'яжеться з вами протягом години для підтвердження. Оплата — готівкою або карткою кур\'єру при доставці."',
+      };
+    }
+
     const order = (await payload.findByID({
       collection: 'orders',
       id: input.order_id,

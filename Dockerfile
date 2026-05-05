@@ -22,6 +22,19 @@ ENV PAYLOAD_SECRET=build_time_placeholder
 ENV DATABASE_URI=postgres://build:build@localhost:5432/build
 RUN pnpm build
 
+# --- Stage 2.5: seed runner (one-off jobs) ---
+# Used by `docker compose run --rm seed pnpm seed:admin` etc.
+# Has full source + tsx + pnpm so we can execute TS seed scripts.
+FROM node:22-alpine AS seed
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@10.9.3 --activate
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+CMD ["sh", "-c", "echo 'Specify a seed command: pnpm seed:admin | seed:globals | seed:demo'"]
+
 # --- Stage 3: runner ---
 FROM node:22-alpine AS runner
 WORKDIR /app

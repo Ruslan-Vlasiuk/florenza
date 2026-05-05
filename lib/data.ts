@@ -11,6 +11,7 @@ function bouquetToCard(b: any): BouquetCardData {
   const primary = b.primaryImage?.url || b.primaryImage?.sizes?.card?.url;
   const galleryFirst = b.gallery?.[0]?.image?.url;
   return {
+    id: String(b.id),
     slug: b.slug,
     name: b.name,
     price: b.price,
