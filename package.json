@@ -16,7 +16,11 @@
     "payload:migrate:create": "payload migrate:create",
     "seed:demo": "tsx db/seed/seed.ts",
     "seed:wipe-demo": "tsx db/seed/wipe.ts",
-    "seed:demo:photos": "tsx db/seed/regenerate-photos.ts"
+    "seed:demo:photos": "tsx db/seed/regenerate-photos.ts",
+    "tg:setup": "./scripts/setup-telegram-webhook.sh",
+    "tg:dev": "./scripts/dev-telegram.sh",
+    "tg:info": "curl -sS https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo | jq .",
+    "tg:drop": "curl -sS -X POST 'https://api.telegram.org/bot'$TELEGRAM_BOT_TOKEN'/deleteWebhook?drop_pending_updates=true' | jq ."
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
