@@ -42,7 +42,6 @@ coverage/
 # Payload generated
 /payload-types.ts
 /payload-schema.json
-app/(payload)/admin/importMap.js
 
 # Database
 *.sqlite
