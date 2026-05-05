@@ -15,6 +15,7 @@ import { routeComplexity } from './router';
 import { buildSystemPrompt, type SystemPromptContext } from './system-prompt-builder';
 import { getToolDefinitions, executeTool, type ToolContext } from './tools';
 import { getPayloadClient } from '../payload-client';
+import type { LiyaEntryContext } from '../liya-bridge';
 
 export interface IncomingMessage {
   channel: 'web_chat' | 'telegram' | 'viber';
@@ -23,9 +24,20 @@ export interface IncomingMessage {
   customerName?: string;
   customerTelegramChatId?: string;
   customerViberId?: string;
+  /**
+   * Empty string means "opening turn from a CTA" — we won't persist a user
+   * Message in DB but we will inject a synthetic instruction for Claude so
+   * Лія can speak first using the entryContext.
+   */
   text: string;
   isVoiceTranscript?: boolean;
   attachments?: Array<{ type: 'image' | 'voice' | 'file'; url: string }>;
+  /**
+   * Optional CTA context — what the user clicked to open the chat.
+   * Persisted on the Conversation on first turn; surfaced in the system
+   * prompt only until firstTurnHandled flips to true.
+   */
+  entryContext?: LiyaEntryContext;
 }
 
 export interface LiyaResponse {
@@ -104,7 +116,9 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
         externalId: msg.externalId,
         customer: customerId,
         status: 'active',
-      },
+        entryContext: msg.entryContext ?? null,
+        firstTurnHandled: false,
+      } as any,
     });
   } else {
     // Determine if first message in session = if last message was >24h ago
@@ -114,21 +128,26 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
     }
   }
 
-  // 2. Save user message
-  const userMessageContent = msg.isVoiceTranscript
-    ? `[голосове, транскрипт]: ${msg.text}`
-    : msg.text;
+  // 2. Save user message — only if there's actual user text. An "opening turn"
+  // (msg.text === '') has no user message yet; Лія speaks first based on
+  // entryContext alone.
+  const isOpeningTurn = msg.text.trim() === '' && !!msg.entryContext;
+  if (!isOpeningTurn) {
+    const userMessageContent = msg.isVoiceTranscript
+      ? `[голосове, транскрипт]: ${msg.text}`
+      : msg.text;
 
-  await payload.create({
-    collection: 'messages',
-    data: {
-      conversation: conversation.id,
-      role: 'user',
-      content: userMessageContent,
-      voiceTranscription: msg.isVoiceTranscript ? msg.text : undefined,
-      attachments: msg.attachments,
-    },
-  });
+    await payload.create({
+      collection: 'messages',
+      data: {
+        conversation: conversation.id,
+        role: 'user',
+        content: userMessageContent,
+        voiceTranscription: msg.isVoiceTranscript ? msg.text : undefined,
+        attachments: msg.attachments,
+      },
+    });
+  }
 
   // 3. Load history
   const historyResult = await payload.find({
@@ -195,6 +214,11 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
       })),
     );
 
+  // Entry-context section is included only until firstTurnHandled flips true.
+  const conversationEntryContext = (conversation.entryContext ?? null) as LiyaEntryContext | null;
+  const includeEntryContextSection =
+    !!conversationEntryContext && !conversation.firstTurnHandled;
+
   const promptContext: SystemPromptContext = {
     brandVoice,
     liyaRules,
@@ -206,6 +230,8 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
     customerName: msg.customerName,
     isFirstMessageInSession,
     channel: msg.channel,
+    entryContext: conversationEntryContext,
+    includeEntryContextSection,
   };
 
   const systemPrompt = buildSystemPrompt(promptContext);
@@ -215,6 +241,17 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
     role: m.role === 'assistant' || m.role === 'human_admin' ? 'assistant' : 'user',
     content: m.role === 'human_admin' ? `[Варвара]: ${m.content}` : m.content,
   }));
+
+  // Opening turn — there is no user message yet. Inject a synthetic
+  // instruction so Claude has something to respond to. This synthetic message
+  // is NOT persisted to Payload (Лія's reply alone enters the visible thread).
+  if (isOpeningTurn && claudeMessages.length === 0) {
+    claudeMessages.push({
+      role: 'user',
+      content:
+        '[INTERNAL: Користувач щойно відкрив чат через CTA з картки букета. Привітайся коротко і поверни розмову до букета з контексту входу — згадай назву ОДИН раз і постав конкретне питання згідно інструкції з системного промпту.]',
+    });
+  }
 
   const complexity = routeComplexity({
     message: msg.text,
@@ -299,7 +336,8 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
     },
   });
 
-  // Update conversation last message preview
+  // Update conversation last message preview + flip firstTurnHandled when
+  // the entryContext section was rendered into this turn's system prompt.
   await payload.update({
     collection: 'conversations',
     id: conversation.id,
@@ -307,7 +345,8 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
       lastMessageAt: new Date().toISOString(),
       lastMessagePreview: assistantText.slice(0, 200),
       unreadByAdmin: escalated,
-    },
+      ...(includeEntryContextSection ? { firstTurnHandled: true } : {}),
+    } as any,
   });
 
   return {
