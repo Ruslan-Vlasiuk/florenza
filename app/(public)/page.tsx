@@ -32,7 +32,6 @@ import {
 // Server-render on every request — DB is unavailable during docker build,
 // so static prerendering would bake in empty bouquet arrays.
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: 'Florenza — флористичний бутік в Ірпені',
@@ -40,8 +39,6 @@ export const metadata: Metadata = {
     'Преміум авторська флористика. Тиха editorial-чутливість. Доставка по Ірпеню, Бучі, Гостомелю та ближньому Києву.',
   alternates: { canonical: '/' },
 };
-
-export const revalidate = 300;
 
 const STORY_CHAPTERS = [
   {
