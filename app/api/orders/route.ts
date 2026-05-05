@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getPayloadClient } from '@/lib/payload-client';
 import { sendAdminAlert } from '@/lib/messengers/admin-notify';
+import { sendTelegramMessageWithButtons } from '@/lib/messengers/telegram-commands';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -167,28 +168,47 @@ export async function POST(req: NextRequest) {
       data.delivery.addressApartment ? `, кв. ${data.delivery.addressApartment}` : ''
     }`;
 
-    // Await admin alert — Next.js standalone may abort detached promises
-    // after the response is sent. Telegram round-trip is ~300ms in EU/UA.
-    try {
-      await sendAdminAlert({
-        kind: 'new_paid_order',
-        title: `🌸 Нове замовлення ${(order as any).orderNumber}${isSandbox ? ' · sandbox' : ''}`,
-        body: [
-          `Сума: ${totalAmount} грн (${paymentLabel})`,
-          `Букети: ${itemsLine}`,
-          `Замовник: ${data.buyer.name} · ${data.buyer.phone}`,
-          `Отримувач: ${recipient}`,
-          `Адреса: ${addressLine}`,
-          `Доставка: ${data.delivery.deliveryDate} ${data.delivery.deliverySlot}${data.delivery.isUrgent ? ' · ТЕРМІНОВА' : ''}`,
-          data.cardMessage ? `Листівка: ${data.cardMessage}` : null,
-        ]
-          .filter(Boolean)
-          .join('\n'),
-        urgency: data.delivery.isUrgent ? 'high' : 'normal',
-        meta: { orderId: order.id, orderNumber: (order as any).orderNumber },
+    // Telegram admin alert with inline action buttons (admin bot).
+    const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+    if (adminChatId) {
+      const orderNumber = (order as any).orderNumber as string;
+      const lines = [
+        `<b>🌸 Нове замовлення ${orderNumber}</b>${isSandbox ? ' · sandbox' : ''}${data.delivery.isUrgent ? ' · ⚠️ ТЕРМІНОВА' : ''}`,
+        '',
+        `<b>Сума:</b> ${totalAmount} грн (${paymentLabel})`,
+        `<b>Букети:</b> ${itemsLine}`,
+        `<b>Замовник:</b> ${data.buyer.name} · <code>${data.buyer.phone}</code>`,
+        `<b>Отримувач:</b> ${recipient}`,
+        `<b>Адреса:</b> ${addressLine}`,
+        `<b>Доставка:</b> ${data.delivery.deliveryDate} ${data.delivery.deliverySlot}`,
+        data.cardMessage ? `<b>Листівка:</b> ${data.cardMessage}` : null,
+        '',
+        '<i>Чекаємо коли клієнт привʼяже Telegram через посилання на сторінці замовлення.</i>',
+      ]
+        .filter(Boolean)
+        .join('\n');
+
+      await sendTelegramMessageWithButtons(
+        adminChatId,
+        lines,
+        [
+          [
+            { text: '📋 Деталі', callback_data: `details:${orderNumber}` },
+            { text: '📞 Телефон', callback_data: `phone:${orderNumber}` },
+          ],
+        ],
+        { useAdminBot: true },
+      ).catch((err) => {
+        console.error('[admin-notify] inline button alert failed:', err);
+        // Fallback to plain admin alert
+        return sendAdminAlert({
+          kind: 'new_paid_order',
+          title: `🌸 ${orderNumber}${isSandbox ? ' · sandbox' : ''}`,
+          body: lines,
+          urgency: data.delivery.isUrgent ? 'high' : 'normal',
+          meta: { orderId: order.id, orderNumber },
+        }).catch(() => {});
       });
-    } catch (err) {
-      console.error('[admin-notify] failed to send Telegram alert:', err);
     }
 
     return NextResponse.json({

@@ -28,27 +28,8 @@ export function ScrollColorWash() {
   const { scrollYProgress } = useScroll();
   const reduced = useReducedMotion();
 
-  if (!isHome) {
-    return (
-      <div
-        data-bg-layer
-        className="fixed inset-0 pointer-events-none overflow-hidden"
-        style={{ zIndex: 0 }}
-        aria-hidden="true"
-      >
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `
-              radial-gradient(ellipse 100% 80% at 50% 0%, rgba(245, 230, 215, 0.55) 0%, transparent 70%),
-              radial-gradient(ellipse 80% 60% at 100% 100%, rgba(200, 195, 178, 0.35) 0%, transparent 65%),
-              linear-gradient(180deg, #F5F0E8 0%, #EFE7D8 100%)
-            `,
-          }}
-        />
-      </div>
-    );
-  }
+  // All useTransform calls must run unconditionally to satisfy hook rules,
+  // even if we render the static fallback for non-home routes below.
 
   // 6 main mood layers — light throughout, each fades in/out at its range
   const opacityHero = useTransform(scrollYProgress, [0, 0.1, 0.18], [1, 1, 0]);
@@ -74,6 +55,29 @@ export function ScrollColorWash() {
       0, 0.95, 0.7, 0,
     ]
   );
+
+  // Inner pages: skip the scroll choreography entirely.
+  if (!isHome) {
+    return (
+      <div
+        data-bg-layer
+        className="fixed inset-0 pointer-events-none overflow-hidden"
+        style={{ zIndex: 0 }}
+        aria-hidden="true"
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `
+              radial-gradient(ellipse 100% 80% at 50% 0%, rgba(245, 230, 215, 0.55) 0%, transparent 70%),
+              radial-gradient(ellipse 80% 60% at 100% 100%, rgba(200, 195, 178, 0.35) 0%, transparent 65%),
+              linear-gradient(180deg, #F5F0E8 0%, #EFE7D8 100%)
+            `,
+          }}
+        />
+      </div>
+    );
+  }
 
   const layers = [
     // 1. HERO — Persimmon dawn: warm peach + soft rose (light throughout)

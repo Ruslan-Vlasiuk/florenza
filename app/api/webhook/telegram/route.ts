@@ -2,12 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleIncomingMessage } from '@/lib/ai/conversation-manager';
 import { sendTelegramMessage } from '@/lib/messengers/telegram';
 import { getPayloadClient } from '@/lib/payload-client';
+import {
+  isAdminChat,
+  setAdminAwaitingReply,
+  getAdminAwaitingReply,
+  clearAdminAwaitingReply,
+  sendToCustomerChat,
+  sendTelegramMessageWithButtons,
+  answerCallbackQuery,
+  linkOrderToTelegramChat,
+  formatAdminOrderDetails,
+  findOrderByNumber,
+} from '@/lib/messengers/telegram-commands';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
-  // Verify secret token if configured
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
   if (secret) {
     const header = req.headers.get('x-telegram-bot-api-secret-token');
@@ -19,24 +30,23 @@ export async function POST(req: NextRequest) {
   try {
     const update = await req.json();
 
-    // Handle text or voice message
-    const message = update.message;
-    if (!message) {
+    // 1. Inline keyboard button click → callback_query
+    if (update.callback_query) {
+      await handleCallbackQuery(update.callback_query);
       return NextResponse.json({ ok: true });
     }
+
+    const message = update.message;
+    if (!message) return NextResponse.json({ ok: true });
 
     const chatId = String(message.chat.id);
     const fromName =
       [message.from?.first_name, message.from?.last_name].filter(Boolean).join(' ') ||
       message.from?.username;
+    const fromUsername = message.from?.username;
+    const text = (message.text ?? '').trim();
 
-    const text = message.text ?? '';
-    const isVoiceTranscript = false;
-    const attachments: any[] = [];
-
-    // Voice handling — DISABLED for soft-launch.
-    // Whisper is not yet wired (no docker service / VPS install). Politely
-    // redirect to text. Re-enable after Whisper integration is shipped.
+    // Voice handling — disabled in soft-launch
     if (message.voice) {
       await sendTelegramMessage(
         chatId,
@@ -45,39 +55,105 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    if (!text.trim()) {
-      return NextResponse.json({ ok: true });
+    if (!text) return NextResponse.json({ ok: true });
+
+    // 2. Admin path
+    if (isAdminChat(chatId)) {
+      const handled = await handleAdminMessage(chatId, text);
+      if (handled) return NextResponse.json({ ok: true });
+      // Fall through to default behavior if admin types regular text without
+      // active reply state and no command — they might just chat with the bot.
     }
 
-    // Handle /stop command for blacklist
-    if (text.trim().toLowerCase() === '/stop') {
+    // 3. /stop blacklist
+    if (text.toLowerCase() === '/stop') {
       const payload = await getPayloadClient();
-      // Find customer by telegramChatId or create blacklist entry by external id
-      await payload.create({
-        collection: 'client-blacklist',
-        data: {
-          phone: `telegram:${chatId}`,
-          reason: 'stop_command',
-          addedAt: new Date().toISOString(),
-        } as any,
-      }).catch(() => {});
-
+      await payload
+        .create({
+          collection: 'client-blacklist',
+          data: {
+            phone: `telegram:${chatId}`,
+            reason: 'stop_command',
+            addedAt: new Date().toISOString(),
+          } as any,
+        })
+        .catch(() => {});
       await sendTelegramMessage(
         chatId,
-        'Записала. Більше не турбую розсилками. Якщо знадобимось — пишіть.',
+        'Записали. Більше не турбуємо розсилками. Якщо знадобимось — пишіть.',
       );
       return NextResponse.json({ ok: true });
     }
 
-    // Pass to Лія
+    // 4. Customer deep-link from order success page: /start order_FL-XXX
+    const startMatch = text.match(/^\/start\s+order_([A-Z0-9-]+)$/i);
+    if (startMatch) {
+      const orderNumber = startMatch[1].toUpperCase().startsWith('FL-')
+        ? startMatch[1].toUpperCase()
+        : `FL-${startMatch[1].toUpperCase()}`;
+      const result = await linkOrderToTelegramChat({
+        orderNumber,
+        chatId,
+        fromName,
+        fromUsername,
+      });
+      if (!result.ok) {
+        await sendTelegramMessage(
+          chatId,
+          `Замовлення ${orderNumber} не знайдено. Перевірте номер або зв'яжіться з нами через сайт.`,
+        );
+      } else {
+        await sendTelegramMessage(chatId, result.orderSummary ?? 'Замовлення прийнято.');
+        // Notify admin that customer linked themselves
+        await notifyAdminCustomerLinked(orderNumber, chatId, fromName, fromUsername);
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    // 5. Plain /start without payload
+    if (text.toLowerCase() === '/start') {
+      await sendTelegramMessage(
+        chatId,
+        'Вітаю! Я бот Florenza. Тут ви можете:\n• Слідкувати за замовленням, оформленим на сайті\n• Запитати щось про букети — підкажемо\n\nЯкщо у вас є номер замовлення — надішліть його у форматі <code>FL-YYYYMMDD-XXXXX</code> і ми привʼяжемо чат.',
+      );
+      return NextResponse.json({ ok: true });
+    }
+
+    // 6. Customer typed an order number (FL-...) — try to link
+    const numMatch = text.match(/^(FL-\d{8}-[A-Z0-9]{5})$/i);
+    if (numMatch) {
+      const result = await linkOrderToTelegramChat({
+        orderNumber: numMatch[1].toUpperCase(),
+        chatId,
+        fromName,
+        fromUsername,
+      });
+      if (result.ok) {
+        await sendTelegramMessage(chatId, result.orderSummary ?? 'Привʼязали.');
+        await notifyAdminCustomerLinked(
+          numMatch[1].toUpperCase(),
+          chatId,
+          fromName,
+          fromUsername,
+        );
+      } else {
+        await sendTelegramMessage(
+          chatId,
+          'Замовлення з таким номером не знайдено. Перевірте чи правильно скопійовано.',
+        );
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    // 7. Default: pass to Лія
     const result = await handleIncomingMessage({
       channel: 'telegram',
       externalId: chatId,
       customerName: fromName,
       customerTelegramChatId: chatId,
       text,
-      isVoiceTranscript,
-      attachments,
+      isVoiceTranscript: false,
+      attachments: [],
     });
 
     if (result.text) {
@@ -87,6 +163,171 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error('[telegram webhook] error:', e);
-    return NextResponse.json({ ok: true }); // always 200 to telegram
+    return NextResponse.json({ ok: true });
   }
+}
+
+/**
+ * Admin commands: /order FL-X, /find, /reply <text>, free text in reply state.
+ * Returns true if handled, false to fall through.
+ */
+async function handleAdminMessage(adminChatId: string, text: string): Promise<boolean> {
+  // Active reply state — relay text to customer
+  const awaitingOrderNumber = getAdminAwaitingReply(adminChatId);
+  if (awaitingOrderNumber && !text.startsWith('/')) {
+    const order = await findOrderByNumber(awaitingOrderNumber);
+    const customer = order?.customer && typeof order.customer === 'object' ? order.customer : null;
+    const customerChatId = customer?.telegramChatId;
+    if (!customerChatId) {
+      await sendTelegramMessage(
+        adminChatId,
+        `❌ Клієнт замовлення ${awaitingOrderNumber} ще не привʼязав свій Telegram. Зателефонуйте: <code>${order?.buyerPhone ?? '—'}</code>`,
+      );
+      clearAdminAwaitingReply(adminChatId);
+      return true;
+    }
+    try {
+      await sendToCustomerChat(customerChatId, text);
+      await sendTelegramMessage(
+        adminChatId,
+        `✅ Передано клієнту ${order?.buyerName ?? ''} (${awaitingOrderNumber})`,
+      );
+    } catch (e) {
+      await sendTelegramMessage(
+        adminChatId,
+        `❌ Не вдалось доставити: ${(e as Error).message}`,
+      );
+    }
+    clearAdminAwaitingReply(adminChatId);
+    return true;
+  }
+
+  // /order FL-X
+  const orderCmd = text.match(/^\/order\s+(\S+)/i);
+  if (orderCmd) {
+    const orderNumber = orderCmd[1].toUpperCase();
+    const order = await findOrderByNumber(orderNumber);
+    if (!order) {
+      await sendTelegramMessage(adminChatId, `Замовлення ${orderNumber} не знайдено.`);
+      return true;
+    }
+    const customer = order.customer && typeof order.customer === 'object' ? order.customer : null;
+    await sendTelegramMessageWithButtons(
+      adminChatId,
+      formatAdminOrderDetails(order, customer),
+      [
+        [
+          {
+            text: customer?.telegramChatId ? '💬 Написати клієнту' : '📞 Телефон (TG не привʼязаний)',
+            callback_data: customer?.telegramChatId
+              ? `reply:${orderNumber}`
+              : `phone:${orderNumber}`,
+          },
+        ],
+      ],
+    );
+    return true;
+  }
+
+  // /find — prompt for number
+  if (text.toLowerCase() === '/find' || text.toLowerCase() === '/order') {
+    await sendTelegramMessage(
+      adminChatId,
+      'Введіть номер замовлення: <code>/order FL-YYYYMMDD-XXXXX</code>',
+    );
+    return true;
+  }
+
+  // /help
+  if (text.toLowerCase() === '/help' || text.toLowerCase() === '/start') {
+    await sendTelegramMessage(
+      adminChatId,
+      [
+        '<b>Команди адміна:</b>',
+        '<code>/order FL-...</code> — деталі замовлення + кнопка відповіді',
+        '<code>/find</code> — підказка по пошуку',
+        '<code>/cancel</code> — скасувати поточну дію',
+        '',
+        'Коли отримуєте сповіщення про нове замовлення — на ньому є кнопка «Відповісти клієнту».',
+      ].join('\n'),
+    );
+    return true;
+  }
+
+  if (text.toLowerCase() === '/cancel') {
+    clearAdminAwaitingReply(adminChatId);
+    await sendTelegramMessage(adminChatId, 'OK, скасовано.');
+    return true;
+  }
+
+  return false;
+}
+
+async function handleCallbackQuery(cb: any) {
+  const callbackId = cb.id;
+  const data: string = cb.data ?? '';
+  const adminChatId = String(cb.from.id);
+
+  if (!isAdminChat(adminChatId)) {
+    await answerCallbackQuery(callbackId, 'Доступно тільки адміну.');
+    return;
+  }
+
+  const [action, ...rest] = data.split(':');
+
+  if (action === 'reply') {
+    const orderNumber = rest.join(':');
+    const order = await findOrderByNumber(orderNumber);
+    const customer = order?.customer && typeof order.customer === 'object' ? order.customer : null;
+    if (!customer?.telegramChatId) {
+      await answerCallbackQuery(callbackId, 'Клієнт ще не привʼязав Telegram');
+      await sendTelegramMessage(
+        adminChatId,
+        `Клієнт замовлення ${orderNumber} не привʼязав Telegram. Зателефонуйте: <code>${order?.buyerPhone ?? '—'}</code>`,
+      );
+      return;
+    }
+    setAdminAwaitingReply(adminChatId, orderNumber);
+    await answerCallbackQuery(callbackId, 'Введіть текст відповіді');
+    await sendTelegramMessage(
+      adminChatId,
+      `✏️ Наступне ваше повідомлення буде надіслано клієнту замовлення <b>${orderNumber}</b>.\nЩоб скасувати — <code>/cancel</code>.`,
+    );
+    return;
+  }
+
+  if (action === 'phone') {
+    const orderNumber = rest.join(':');
+    const order = await findOrderByNumber(orderNumber);
+    await answerCallbackQuery(
+      callbackId,
+      order?.buyerPhone ? `Телефон: ${order.buyerPhone}` : 'Без телефону',
+    );
+    return;
+  }
+
+  await answerCallbackQuery(callbackId, '');
+}
+
+async function notifyAdminCustomerLinked(
+  orderNumber: string,
+  chatId: string,
+  fromName?: string,
+  fromUsername?: string,
+) {
+  const adminId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  if (!adminId) return;
+  const handle = fromUsername ? `@${fromUsername}` : '';
+  await sendTelegramMessageWithButtons(
+    adminId,
+    [
+      `🔗 Клієнт привʼязав Telegram до замовлення <b>${orderNumber}</b>`,
+      `Імʼя: ${fromName ?? '—'} ${handle}`,
+      `Chat ID: <code>${chatId}</code>`,
+      '',
+      'Тепер ви можете писати йому через бота.',
+    ].join('\n'),
+    [[{ text: '💬 Написати клієнту', callback_data: `reply:${orderNumber}` }]],
+    { useAdminBot: true },
+  ).catch((e) => console.error('[notifyAdminCustomerLinked]', e));
 }
