@@ -4,6 +4,7 @@ import { isAdmin } from '../access/admins';
 export const Messages: CollectionConfig = {
   slug: 'messages',
   admin: {
+    hidden: true,
     useAsTitle: 'preview',
     group: 'Лія / Інбокс',
     description: 'Повідомлення в діалогах. Унікальний рядок на повідомлення.',

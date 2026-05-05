@@ -3,9 +3,10 @@ import { isAdmin } from '../access/admins';
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
+  labels: { singular: 'Замовлення', plural: '📦 Замовлення' },
   admin: {
     useAsTitle: 'orderNumber',
-    group: 'Операційне',
+    group: '📦 Замовлення',
     description: 'Замовлення. Лія створює, Варвара рухає по статусам.',
     defaultColumns: ['orderNumber', 'status', 'customer', 'totalAmount', 'deliveryDate', 'createdAt'],
   },

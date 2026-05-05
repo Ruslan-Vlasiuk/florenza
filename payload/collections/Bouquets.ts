@@ -3,11 +3,13 @@ import { isAdmin, publicRead } from '../access/admins';
 
 export const Bouquets: CollectionConfig = {
   slug: 'bouquets',
+  labels: { singular: 'Букет', plural: '🌸 Букети' },
   admin: {
     useAsTitle: 'name',
-    group: 'Каталог',
-    description: 'Букети — основний каталог. AI-кнопки генерують текст з image_generation_context.',
-    defaultColumns: ['name', 'price', 'status', 'discount', 'isDemo', 'updatedAt'],
+    group: '🌸 Каталог',
+    description:
+      'Усі букети магазину. Створіть новий → одразу додайте фото на вкладці «Фото» → опублікуйте.',
+    defaultColumns: ['name', 'price', 'status', 'discount', 'updatedAt'],
   },
   access: {
     read: publicRead,
@@ -24,9 +26,10 @@ export const Bouquets: CollectionConfig = {
     {
       type: 'tabs',
       tabs: [
-        // === Основна інформація ===
+        // === Опис ===
         {
-          label: 'Основна інформація',
+          label: '📝 Опис',
+          description: 'Назва, опис, склад, ціна.',
           fields: [
             { name: 'name', type: 'text', label: 'Назва', required: true },
             { name: 'slug', type: 'text', label: 'Slug (URL)', required: true, unique: true,
@@ -39,8 +42,12 @@ export const Bouquets: CollectionConfig = {
             },
             {
               name: 'descriptionFull',
-              type: 'richText',
+              type: 'textarea',
               label: 'Розгорнутий опис (для сторінки букета)',
+              admin: {
+                description: 'Кілька абзаців — настрій, склад, для якого приводу.',
+                rows: 6,
+              },
             },
             {
               name: 'composition',
@@ -82,18 +89,22 @@ export const Bouquets: CollectionConfig = {
         },
         // === Фото ===
         {
-          label: 'Фото',
+          label: '📸 Фото',
+          description: 'Перетягніть фото сюди або натисніть кнопку «Завантажити». Перше фото — головне.',
           fields: [
             {
               name: 'primaryImage',
               type: 'upload',
               relationTo: 'media',
-              label: 'Основне фото',
+              label: 'Головне фото',
+              admin: {
+                description: 'Це фото показується в каталозі. Натисніть «Upload» — оберіть з комп\'ютера.',
+              },
             },
             {
               name: 'gallery',
               type: 'array',
-              label: 'Галерея додаткових фото',
+              label: 'Додаткові фото (для галереї на сторінці букета)',
               fields: [
                 { name: 'image', type: 'upload', relationTo: 'media', required: true },
               ],
@@ -121,9 +132,10 @@ export const Bouquets: CollectionConfig = {
             },
           ],
         },
-        // === Таксономія ===
+        // === Категорії ===
         {
-          label: 'Таксономія',
+          label: '🏷 Категорії',
+          description: 'Тип, головна квітка, привід — для пошуку та фільтрів.',
           fields: [
             {
               name: 'type',
@@ -172,9 +184,10 @@ export const Bouquets: CollectionConfig = {
             },
           ],
         },
-        // === Розмір і час ===
+        // === Розмір/час/знижка/SEO/звʼязані — об'єднано в одну вкладку ===
         {
-          label: 'Розмір і час',
+          label: '⚙️ Додатково',
+          description: 'Розмір, знижка, SEO, схожі букети — заповнюйте за бажанням.',
           fields: [
             {
               name: 'size',
@@ -213,12 +226,6 @@ export const Bouquets: CollectionConfig = {
                 { name: 'availableTo', type: 'date', label: 'Доступний до' },
               ],
             },
-          ],
-        },
-        // === Знижка з таймером ===
-        {
-          label: 'Знижка з таймером',
-          fields: [
             {
               name: 'discount',
               type: 'group',
@@ -241,36 +248,27 @@ export const Bouquets: CollectionConfig = {
                 { name: 'campaignName', type: 'text', label: 'Назва акції (для UI лейбла)' },
               ],
             },
-          ],
-        },
-        // === SEO ===
-        {
-          label: 'SEO',
-          fields: [
-            { name: 'metaTitle', type: 'text', label: 'Meta title (50–60 символів)' },
-            { name: 'metaDescription', type: 'textarea', label: 'Meta description (140–160 символів)' },
-            { name: 'ogImage', type: 'upload', relationTo: 'media', label: 'OG image (1200×630)' },
+            { name: 'metaTitle', type: 'text', label: 'SEO title (50–60 символів)',
+              admin: { description: 'Опційно. Якщо порожньо — використається назва букета.' } },
+            { name: 'metaDescription', type: 'textarea', label: 'SEO description (140–160 символів)',
+              admin: { description: 'Опційно. Якщо порожньо — використається короткий опис.' } },
+            { name: 'ogImage', type: 'upload', relationTo: 'media', label: 'Картинка для соцмереж (1200×630)',
+              admin: { description: 'Опційно. Якщо порожньо — головне фото.' } },
             {
               name: 'faq',
               type: 'array',
-              label: 'FAQ для Schema.org FAQPage',
+              label: 'Питання-відповіді (опційно)',
               fields: [
-                { name: 'question', type: 'text', required: true },
-                { name: 'answer', type: 'textarea', required: true },
+                { name: 'question', type: 'text', required: true, label: 'Питання' },
+                { name: 'answer', type: 'textarea', required: true, label: 'Відповідь' },
               ],
             },
-          ],
-        },
-        // === Зв'язані ===
-        {
-          label: "Зв'язані товари",
-          fields: [
             {
               name: 'relatedBouquets',
               type: 'relationship',
               relationTo: 'bouquets',
               hasMany: true,
-              label: '«З цим часто замовляють»',
+              label: '«З цим часто замовляють» (опційно)',
             },
           ],
         },

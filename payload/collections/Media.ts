@@ -4,6 +4,7 @@ import { isAdmin, publicRead } from '../access/admins';
 export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
+    hidden: true,
     group: 'Контент',
     description: 'Усі фото і медіа-файли.',
   },

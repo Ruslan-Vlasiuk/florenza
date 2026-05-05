@@ -4,6 +4,7 @@ import { isAdmin } from '../access/admins';
 export const FallbackReferrals: CollectionConfig = {
   slug: 'fallback-referrals',
   admin: {
+    hidden: true,
     useAsTitle: 'specialization',
     group: 'Налаштування',
     description: 'Куди Лія перенаправляє клієнтів коли ми не робимо (наприклад, жалобна флористика).',

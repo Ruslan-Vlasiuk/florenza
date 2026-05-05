@@ -4,6 +4,7 @@ import { isAdmin } from '../access/admins';
 export const PromptsVersions: CollectionConfig = {
   slug: 'prompts-versions',
   admin: {
+    hidden: true,
     useAsTitle: 'label',
     group: 'AI / Налаштування',
     description: 'Версіонування системних промптів (Лія, AI-content, AI-фото). Для відтворюваності і відлагодки.',

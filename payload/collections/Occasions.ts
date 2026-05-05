@@ -3,10 +3,11 @@ import { isAdmin, publicRead } from '../access/admins';
 
 export const Occasions: CollectionConfig = {
   slug: 'occasions',
+  labels: { singular: 'Привід', plural: '🎁 Приводи' },
   admin: {
     useAsTitle: 'name',
-    group: 'Каталог',
-    description: 'Привід: День народження, 8 березня, 14 лютого, Народження дитини, Річниця, Випускний, Корпоративні, Без приводу.',
+    group: '🌸 Каталог',
+    description: 'День народження, 8 березня, річниця, випускний тощо.',
   },
   access: {
     read: publicRead,

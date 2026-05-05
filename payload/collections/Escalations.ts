@@ -4,6 +4,7 @@ import { isAdmin } from '../access/admins';
 export const Escalations: CollectionConfig = {
   slug: 'escalations',
   admin: {
+    hidden: true,
     group: 'Лія / Інбокс',
     description: 'Лог ескалацій від Лії до Варвари з контекстом.',
     defaultColumns: ['conversation', 'reason', 'urgency', 'resolvedAt'],

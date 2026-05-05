@@ -4,6 +4,7 @@ import { isAdmin } from '../access/admins';
 export const ReEngagementLog: CollectionConfig = {
   slug: 're-engagement-log',
   admin: {
+    hidden: true,
     group: 'Розсилки',
     description: 'Лог автоматичних дотиків (delivery confirmation, repeat recipient).',
   },

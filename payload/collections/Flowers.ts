@@ -3,10 +3,11 @@ import { isAdmin, publicRead } from '../access/admins';
 
 export const Flowers: CollectionConfig = {
   slug: 'flowers',
+  labels: { singular: 'Квітка', plural: '🌷 Квіти' },
   admin: {
     useAsTitle: 'name',
-    group: 'Каталог',
-    description: 'Головна квітка: Троянди, Півонії, Хризантеми, Тюльпани, Гортензії, Лілеї, Орхідеї, Сезонні, Сухоцвіти, Польові.',
+    group: '🌸 Каталог',
+    description: 'Троянди, півонії, хризантеми, тюльпани тощо.',
   },
   access: {
     read: publicRead,

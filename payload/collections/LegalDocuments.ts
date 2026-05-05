@@ -4,6 +4,7 @@ import { isAdmin, publicRead } from '../access/admins';
 export const LegalDocuments: CollectionConfig = {
   slug: 'legal-documents',
   admin: {
+    hidden: true,
     useAsTitle: 'title',
     group: 'Юридичне',
     description: 'Юр.документи: оферта, privacy, cookie, terms. Усі AI-драфти потребують перевірки юристом.',

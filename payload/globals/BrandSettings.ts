@@ -3,8 +3,8 @@ import { isAdmin, publicRead } from '../access/admins';
 
 export const BrandSettings: GlobalConfig = {
   slug: 'brand-settings',
-  label: 'Налаштування бренду',
-  admin: { group: 'Налаштування' },
+  label: '🏛 Налаштування бренду',
+  admin: { group: '⚙️ Налаштування' },
   access: { read: publicRead, update: isAdmin },
   fields: [
     {

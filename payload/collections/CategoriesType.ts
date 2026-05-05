@@ -3,10 +3,11 @@ import { isAdmin, publicRead } from '../access/admins';
 
 export const CategoriesType: CollectionConfig = {
   slug: 'categories-type',
+  labels: { singular: 'Категорія', plural: '🏷 Категорії букетів' },
   admin: {
     useAsTitle: 'name',
-    group: 'Каталог',
-    description: 'Тип букета: Авторські, Монобукети, Композиції, Весільна, Корпоративна, Жалобні, Подарунки.',
+    group: '🌸 Каталог',
+    description: 'Авторські, монобукети, композиції, весільна, корпоративна тощо.',
   },
   access: {
     read: publicRead,

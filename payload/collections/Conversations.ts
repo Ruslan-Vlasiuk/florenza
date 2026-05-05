@@ -3,10 +3,11 @@ import { isAdmin } from '../access/admins';
 
 export const Conversations: CollectionConfig = {
   slug: 'conversations',
+  labels: { singular: 'Розмова', plural: '💬 Розмови' },
   admin: {
     useAsTitle: 'externalId',
-    group: 'Лія / Інбокс',
-    description: 'Діалоги з усіх каналів (сайт-чат, Telegram, Viber).',
+    group: '💬 Інбокс',
+    description: 'Усі діалоги — Telegram, Viber, чат на сайті.',
     defaultColumns: ['channel', 'externalId', 'status', 'lastMessageAt', 'tags'],
   },
   access: { read: isAdmin, create: isAdmin, update: isAdmin, delete: isAdmin },

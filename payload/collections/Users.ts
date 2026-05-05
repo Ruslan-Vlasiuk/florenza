@@ -2,10 +2,11 @@ import type { CollectionConfig } from 'payload';
 
 export const Users: CollectionConfig = {
   slug: 'users',
+  labels: { singular: 'Адмін', plural: '👥 Адміни' },
   admin: {
     useAsTitle: 'email',
-    group: 'Адміністрація',
-    description: 'Адміністратори сайту. Варвара + опційно помічники.',
+    group: '👥 Адміни',
+    description: 'Адміністратори сайту.',
   },
   auth: {
     tokenExpiration: 60 * 60 * 24 * 7, // 7 днів

@@ -3,10 +3,10 @@ import { isAdmin } from '../access/admins';
 
 export const BrandVoice: GlobalConfig = {
   slug: 'brand-voice',
-  label: 'Голос бренду',
+  label: '🎙 Голос бренду (Лія)',
   admin: {
-    group: 'AI / Налаштування',
-    description: 'Структурований редактор. Зміст компілюється в системний промпт для Лії і AI-content.',
+    group: '⚙️ Налаштування',
+    description: 'Тон і стиль. Лія використовує це для відповідей.',
   },
   access: { read: isAdmin, update: isAdmin },
   fields: [

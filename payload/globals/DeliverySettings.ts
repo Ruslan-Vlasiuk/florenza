@@ -3,8 +3,8 @@ import { isAdmin, publicRead } from '../access/admins';
 
 export const DeliverySettings: GlobalConfig = {
   slug: 'delivery-settings',
-  label: 'Налаштування доставки',
-  admin: { group: 'Доставка' },
+  label: '🚚 Доставка — правила',
+  admin: { group: '⚙️ Налаштування' },
   access: { read: publicRead, update: isAdmin },
   fields: [
     {

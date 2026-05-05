@@ -3,10 +3,11 @@ import { isAdmin, publicRead } from '../access/admins';
 
 export const Reviews: CollectionConfig = {
   slug: 'reviews',
+  labels: { singular: 'Відгук', plural: '⭐ Відгуки' },
   admin: {
     useAsTitle: 'authorName',
-    group: 'Контент',
-    description: 'Відгуки клієнтів. Власні + auto-pull з Google Business Profile.',
+    group: '👤 Клієнти',
+    description: 'Відгуки клієнтів — показуються на сайті.',
   },
   access: {
     read: publicRead,

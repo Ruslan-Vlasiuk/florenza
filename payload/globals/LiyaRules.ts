@@ -3,10 +3,10 @@ import { isAdmin } from '../access/admins';
 
 export const LiyaRules: GlobalConfig = {
   slug: 'liya-rules',
-  label: 'Лія — правила',
+  label: '🤖 Лія — правила (FAQ, ескалації)',
   admin: {
-    group: 'AI / Налаштування',
-    description: 'Структуровані правила. Компілюються в системний промпт + правила ескалації.',
+    group: '⚙️ Налаштування',
+    description: 'FAQ, тригери ескалацій до людини, заборонені теми.',
   },
   access: { read: isAdmin, update: isAdmin },
   fields: [

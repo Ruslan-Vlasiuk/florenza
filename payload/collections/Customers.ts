@@ -3,10 +3,11 @@ import { isAdmin } from '../access/admins';
 
 export const Customers: CollectionConfig = {
   slug: 'customers',
+  labels: { singular: 'Клієнт', plural: '👤 Клієнти' },
   admin: {
     useAsTitle: 'phone',
-    group: 'Клієнти',
-    description: 'Унікальні клієнти ідентифікуються за телефоном.',
+    group: '👤 Клієнти',
+    description: 'База клієнтів. Унікальний по телефону.',
     defaultColumns: ['phone', 'name', 'totalOrders', 'totalSpent', 'lastOrderAt'],
   },
   access: { read: isAdmin, create: isAdmin, update: isAdmin, delete: isAdmin },

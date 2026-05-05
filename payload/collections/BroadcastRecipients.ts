@@ -4,6 +4,7 @@ import { isAdmin } from '../access/admins';
 export const BroadcastRecipients: CollectionConfig = {
   slug: 'broadcast-recipients',
   admin: {
+    hidden: true,
     group: 'Розсилки',
     description: 'Лог хто отримав розсилку (для frequency cap і аналітики).',
   },

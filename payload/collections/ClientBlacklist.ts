@@ -4,6 +4,7 @@ import { isAdmin } from '../access/admins';
 export const ClientBlacklist: CollectionConfig = {
   slug: 'client-blacklist',
   admin: {
+    hidden: true,
     useAsTitle: 'phone',
     group: 'Розсилки',
     description: 'Клієнти які відписались (/stop) або забанені.',

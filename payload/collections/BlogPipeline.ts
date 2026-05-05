@@ -4,6 +4,7 @@ import { isAdmin } from '../access/admins';
 export const BlogPipeline: CollectionConfig = {
   slug: 'blog-pipeline',
   admin: {
+    hidden: true,
     useAsTitle: 'topic',
     group: 'Журнал',
     description: 'Черга тем для AI-генерації блогу. Cron щоденно вибирає наступну.',

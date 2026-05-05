@@ -3,10 +3,11 @@ import { isAdmin, publicRead } from '../access/admins';
 
 export const DeliveryZones: CollectionConfig = {
   slug: 'delivery-zones',
+  labels: { singular: 'Зона доставки', plural: '🚚 Зони доставки' },
   admin: {
     useAsTitle: 'name',
-    group: 'Доставка',
-    description: 'Зони доставки. Варвара редагує тарифи і список населених пунктів.',
+    group: '🚚 Доставка',
+    description: 'Тарифи і населені пункти.',
     defaultColumns: ['name', 'tariff', 'isActive', 'urgentAvailable'],
   },
   access: {

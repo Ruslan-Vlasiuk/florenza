@@ -3,10 +3,11 @@ import { isAdmin } from '../access/admins';
 
 export const CorporateInquiries: CollectionConfig = {
   slug: 'corporate-inquiries',
+  labels: { singular: 'Корпоративна заявка', plural: '🏢 Корпоратив — заявки' },
   admin: {
     useAsTitle: 'companyName',
-    group: 'Особливі секції',
-    description: 'B2B запити з форми /korporatyvna-floristyka.',
+    group: '💍 Спецпроєкти',
+    description: 'B2B заявки з форми /korporatyvna-floristyka.',
   },
   access: { read: isAdmin, create: () => true, update: isAdmin, delete: isAdmin },
   fields: [

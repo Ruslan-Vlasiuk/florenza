@@ -4,6 +4,7 @@ import { isAdmin } from '../access/admins';
 export const AnalyticsEvents: CollectionConfig = {
   slug: 'analytics-events',
   admin: {
+    hidden: true,
     group: 'Аналітика',
     description: 'Server-side analytics. IP захешований, без cookies, без third-party. GDPR-safe без banner.',
     defaultColumns: ['eventType', 'pagePath', 'createdAt'],

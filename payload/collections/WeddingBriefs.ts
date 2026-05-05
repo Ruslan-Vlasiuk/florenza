@@ -3,10 +3,11 @@ import { isAdmin } from '../access/admins';
 
 export const WeddingBriefs: CollectionConfig = {
   slug: 'wedding-briefs',
+  labels: { singular: 'Весільний бриф', plural: '💍 Весілля — заявки' },
   admin: {
     useAsTitle: 'brideName',
-    group: 'Особливі секції',
-    description: 'Брифи з форми /vesilna-floristyka. Завжди ескалація Варварі.',
+    group: '💍 Спецпроєкти',
+    description: 'Заявки з форми /vesilna-floristyka.',
     defaultColumns: ['brideName', 'weddingDate', 'budget', 'status'],
   },
   access: { read: isAdmin, create: () => true, update: isAdmin, delete: isAdmin },

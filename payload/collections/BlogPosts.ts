@@ -3,11 +3,12 @@ import { isAdmin, publicRead } from '../access/admins';
 
 export const BlogPosts: CollectionConfig = {
   slug: 'blog-posts',
+  labels: { singular: 'Стаття', plural: '📰 Журнал' },
   admin: {
     useAsTitle: 'title',
-    group: 'Журнал',
-    description: 'Editorial-блог. AI-генерація через 8-крокову pipeline.',
-    defaultColumns: ['title', 'status', 'aiPipelineScore', 'publishedAt'],
+    group: '📰 Журнал',
+    description: 'Editorial-блог.',
+    defaultColumns: ['title', 'status', 'publishedAt'],
   },
   access: {
     read: publicRead,

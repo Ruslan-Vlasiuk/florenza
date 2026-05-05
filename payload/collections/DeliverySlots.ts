@@ -4,6 +4,7 @@ import { isAdmin, publicRead } from '../access/admins';
 export const DeliverySlots: CollectionConfig = {
   slug: 'delivery-slots',
   admin: {
+    hidden: true,
     useAsTitle: 'label',
     group: 'Доставка',
     description: 'Стандартні часові слоти на день.',

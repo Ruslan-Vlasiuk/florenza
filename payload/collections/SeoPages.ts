@@ -4,6 +4,7 @@ import { isAdmin, publicRead } from '../access/admins';
 export const SeoPages: CollectionConfig = {
   slug: 'seo-pages',
   admin: {
+    hidden: true,
     useAsTitle: 'urlPath',
     group: 'SEO',
     description: 'Програмні гео- і комбінаційні SEO-сторінки.',

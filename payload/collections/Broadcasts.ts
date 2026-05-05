@@ -3,10 +3,11 @@ import { isAdmin } from '../access/admins';
 
 export const Broadcasts: CollectionConfig = {
   slug: 'broadcasts',
+  labels: { singular: 'Розсилка', plural: '📢 Розсилки' },
   admin: {
     useAsTitle: 'title',
-    group: 'Розсилки',
-    description: 'Ручні розсилки Варвари. Frequency cap: 1/30 днів + 4/рік на клієнта.',
+    group: '📢 Розсилки',
+    description: 'Розсилки клієнтам у Telegram/Viber. Cap: 1/30 днів + 4/рік на одного.',
     defaultColumns: ['title', 'status', 'recipientsCount', 'sentAt'],
   },
   access: { read: isAdmin, create: isAdmin, update: isAdmin, delete: isAdmin },

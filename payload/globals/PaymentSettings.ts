@@ -3,8 +3,8 @@ import { isAdmin } from '../access/admins';
 
 export const PaymentSettings: GlobalConfig = {
   slug: 'payment-settings',
-  label: 'Налаштування оплати',
-  admin: { group: 'Налаштування' },
+  label: '💳 Оплата',
+  admin: { group: '⚙️ Налаштування' },
   access: { read: isAdmin, update: isAdmin },
   fields: [
     {
