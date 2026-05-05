@@ -136,9 +136,11 @@ body {
 }
 
 /* Real content sits above the film-grain pseudo (z=1) and the
-   ScrollColorWash (z=0). We use a data attribute on the wash to
-   exclude it — otherwise this rule would override its `position: fixed`. */
-.florenza-public > *:not([data-bg-layer]) {
+   ScrollColorWash (z=0). Skip background layer AND any element that
+   needs to escape the document flow (fixed/sticky overlays such as
+   LiyaChatLauncher, BackToTop, SandboxPaymentBanner, dialogs). */
+.florenza-public
+  > *:not([data-bg-layer]):not([data-overlay]):not(.fixed):not(.sticky):not([data-floating]) {
   position: relative;
   z-index: 2;
 }
