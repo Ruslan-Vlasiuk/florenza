@@ -13,6 +13,9 @@ import {
   linkOrderToTelegramChat,
   formatAdminOrderDetails,
   findOrderByNumber,
+  findCustomerByTelegramChatId,
+  findLatestOrderForCustomer,
+  forwardCustomerMessageToAdmin,
 } from '@/lib/messengers/telegram-commands';
 
 export const runtime = 'nodejs';
@@ -145,7 +148,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // 7. Default: pass to Лія
+    // 7. If this chat is linked to a customer with an order — relay
+    //    the message to admin instead of bouncing through Лія.
+    const linkedCustomer = await findCustomerByTelegramChatId(chatId);
+    if (linkedCustomer) {
+      const latestOrder = await findLatestOrderForCustomer(linkedCustomer.id);
+      await forwardCustomerMessageToAdmin({
+        customer: linkedCustomer,
+        orderNumber: latestOrder?.orderNumber,
+        text,
+        fromName,
+        fromUsername,
+        customerChatId: chatId,
+      });
+      await sendTelegramMessage(
+        chatId,
+        '✅ Передали повідомлення менеджеру — відповімо щойно прочитаємо.',
+      );
+      return NextResponse.json({ ok: true });
+    }
+
+    // 8. Default for unlinked chats: pass to Лія (window-shoppers etc.)
     const result = await handleIncomingMessage({
       channel: 'telegram',
       externalId: chatId,

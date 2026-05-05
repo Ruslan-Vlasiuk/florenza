@@ -14,7 +14,7 @@ export const BrandSettings: GlobalConfig = {
           label: 'Identity',
           fields: [
             { name: 'brandName', type: 'text', defaultValue: 'Florenza' },
-            { name: 'legalEntity', type: 'text', defaultValue: 'ФОП Каракой Варвара Олександрівна' },
+            { name: 'legalEntity', type: 'text', defaultValue: 'ФОП Каракой В. О.' },
             { name: 'edrpou', type: 'text', label: 'ЄДРПОУ / РНОКПП' },
             { name: 'logo', type: 'upload', relationTo: 'media', label: 'Логотип (SVG)' },
             { name: 'logoLight', type: 'upload', relationTo: 'media', label: 'Логотип (на темному)' },

@@ -298,3 +298,83 @@ export async function findOrderByNumber(orderNumber: string) {
   });
   return result.docs[0] as any | undefined;
 }
+
+/** Find a customer who linked this Telegram chat. */
+export async function findCustomerByTelegramChatId(chatId: string) {
+  const payload = await getPayloadClient();
+  const r = await payload.find({
+    collection: 'customers',
+    where: { telegramChatId: { equals: chatId } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  return r.docs[0] as any | undefined;
+}
+
+/** Latest non-cancelled order placed by this customer. */
+export async function findLatestOrderForCustomer(customerId: string | number) {
+  const payload = await getPayloadClient();
+  const r = await payload.find({
+    collection: 'orders',
+    where: {
+      and: [
+        { customer: { equals: customerId } },
+        { status: { not_equals: 'cancelled' } },
+      ],
+    },
+    sort: '-createdAt',
+    limit: 1,
+    overrideAccess: true,
+  });
+  return r.docs[0] as any | undefined;
+}
+
+/**
+ * Forward a message from a linked customer's Telegram chat to the admin bot.
+ * Threads as a reply to the original order alert if available.
+ */
+export async function forwardCustomerMessageToAdmin(args: {
+  customer: any;
+  orderNumber?: string;
+  text: string;
+  fromName?: string;
+  fromUsername?: string;
+  customerChatId: string;
+}) {
+  const adminChatId = getAdminChatId();
+  if (!adminChatId) return;
+
+  const handle = args.fromUsername ? ` @${args.fromUsername}` : '';
+  const orderHeader = args.orderNumber
+    ? `📩 <b>${args.fromName ?? 'Клієнт'}</b>${handle} · замовлення <b>${args.orderNumber}</b>`
+    : `📩 <b>${args.fromName ?? 'Клієнт'}</b>${handle} · TG <code>${args.customerChatId}</code>`;
+
+  const body = `${orderHeader}\n\n${escapeHtml(args.text)}`;
+
+  let replyToMessageId: number | undefined;
+  if (args.orderNumber) {
+    const order = await findOrderByNumber(args.orderNumber);
+    if (order?.adminAlertMessageId) replyToMessageId = order.adminAlertMessageId;
+  }
+
+  await sendTelegramMessageWithButtons(
+    adminChatId,
+    body,
+    args.orderNumber
+      ? [
+          [
+            { text: '💬 Відповісти', callback_data: `reply:${args.orderNumber}` },
+            { text: '📋 Деталі', callback_data: `details:${args.orderNumber}` },
+          ],
+        ]
+      : [],
+    { useAdminBot: true, replyToMessageId },
+  ).catch((e) => console.error('[forwardCustomerMessageToAdmin]', e));
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
