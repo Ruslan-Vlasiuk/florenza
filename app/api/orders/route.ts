@@ -211,27 +211,38 @@ export async function POST(req: NextRequest) {
         .filter(Boolean)
         .join('\n');
 
-      await sendTelegramMessageWithButtons(
-        adminChatId,
-        lines,
-        [
+      try {
+        const sent = await sendTelegramMessageWithButtons(
+          adminChatId,
+          lines,
           [
-            { text: '📋 Деталі', callback_data: `details:${orderNumber}` },
-            { text: '📞 Телефон', callback_data: `phone:${orderNumber}` },
+            [
+              { text: '📋 Деталі', callback_data: `details:${orderNumber}` },
+              { text: '📞 Телефон', callback_data: `phone:${orderNumber}` },
+            ],
           ],
-        ],
-        { useAdminBot: true },
-      ).catch((err) => {
+          { useAdminBot: true },
+        );
+        if (sent.messageId) {
+          await payload
+            .update({
+              collection: 'orders',
+              id: order.id,
+              overrideAccess: true,
+              data: { adminAlertMessageId: sent.messageId } as any,
+            })
+            .catch(() => {});
+        }
+      } catch (err) {
         console.error('[admin-notify] inline button alert failed:', err);
-        // Fallback to plain admin alert
-        return sendAdminAlert({
+        await sendAdminAlert({
           kind: 'new_paid_order',
           title: `🌸 ${orderNumber}${isSandbox ? ' · sandbox' : ''}`,
           body: lines,
           urgency: data.delivery.isUrgent ? 'high' : 'normal',
           meta: { orderId: order.id, orderNumber },
         }).catch(() => {});
-      });
+      }
     }
 
     return NextResponse.json({

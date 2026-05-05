@@ -86,22 +86,35 @@ export async function sendTelegramMessageWithButtons(
   chatId: string,
   text: string,
   buttons: InlineButton[][],
-  opts?: { useAdminBot?: boolean },
-) {
+  opts?: { useAdminBot?: boolean; replyToMessageId?: number },
+): Promise<{ messageId?: number }> {
   const token = opts?.useAdminBot
     ? process.env.TELEGRAM_ADMIN_BOT_TOKEN
     : getCustomerBotToken();
-  if (!token) return;
-  await fetch(`${TG_API(token)}/sendMessage`, {
+  if (!token) return {};
+  const body: any = {
+    chat_id: chatId,
+    text,
+    parse_mode: 'HTML',
+    reply_markup: { inline_keyboard: buttons },
+  };
+  if (opts?.replyToMessageId) {
+    body.reply_parameters = {
+      message_id: opts.replyToMessageId,
+      allow_sending_without_reply: true,
+    };
+  }
+  const res = await fetch(`${TG_API(token)}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      parse_mode: 'HTML',
-      reply_markup: { inline_keyboard: buttons },
-    }),
+    body: JSON.stringify(body),
   });
+  try {
+    const data = await res.json();
+    return { messageId: data?.result?.message_id };
+  } catch {
+    return {};
+  }
 }
 
 export async function answerCallbackQuery(

@@ -129,6 +129,14 @@ export const Orders: CollectionConfig = {
       ],
     },
     { name: 'isDemo', type: 'checkbox', defaultValue: false, admin: { position: 'sidebar' } },
+    {
+      name: 'adminAlertMessageId',
+      type: 'number',
+      admin: {
+        readOnly: true,
+        description: 'Telegram message_id новоприйшлого алерта в @djirickeosiifj832838bot — для thread-реплаїв на ті ж самі замовлення.',
+      },
+    },
   ],
   hooks: {
     beforeChange: [

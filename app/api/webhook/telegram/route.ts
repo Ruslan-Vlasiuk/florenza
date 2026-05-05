@@ -317,6 +317,18 @@ async function notifyAdminCustomerLinked(
 ) {
   const adminId = process.env.TELEGRAM_ADMIN_CHAT_ID;
   if (!adminId) return;
+
+  // Look up the original order alert message_id so this follow-up threads
+  // as a reply to the new-order alert in the admin chat.
+  let replyToMessageId: number | undefined;
+  try {
+    const { findOrderByNumber: _find } = await import('@/lib/messengers/telegram-commands');
+    const order: any = await _find(orderNumber);
+    if (order?.adminAlertMessageId) replyToMessageId = order.adminAlertMessageId;
+  } catch {
+    /* ignore */
+  }
+
   const handle = fromUsername ? `@${fromUsername}` : '';
   await sendTelegramMessageWithButtons(
     adminId,
@@ -328,6 +340,6 @@ async function notifyAdminCustomerLinked(
       'Тепер ви можете писати йому через бота.',
     ].join('\n'),
     [[{ text: '💬 Написати клієнту', callback_data: `reply:${orderNumber}` }]],
-    { useAdminBot: true },
+    { useAdminBot: true, replyToMessageId },
   ).catch((e) => console.error('[notifyAdminCustomerLinked]', e));
 }
