@@ -17,6 +17,7 @@ import {
   findLatestOrderForCustomer,
   forwardCustomerMessageToAdmin,
   buildPrepaymentPrompt,
+  createPaymentLinkForOrder,
 } from '@/lib/messengers/telegram-commands';
 
 export const runtime = 'nodejs';
@@ -304,14 +305,44 @@ async function handleAdminMessage(adminChatId: string, text: string): Promise<bo
 async function handleCallbackQuery(cb: any) {
   const callbackId = cb.id;
   const data: string = cb.data ?? '';
-  const adminChatId = String(cb.from.id);
+  const fromChatId = String(cb.from.id);
+  const [action, ...rest] = data.split(':');
 
-  if (!isAdminChat(adminChatId)) {
-    await answerCallbackQuery(callbackId, 'Доступно тільки адміну.');
+  // Customer-side actions (work for any chatId)
+  if (action === 'pay') {
+    // pay:FL-X:50 or pay:FL-X:100
+    const orderNumber = rest[0];
+    const share = rest[1] === '100' ? 100 : 50;
+    await answerCallbackQuery(callbackId, 'Створюємо посилання на оплату…');
+    const result = await createPaymentLinkForOrder(orderNumber, share as 50 | 100);
+    if ('error' in result) {
+      await sendTelegramMessage(
+        fromChatId,
+        `❌ Не вдалось створити посилання: ${result.error}. Напишіть нам у цей чат — допоможемо.`,
+      );
+      return;
+    }
+    await sendTelegramMessageWithButtons(
+      fromChatId,
+      [
+        `<b>💳 Оплата ${result.amount} грн</b>`,
+        `Замовлення: <b>${orderNumber}</b>`,
+        '',
+        'Натисніть кнопку — відкриється безпечна сторінка Mono. Apple Pay / Google Pay / картка.',
+        '',
+        '<i>Посилання дійсне 24 години.</i>',
+      ].join('\n'),
+      [[{ text: `Оплатити ${result.amount} грн →`, url: result.url }]],
+    );
     return;
   }
 
-  const [action, ...rest] = data.split(':');
+  // Admin-only actions below
+  if (!isAdminChat(fromChatId)) {
+    await answerCallbackQuery(callbackId, 'Доступно тільки адміну.');
+    return;
+  }
+  const adminChatId = fromChatId;
 
   if (action === 'reply') {
     const orderNumber = rest.join(':');

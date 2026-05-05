@@ -3,12 +3,18 @@
  * https://api.monobank.ua/docs/acquiring.html
  *
  * Apple Pay / Google Pay supported natively.
+ *
+ * Webhook signature: ECDSA-SHA256 with the merchant public key from
+ * /api/merchant/pubkey. Header `X-Sign` is base64(signature).
  */
 
-const MONO_API = 'https://api.monobank.ua/api/merchant/invoice/create';
+import crypto from 'node:crypto';
+
+const MONO_BASE = 'https://api.monobank.ua';
+const PUBKEY_URL = `${MONO_BASE}/api/merchant/pubkey`;
 
 export interface CreatePaymentRequest {
-  amount: number; // в гривнях
+  amount: number; // hryvnias
   orderRef: string;
   description: string;
   redirectUrl: string;
@@ -25,12 +31,10 @@ export async function createMonoPayment(
   req: CreatePaymentRequest,
 ): Promise<CreatePaymentResponse> {
   const token = process.env.MONO_ACQUIRING_TOKEN;
-  if (!token) {
-    throw new Error('MONO_ACQUIRING_TOKEN is not set. Configure in admin → Налаштування оплати.');
-  }
+  if (!token) throw new Error('MONO_ACQUIRING_TOKEN is not set');
 
-  const payload = {
-    amount: Math.round(req.amount * 100), // копійки
+  const body = {
+    amount: Math.round(req.amount * 100), // kopiykas
     ccy: 980, // UAH
     merchantPaymInfo: {
       reference: req.orderRef,
@@ -39,29 +43,24 @@ export async function createMonoPayment(
     redirectUrl: req.redirectUrl,
     webHookUrl: req.webhookUrl,
     validity: (req.validityMinutes ?? 60) * 60,
-    paymentType: 'debit',
+    paymentType: 'debit' as const,
   };
 
-  const response = await fetch(MONO_API, {
+  const res = await fetch(`${MONO_BASE}/api/merchant/invoice/create`, {
     method: 'POST',
     headers: {
       'X-Token': token,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(body),
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Mono API ${response.status}: ${errorText}`);
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Mono API ${res.status}: ${errorText}`);
   }
-
-  const data = (await response.json()) as { invoiceId: string; pageUrl: string };
-
-  return {
-    url: data.pageUrl,
-    intentId: data.invoiceId,
-  };
+  const data = (await res.json()) as { invoiceId: string; pageUrl: string };
+  return { url: data.pageUrl, intentId: data.invoiceId };
 }
 
 export async function getMonoPaymentStatus(invoiceId: string): Promise<{
@@ -72,12 +71,12 @@ export async function getMonoPaymentStatus(invoiceId: string): Promise<{
   const token = process.env.MONO_ACQUIRING_TOKEN;
   if (!token) throw new Error('MONO_ACQUIRING_TOKEN not set');
 
-  const response = await fetch(
-    `https://api.monobank.ua/api/merchant/invoice/status?invoiceId=${invoiceId}`,
+  const res = await fetch(
+    `${MONO_BASE}/api/merchant/invoice/status?invoiceId=${invoiceId}`,
     { headers: { 'X-Token': token } },
   );
-  if (!response.ok) throw new Error(`Mono status API ${response.status}`);
-  const data = (await response.json()) as any;
+  if (!res.ok) throw new Error(`Mono status API ${res.status}`);
+  const data = (await res.json()) as any;
   return {
     status: data.status,
     amount: data.amount ? data.amount / 100 : undefined,
@@ -85,16 +84,84 @@ export async function getMonoPaymentStatus(invoiceId: string): Promise<{
   };
 }
 
+export async function cancelMonoPayment(invoiceId: string): Promise<void> {
+  const token = process.env.MONO_ACQUIRING_TOKEN;
+  if (!token) throw new Error('MONO_ACQUIRING_TOKEN not set');
+  await fetch(`${MONO_BASE}/api/merchant/invoice/cancel`, {
+    method: 'POST',
+    headers: { 'X-Token': token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ invoiceId }),
+  }).catch(() => {});
+}
+
 /**
- * Verify Mono webhook signature (Ed25519 via mono pubkey).
- * For brevity, returns true in dev. In production must verify properly.
+ * Cache the merchant pubkey for ~1h so we don't refetch on every webhook.
+ * Mono allows pubkey rotation; on 401 we'll refetch eagerly.
+ */
+let cachedPubKeyPem: string | null = null;
+let cachedPubKeyAt = 0;
+const PUBKEY_TTL_MS = 60 * 60 * 1000;
+
+async function loadMerchantPubkeyPem(forceRefresh = false): Promise<string> {
+  const now = Date.now();
+  if (
+    !forceRefresh &&
+    cachedPubKeyPem &&
+    now - cachedPubKeyAt < PUBKEY_TTL_MS
+  ) {
+    return cachedPubKeyPem;
+  }
+  const token = process.env.MONO_ACQUIRING_TOKEN;
+  if (!token) throw new Error('MONO_ACQUIRING_TOKEN not set');
+  const res = await fetch(PUBKEY_URL, { headers: { 'X-Token': token } });
+  if (!res.ok) throw new Error(`Mono pubkey ${res.status}`);
+  const data = (await res.json()) as { key: string };
+  // `key` is base64-encoded PEM (with header/footer)
+  const pem = Buffer.from(data.key, 'base64').toString('utf8');
+  cachedPubKeyPem = pem;
+  cachedPubKeyAt = now;
+  return pem;
+}
+
+/**
+ * Verify Mono webhook signature.
+ * Header `X-Sign` is base64(ECDSA-SHA256(rawBody)) with the merchant pubkey.
  */
 export async function verifyMonoWebhook(
   rawBody: string,
-  _signatureHeader: string,
+  signatureHeader: string,
 ): Promise<boolean> {
-  if (process.env.NODE_ENV !== 'production') return true;
-  // TODO: implement Ed25519 verification with pubkey from
-  // https://api.monobank.ua/api/merchant/pubkey
-  return true;
+  if (!signatureHeader) return false;
+  // Dev escape hatch — local testing without real Mono signature
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.MONO_VERIFY_SKIP === 'true'
+  ) {
+    return true;
+  }
+
+  let signatureBytes: Buffer;
+  try {
+    signatureBytes = Buffer.from(signatureHeader, 'base64');
+  } catch {
+    return false;
+  }
+
+  for (const force of [false, true]) {
+    try {
+      const pem = await loadMerchantPubkeyPem(force);
+      const verifier = crypto.createVerify('SHA256');
+      verifier.update(rawBody);
+      verifier.end();
+      const ok = verifier.verify(pem, signatureBytes);
+      if (ok) return true;
+      if (!force) continue; // try once more with refreshed key
+    } catch (e) {
+      if (force) {
+        console.error('[mono verify] error:', e);
+        return false;
+      }
+    }
+  }
+  return false;
 }

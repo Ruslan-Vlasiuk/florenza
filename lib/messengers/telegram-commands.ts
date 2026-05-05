@@ -11,6 +11,7 @@
 
 import { sendTelegramMessage } from './telegram';
 import { getPayloadClient } from '../payload-client';
+import { createMonoPayment } from '../payments/mono';
 
 const TG_API = (token: string) => `https://api.telegram.org/bot${token}`;
 
@@ -215,9 +216,9 @@ export async function linkOrderToTelegramChat(args: {
 }
 
 /**
- * After customer is linked, the bot prompts them to pay the 50% deposit
- * (or full amount if they chose full_online). Returns the payment block
- * that the webhook sends as a follow-up message.
+ * After customer is linked, the bot prompts them to pay the 50% deposit.
+ * Uses real Monobank acquiring (sandbox token works for end-to-end flow
+ * with Mono's test cards — no real money).
  */
 export async function buildPrepaymentPrompt(order: any): Promise<{
   text: string;
@@ -227,49 +228,80 @@ export async function buildPrepaymentPrompt(order: any): Promise<{
   const prepayAmount = Math.round(total / 2);
   const orderNumber = order.orderNumber as string;
 
-  const payload = await getPayloadClient();
-  const brandSettings: any = await payload
-    .findGlobal({ slug: 'brand-settings' as any })
-    .catch(() => ({}));
-  const isSandbox = brandSettings?.paymentMode !== 'production';
+  const text = [
+    `<b>💳 Передоплата за замовленням ${orderNumber}</b>`,
+    '',
+    `Сума передоплати: <b>${prepayAmount} грн</b> (50% від ${total} грн)`,
+    'Решта — при доставці кур’єру (готівкою або карткою).',
+    '',
+    'Натисніть кнопку — згенеруємо посилання на оплату через Monobank Acquiring (Apple Pay / Google Pay / картка).',
+  ].join('\n');
 
-  const text = isSandbox
-    ? [
-        `<b>💳 Передоплата за замовленням ${orderNumber}</b>`,
-        '',
-        `Сума передоплати: <b>${prepayAmount} грн</b> (50% від ${total} грн)`,
-        'Решта — при доставці кур’єру.',
-        '',
-        '🌿 <b>Тестовий режим:</b> онлайн-оплата увімкнеться після модерації мерчанта Mono. Зараз ваше замовлення вже в обробці — ми з вами на звʼязку прямо в цьому чаті.',
-      ].join('\n')
-    : [
-        `<b>💳 Передоплата за замовленням ${orderNumber}</b>`,
-        '',
-        `Сума передоплати: <b>${prepayAmount} грн</b> (50% від ${total} грн)`,
-        'Решта — при доставці кур’єру.',
-        '',
-        'Натисніть кнопку нижче — згенеруємо посилання на оплату через Monobank.',
-      ].join('\n');
-
-  const buttons: InlineButton[][] = isSandbox
-    ? [
-        [
-          {
-            text: `💬 Написати у замовлення`,
-            callback_data: `cust_help:${orderNumber}`,
-          },
-        ],
-      ]
-    : [
-        [
-          {
-            text: `💳 Сплатити ${prepayAmount} грн`,
-            callback_data: `pay:${orderNumber}`,
-          },
-        ],
-      ];
+  const buttons: InlineButton[][] = [
+    [
+      {
+        text: `💳 Сплатити ${prepayAmount} грн`,
+        callback_data: `pay:${orderNumber}:50`,
+      },
+    ],
+    [
+      {
+        text: `💎 Сплатити повністю ${total} грн`,
+        callback_data: `pay:${orderNumber}:100`,
+      },
+    ],
+  ];
 
   return { text, buttons };
+}
+
+/**
+ * Generate a Monobank invoice for an order, persist invoiceId on the
+ * Order, and return the customer-facing payment URL.
+ */
+export async function createPaymentLinkForOrder(
+  orderNumber: string,
+  share: 50 | 100,
+): Promise<{ url: string; amount: number; invoiceId: string } | { error: string }> {
+  const order = await findOrderByNumber(orderNumber);
+  if (!order) return { error: 'Замовлення не знайдено' };
+
+  const total = Number(order.totalAmount ?? 0);
+  const amount = share === 100 ? total : Math.round(total / 2);
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://florenza-irpin.com';
+
+  try {
+    const result = await createMonoPayment({
+      amount,
+      orderRef: orderNumber,
+      description:
+        share === 100
+          ? `Florenza · повна оплата замовлення ${orderNumber}`
+          : `Florenza · передоплата 50% за ${orderNumber}`,
+      redirectUrl: `${siteUrl}/order/${orderNumber}`,
+      webhookUrl: `${siteUrl}/api/webhook/mono`,
+      validityMinutes: 60 * 24, // 24h to pay
+    });
+
+    const payload = await getPayloadClient();
+    await payload.update({
+      collection: 'orders',
+      id: order.id,
+      overrideAccess: true,
+      data: {
+        paymentProvider: 'mono',
+        paymentIntentId: result.intentId,
+        paymentLink: result.url,
+        status: 'awaiting_prepayment',
+      } as any,
+    });
+
+    return { url: result.url, amount, invoiceId: result.intentId };
+  } catch (e) {
+    console.error('[createPaymentLinkForOrder]', e);
+    return { error: (e as Error).message };
+  }
 }
 
 export function formatCustomerOrderSummary(order: any): string {
