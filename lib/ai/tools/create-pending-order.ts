@@ -29,7 +29,7 @@ export const createPendingOrder: ToolDef = {
       subtotal: { type: 'number' },
       discount_amount: { type: 'number' },
       delivery_fee: { type: 'number' },
-      liya_notes: { type: 'string', description: 'Нотатки з контексту діалогу для Варвари' },
+      liya_notes: { type: 'string', description: 'Нотатки з контексту діалогу для менеджера' },
     },
     required: [
       'bouquet_id',
@@ -46,36 +46,54 @@ export const createPendingOrder: ToolDef = {
   handler: async (input, ctx) => {
     const payload = await getPayloadClient();
 
+    // Payload+Postgres relationships expect numeric IDs.
+    const bouquetIdNum = Number(input.bouquet_id);
+    if (!Number.isFinite(bouquetIdNum)) {
+      return {
+        error: true,
+        message: `Невалідний bouquet_id: ${input.bouquet_id}. Викличу escalate_to_human.`,
+      };
+    }
+    const deliveryZoneIdNum = input.delivery_zone_id
+      ? Number(input.delivery_zone_id)
+      : undefined;
+    const conversationIdNum =
+      typeof ctx.conversationId === 'number'
+        ? ctx.conversationId
+        : Number(ctx.conversationId);
+
     // Find or create customer
     const customer = await payload.find({
       collection: 'customers',
       where: { phone: { equals: input.buyer_phone } },
       limit: 1,
+      overrideAccess: true,
     });
-    let customerId = customer.docs[0]?.id;
-    if (!customerId) {
-      const created = await payload.create({
+    const customerId = customer.docs[0]?.id ?? (
+      await payload.create({
         collection: 'customers',
+        overrideAccess: true,
         data: {
           phone: input.buyer_phone,
           name: input.buyer_name,
           preferredChannel: ctx.channel,
-        },
-      });
-      customerId = created.id;
-    }
+        } as any,
+      })
+    ).id;
 
     // Bouquet snapshot
     const bouquet = (await payload.findByID({
       collection: 'bouquets',
-      id: input.bouquet_id,
+      id: bouquetIdNum,
+      overrideAccess: true,
     })) as any;
 
     const order = await payload.create({
       collection: 'orders',
+      overrideAccess: true,
       data: {
         status: 'pending_payment',
-        bouquet: input.bouquet_id,
+        bouquet: bouquetIdNum,
         bouquetSnapshot: {
           name: bouquet.name,
           price: bouquet.price,
@@ -92,7 +110,9 @@ export const createPendingOrder: ToolDef = {
         recipientName: input.recipient_name,
         recipientPhone: input.recipient_phone,
         isAnonymous: input.is_anonymous ?? false,
-        deliveryZone: input.delivery_zone_id,
+        ...(deliveryZoneIdNum && Number.isFinite(deliveryZoneIdNum)
+          ? { deliveryZone: deliveryZoneIdNum }
+          : {}),
         addressStreet: input.address_street,
         addressBuilding: input.address_building,
         addressApartment: input.address_apartment,
@@ -103,10 +123,10 @@ export const createPendingOrder: ToolDef = {
         deliverySlot: input.delivery_slot,
         isUrgent: input.is_urgent ?? false,
         cardMessage: input.card_message,
-        conversation: ctx.conversationId,
+        conversation: conversationIdNum,
         createdBy: 'liya',
         liyaNotes: input.liya_notes,
-      },
+      } as any,
     });
 
     return {

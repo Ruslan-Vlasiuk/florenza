@@ -3,9 +3,9 @@ import { getPayloadClient } from '../../payload-client';
 import { sendAdminAlert } from '../../messengers/admin-notify';
 
 export const escalateToVarvara: ToolDef = {
-  name: 'escalate_to_varvara',
+  name: 'escalate_to_human',
   description:
-    'Передає розмову Варварі (реальній людині). Викликай для весіль, корпоративу >5000, скарг, делікатних тем, кастомних замовлень, прямих запитів на людину.',
+    'Передає розмову живій флористці-менеджеру. Викликай для весіль, корпоративу >5000, скарг, делікатних тем, кастомних замовлень, прямих запитів на людину, та коли інші tools падають з технічною помилкою.',
   input_schema: {
     type: 'object',
     properties: {
@@ -26,7 +26,7 @@ export const escalateToVarvara: ToolDef = {
       context: {
         type: 'string',
         description:
-          'Що вже зрозуміло з розмови, що потрібно від Варвари. Лія сама пише собі нотатку.',
+          'Що вже зрозуміло з розмови, що потрібно від менеджера. Лія сама пише собі нотатку.',
       },
     },
     required: ['reason', 'context'],
@@ -75,7 +75,8 @@ export const escalateToVarvara: ToolDef = {
     return {
       escalated: true,
       escalationId: escalation.id,
-      message: 'Передано Варварі. Скажи клієнту: "Передаю розмову Варварі — вона особисто допоможе."',
+      message:
+        'Передано менеджеру. Скажи клієнту коротко: "Передаю розмову нашій флористці — вона особисто допоможе." Не використовуй жодних особистих імен.',
     };
   },
 };

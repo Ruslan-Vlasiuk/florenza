@@ -57,7 +57,7 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
     return {
       conversationId: '',
       text:
-        'AI-консультантка тимчасово недоступна (немає ANTHROPIC_API_KEY). Залиште номер у формі — Варвара зв\'яжеться з вами.',
+        'AI-консультантка тимчасово недоступна. Залиште номер у формі — ми зв\'яжемося з вами.',
       escalated: false,
       toolsCalled: [],
       costUSD: 0,
@@ -240,7 +240,7 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
   // 5. Build messages array for Claude
   const claudeMessages: any[] = history.map((m: any) => ({
     role: m.role === 'assistant' || m.role === 'human_admin' ? 'assistant' : 'user',
-    content: m.role === 'human_admin' ? `[Варвара]: ${m.content}` : m.content,
+    content: m.role === 'human_admin' ? `[менеджер]: ${m.content}` : m.content,
   }));
 
   // Opening turn — there is no user message yet. Inject a synthetic
@@ -319,7 +319,7 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
         tool_use_id: tu.id,
         content: JSON.stringify(result),
       });
-      if (tu.name === 'escalate_to_varvara') {
+      if (tu.name === 'escalate_to_human') {
         escalated = true;
       }
     }
