@@ -4,6 +4,18 @@
  */
 import { createFiscalReceipt, sendReceiptToCustomer } from './checkbox';
 import { getPayloadClient } from '../payload-client';
+import { Pool } from 'pg';
+
+let pool: Pool | null = null;
+function getPool(): Pool {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URI ?? '',
+      max: 2,
+    });
+  }
+  return pool;
+}
 
 export async function issueFiscalReceiptForOrder(orderId: string): Promise<void> {
   const payload = await getPayloadClient();
@@ -22,14 +34,15 @@ export async function issueFiscalReceiptForOrder(orderId: string): Promise<void>
     customerPhone: order.buyerPhone,
   });
 
-  await payload.update({
-    collection: 'orders',
-    id: orderId,
-    data: {
-      fiscalReceiptId: receipt.receiptId,
-      fiscalReceiptUrl: receipt.receiptUrl,
-    },
-  });
+  // Use raw SQL — same Payload+Drizzle UPSERT quirk applies on Orders.
+  await getPool().query(
+    `UPDATE orders
+       SET fiscal_receipt_id = $1,
+           fiscal_receipt_url = $2,
+           updated_at = NOW()
+     WHERE id = $3`,
+    [receipt.receiptId, receipt.receiptUrl, Number(orderId)],
+  );
 
   // Find conversation and send to its channel
   const conv: any = order.conversation

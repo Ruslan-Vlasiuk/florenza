@@ -2,6 +2,7 @@ import type { ToolDef } from './index';
 import { getPayloadClient } from '../../payload-client';
 import { createMonoPayment } from '../../payments/mono';
 import { createLiqPayPayment } from '../../payments/liqpay';
+import { recordPaymentLink } from '../../payments/order-db';
 
 export const generatePaymentLink: ToolDef = {
   name: 'generate_payment_link',
@@ -75,14 +76,10 @@ export const generatePaymentLink: ToolDef = {
       };
     }
 
-    await payload.update({
-      collection: 'orders',
-      id: input.order_id,
-      data: {
-        paymentProvider: provider,
-        paymentIntentId: result.intentId,
-        paymentLink: result.url,
-      },
+    await recordPaymentLink({
+      orderId: input.order_id,
+      intentId: result.intentId,
+      url: result.url,
     });
 
     return {
