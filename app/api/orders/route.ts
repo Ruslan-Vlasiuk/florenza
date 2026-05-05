@@ -167,25 +167,29 @@ export async function POST(req: NextRequest) {
       data.delivery.addressApartment ? `, кв. ${data.delivery.addressApartment}` : ''
     }`;
 
-    sendAdminAlert({
-      kind: 'new_paid_order',
-      title: `🌸 Нове замовлення ${(order as any).orderNumber}${isSandbox ? ' · sandbox' : ''}`,
-      body: [
-        `Сума: ${totalAmount} грн (${paymentLabel})`,
-        `Букети: ${itemsLine}`,
-        `Замовник: ${data.buyer.name} · ${data.buyer.phone}`,
-        `Отримувач: ${recipient}`,
-        `Адреса: ${addressLine}`,
-        `Доставка: ${data.delivery.deliveryDate} ${data.delivery.deliverySlot}${data.delivery.isUrgent ? ' · ТЕРМІНОВА' : ''}`,
-        data.cardMessage ? `Листівка: ${data.cardMessage}` : null,
-      ]
-        .filter(Boolean)
-        .join('\n'),
-      urgency: data.delivery.isUrgent ? 'high' : 'normal',
-      meta: { orderId: order.id, orderNumber: (order as any).orderNumber },
-    }).catch((err) => {
+    // Await admin alert — Next.js standalone may abort detached promises
+    // after the response is sent. Telegram round-trip is ~300ms in EU/UA.
+    try {
+      await sendAdminAlert({
+        kind: 'new_paid_order',
+        title: `🌸 Нове замовлення ${(order as any).orderNumber}${isSandbox ? ' · sandbox' : ''}`,
+        body: [
+          `Сума: ${totalAmount} грн (${paymentLabel})`,
+          `Букети: ${itemsLine}`,
+          `Замовник: ${data.buyer.name} · ${data.buyer.phone}`,
+          `Отримувач: ${recipient}`,
+          `Адреса: ${addressLine}`,
+          `Доставка: ${data.delivery.deliveryDate} ${data.delivery.deliverySlot}${data.delivery.isUrgent ? ' · ТЕРМІНОВА' : ''}`,
+          data.cardMessage ? `Листівка: ${data.cardMessage}` : null,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+        urgency: data.delivery.isUrgent ? 'high' : 'normal',
+        meta: { orderId: order.id, orderNumber: (order as any).orderNumber },
+      });
+    } catch (err) {
       console.error('[admin-notify] failed to send Telegram alert:', err);
-    });
+    }
 
     return NextResponse.json({
       ok: true,
