@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handleIncomingMessage } from '@/lib/ai/conversation-manager';
-import { sendTelegramMessage, downloadTelegramFile } from '@/lib/messengers/telegram';
-import { transcribeVoice } from '@/lib/ai/whisper';
+import { sendTelegramMessage } from '@/lib/messengers/telegram';
 import { getPayloadClient } from '@/lib/payload-client';
 
 export const runtime = 'nodejs';
@@ -31,30 +30,19 @@ export async function POST(req: NextRequest) {
       [message.from?.first_name, message.from?.last_name].filter(Boolean).join(' ') ||
       message.from?.username;
 
-    let text = message.text ?? '';
-    let isVoiceTranscript = false;
+    const text = message.text ?? '';
+    const isVoiceTranscript = false;
     const attachments: any[] = [];
 
-    // Voice handling
-    if (message.voice && process.env.TELEGRAM_BOT_TOKEN) {
-      try {
-        const buf = await downloadTelegramFile(message.voice.file_id);
-        const t = await transcribeVoice({
-          audioBuffer: buf,
-          mimeType: 'audio/ogg',
-          language: 'uk',
-        });
-        text = t.text;
-        isVoiceTranscript = !t.isStub;
-        attachments.push({ type: 'voice', url: `tg-file:${message.voice.file_id}` });
-      } catch (e) {
-        console.error('[telegram voice]', e);
-        await sendTelegramMessage(
-          chatId,
-          'Виникли проблеми з розпізнаванням голосового. Можете коротко написати або повторити?',
-        );
-        return NextResponse.json({ ok: true });
-      }
+    // Voice handling — DISABLED for soft-launch.
+    // Whisper is not yet wired (no docker service / VPS install). Politely
+    // redirect to text. Re-enable after Whisper integration is shipped.
+    if (message.voice) {
+      await sendTelegramMessage(
+        chatId,
+        'Поки що приймаю тільки текст. Опишіть коротко що цікавить — допоможу обрати букет.',
+      );
+      return NextResponse.json({ ok: true });
     }
 
     if (!text.trim()) {
