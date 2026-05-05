@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils/cn';
 import { DiscountTimer } from './DiscountTimer';
 
 export interface BouquetCardData {
+  id: string;
   slug: string;
   name: string;
   price: number;
