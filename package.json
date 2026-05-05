@@ -19,6 +19,8 @@
     "seed:demo": "tsx db/seed/seed.ts",
     "seed:wipe-demo": "tsx db/seed/wipe.ts",
     "seed:demo:photos": "tsx db/seed/regenerate-photos.ts",
+    "seed:admin": "tsx db/seed/admin.ts",
+    "seed:globals": "tsx db/seed/globals.ts",
     "tg:setup": "./scripts/setup-telegram-webhook.sh",
     "tg:dev": "./scripts/dev-telegram.sh",
     "tg:info": "curl -sS https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo | jq .",

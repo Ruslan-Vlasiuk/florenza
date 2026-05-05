@@ -39,6 +39,24 @@ services:
       retries: 3
       start_period: 60s
 
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: seed
+    container_name: florenza-seed
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    profiles:
+      - seed
+    # Run via:
+    #   docker compose --profile seed run --rm seed pnpm seed:admin
+    #   docker compose --profile seed run --rm seed pnpm seed:globals
+    #   docker compose --profile seed run --rm seed pnpm seed:demo
+
   nginx:
     image: nginx:alpine
     container_name: florenza-nginx
