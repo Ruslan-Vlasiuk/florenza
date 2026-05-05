@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handleIncomingMessage } from '@/lib/ai/conversation-manager';
-import { sendTelegramMessage } from '@/lib/messengers/telegram';
+import { sendTelegramMessage, startTypingHeartbeat } from '@/lib/messengers/telegram';
 import { getPayloadClient } from '@/lib/payload-client';
 import {
   isAdminChat,
@@ -169,17 +169,23 @@ export async function POST(req: NextRequest) {
     }
 
     // 8. Default for unlinked chats: pass to Лія (window-shoppers etc.)
-    const result = await handleIncomingMessage({
-      channel: 'telegram',
-      externalId: chatId,
-      customerName: fromName,
-      customerTelegramChatId: chatId,
-      text,
-      isVoiceTranscript: false,
-      attachments: [],
-    });
+    const stopTyping = startTypingHeartbeat(chatId);
+    let result;
+    try {
+      result = await handleIncomingMessage({
+        channel: 'telegram',
+        externalId: chatId,
+        customerName: fromName,
+        customerTelegramChatId: chatId,
+        text,
+        isVoiceTranscript: false,
+        attachments: [],
+      });
+    } finally {
+      stopTyping();
+    }
 
-    if (result.text) {
+    if (result?.text) {
       await sendTelegramMessage(chatId, result.text);
     }
 

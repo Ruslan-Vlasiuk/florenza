@@ -44,6 +44,32 @@ export async function sendTelegramMessage(
   });
 }
 
+/**
+ * Show "is typing…" indicator in the customer chat. Telegram displays
+ * it for ~5 seconds; refresh while a long-running operation is in flight.
+ *
+ *   await sendTelegramTypingAction(chatId);              // single ping
+ *   const stop = startTypingHeartbeat(chatId);           // keep alive
+ *   try { await heavyWork(); } finally { stop(); }
+ */
+export async function sendTelegramTypingAction(chatId: string): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+  await fetch(`${TG_API(token)}/sendChatAction`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, action: 'typing' }),
+  }).catch(() => {});
+}
+
+export function startTypingHeartbeat(chatId: string, intervalMs = 4000) {
+  void sendTelegramTypingAction(chatId);
+  const id = setInterval(() => {
+    void sendTelegramTypingAction(chatId);
+  }, intervalMs);
+  return () => clearInterval(id);
+}
+
 export async function sendTelegramAdminAlert(
   text: string,
   opts: { urgency?: 'low' | 'normal' | 'high' | 'urgent' } = {},

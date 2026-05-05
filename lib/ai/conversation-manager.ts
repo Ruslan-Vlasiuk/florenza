@@ -272,9 +272,12 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
 
   // 6. Tool loop
   const toolsCalled: string[] = [];
+  // Accumulate text across iterations — earlier loops may produce a greeting
+  // chunk before issuing tool_use, then the final loop produces the closing
+  // chunk. Overwriting per-loop drops everything except the last fragment.
+  const textChunks: string[] = [];
   let totalCost = 0;
   let totalLatency = 0;
-  let assistantText = '';
   let escalated = false;
   let stopReason: string | null = null;
 
@@ -293,10 +296,11 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
     // Append assistant content (text + tool_uses) to messages
     claudeMessages.push({ role: 'assistant', content: response.content });
 
-    // Extract any text
+    // Extract any text — accumulate, don't overwrite
     const textBlocks = response.content.filter((c: any) => c.type === 'text');
     if (textBlocks.length) {
-      assistantText = textBlocks.map((t: any) => t.text).join('\n').trim();
+      const chunk = textBlocks.map((t: any) => t.text).join('\n').trim();
+      if (chunk) textChunks.push(chunk);
     }
 
     // Check for tool_use
@@ -321,6 +325,8 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
     }
     claudeMessages.push({ role: 'user', content: toolResults });
   }
+
+  const assistantText = textChunks.join('\n\n').trim();
 
   // 7. Save assistant message
   await payload.create({
