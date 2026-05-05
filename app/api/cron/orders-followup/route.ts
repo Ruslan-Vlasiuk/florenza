@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPayloadClient } from '@/lib/payload-client';
 import { sendTelegramMessageWithButtons } from '@/lib/messengers/telegram-commands';
+import { recordFollowupSent } from '@/lib/payments/order-db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -77,14 +78,7 @@ export async function GET(req: NextRequest) {
       },
     ).catch((e) => console.error('[cron orders-followup]', e));
 
-    await payload
-      .update({
-        collection: 'orders',
-        id: order.id,
-        overrideAccess: true,
-        data: { followupSentAt: new Date().toISOString() } as any,
-      })
-      .catch(() => {});
+    await recordFollowupSent(order.id).catch(() => {});
     nudged++;
   }
 

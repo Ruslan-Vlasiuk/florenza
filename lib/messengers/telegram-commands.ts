@@ -12,6 +12,11 @@
 import { sendTelegramMessage } from './telegram';
 import { getPayloadClient } from '../payload-client';
 import { createMonoPayment } from '../payments/mono';
+import {
+  recordPaymentLink,
+  setOrderStatus,
+  setCustomerTelegram,
+} from '../payments/order-db';
 
 const TG_API = (token: string) => `https://api.telegram.org/bot${token}`;
 
@@ -165,18 +170,11 @@ export async function linkOrderToTelegramChat(args: {
     typeof order.customer === 'object' ? order.customer?.id : order.customer;
 
   if (customerId) {
-    await payload
-      .update({
-        collection: 'customers',
-        id: customerId,
-        overrideAccess: true,
-        data: {
-          telegramChatId: args.chatId,
-          preferredChannel: 'telegram',
-          name: args.fromName ?? undefined,
-        } as any,
-      })
-      .catch((e) => console.error('[linkOrderToTelegram] update customer:', e));
+    await setCustomerTelegram({
+      customerId,
+      telegramChatId: args.chatId,
+      name: args.fromName,
+    }).catch((e) => console.error('[linkOrderToTelegram] update customer:', e));
   } else if (order.buyerPhone) {
     // Fallback: find/create by phone and attach
     const found = await payload.find({
@@ -187,28 +185,17 @@ export async function linkOrderToTelegramChat(args: {
     });
     if (found.docs[0]) {
       customerId = found.docs[0].id;
-      await payload.update({
-        collection: 'customers',
-        id: customerId,
-        overrideAccess: true,
-        data: {
-          telegramChatId: args.chatId,
-          preferredChannel: 'telegram',
-        } as any,
-      });
+      await setCustomerTelegram({
+        customerId,
+        telegramChatId: args.chatId,
+        name: args.fromName,
+      }).catch(() => {});
     }
   }
 
   // Move order into "awaiting prepayment" state — customer must now pay 50%.
   if (order.status === 'new') {
-    await payload
-      .update({
-        collection: 'orders',
-        id: order.id,
-        overrideAccess: true,
-        data: { status: 'awaiting_prepayment' } as any,
-      })
-      .catch(() => {});
+    await setOrderStatus(order.id, 'awaiting_prepayment').catch(() => {});
   }
 
   const summary = formatCustomerOrderSummary(order);
@@ -284,17 +271,10 @@ export async function createPaymentLinkForOrder(
       validityMinutes: 60 * 24, // 24h to pay
     });
 
-    const payload = await getPayloadClient();
-    await payload.update({
-      collection: 'orders',
-      id: order.id,
-      overrideAccess: true,
-      data: {
-        paymentProvider: 'mono',
-        paymentIntentId: result.intentId,
-        paymentLink: result.url,
-        status: 'awaiting_prepayment',
-      } as any,
+    await recordPaymentLink({
+      orderId: order.id,
+      intentId: result.intentId,
+      url: result.url,
     });
 
     return { url: result.url, amount, invoiceId: result.intentId };

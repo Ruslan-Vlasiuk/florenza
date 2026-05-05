@@ -8,6 +8,7 @@
 import { sendTelegramMessageWithButtons } from './telegram-commands';
 import { sendAdminAlert } from './admin-notify';
 import { getPayloadClient } from '../payload-client';
+import { recordAdminAlertMessageId } from '../payments/order-db';
 
 type AlertSource = 'web_checkout' | 'liya_telegram' | 'liya_web_chat';
 
@@ -117,14 +118,10 @@ export async function sendNewOrderAdminAlert(args: {
     );
 
     if (sent.messageId) {
-      await payload
-        .update({
-          collection: 'orders',
-          id: args.orderId,
-          overrideAccess: true,
-          data: { adminAlertMessageId: sent.messageId } as any,
-        })
-        .catch(() => {});
+      await recordAdminAlertMessageId({
+        orderId: args.orderId,
+        messageId: sent.messageId,
+      }).catch(() => {});
     }
     return sent;
   } catch (err) {

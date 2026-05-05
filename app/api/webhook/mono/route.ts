@@ -4,6 +4,7 @@ import { getPayloadClient } from '@/lib/payload-client';
 import { sendTelegramMessageWithButtons } from '@/lib/messengers/telegram-commands';
 import { sendTelegramMessage } from '@/lib/messengers/telegram';
 import { issueFiscalReceiptForOrder } from '@/lib/payments/issue-receipt';
+import { recordPaymentSuccess, recordPaymentCancelled } from '@/lib/payments/order-db';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -72,16 +73,11 @@ export async function POST(req: NextRequest) {
         ? 'prepayment_received'
         : 'paid_partial';
 
-    await payload.update({
-      collection: 'orders',
-      id: order.id,
-      overrideAccess: true,
-      data: {
-        status: newStatus,
-        paidAmount: (order.paidAmount ?? 0) + paidAmountUah,
-        remainingAmount: Math.max(0, order.totalAmount - ((order.paidAmount ?? 0) + paidAmountUah)),
-        paidAt: new Date().toISOString(),
-      } as any,
+    await recordPaymentSuccess({
+      orderId: order.id,
+      paidAmount: paidAmountUah,
+      totalAmount: order.totalAmount,
+      status: newStatus,
     });
 
     // Notify customer in their TG chat
@@ -121,14 +117,7 @@ export async function POST(req: NextRequest) {
       );
     }
   } else if (status === 'failure' || status === 'expired' || status === 'reversed') {
-    await payload.update({
-      collection: 'orders',
-      id: order.id,
-      overrideAccess: true,
-      data: {
-        status: 'cancelled',
-      } as any,
-    });
+    await recordPaymentCancelled(order.id);
 
     const customer =
       typeof order.customer === 'object' && order.customer ? order.customer : null;
