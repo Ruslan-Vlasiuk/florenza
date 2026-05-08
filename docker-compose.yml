@@ -9,8 +9,13 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-florenza}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # SECURITY: bind to localhost only — never expose Postgres externally.
+    # Docker bypasses UFW, so a "0.0.0.0:5433:5432" mapping would be open
+    # to the internet despite UFW rules. Local dev still works because
+    # localhost-only binding is reachable from the host. App container
+    # talks to postgres over the internal docker network on 5432.
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-florenza}"]
       interval: 10s
