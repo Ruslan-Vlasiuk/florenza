@@ -74,7 +74,7 @@ export default async function HomePage() {
   return (
     <>
       <EditorialHero
-        eyebrow="Florenza · Ірпінь"
+        eyebrow="Florenza · Ірпінь · Буча · Гостомель · Ворзель · Київ"
         title="Квіти, які говорять тихо"
         subtitle="Авторська флористика для тих, хто цінує тишу і деталь. Доставка по Ірпеню, Бучі, Гостомелю та ближньому Києву."
         imageUrl="https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=1600&q=85&auto=format&fit=crop"
