@@ -5,13 +5,17 @@
  * In dev (without whisper installed locally) — returns a stub.
  * In prod (VPS) — calls /usr/local/bin/whisper.
  */
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
 const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+
+const VALID_LANG = /^[a-z]{2}$/;
+const VALID_MODEL = new Set(['tiny', 'base', 'small', 'medium', 'large', 'large-v2', 'large-v3']);
 
 export interface TranscribeRequest {
   audioBuffer: Buffer;
@@ -27,8 +31,11 @@ export interface TranscribeResponse {
 
 export async function transcribeVoice(req: TranscribeRequest): Promise<TranscribeResponse> {
   const whisperBin = process.env.WHISPER_BIN || '/usr/local/bin/whisper';
-  const model = process.env.WHISPER_MODEL || 'small';
-  const lang = req.language || process.env.WHISPER_LANG || 'uk';
+  const rawModel = process.env.WHISPER_MODEL || 'small';
+  const rawLang = req.language || process.env.WHISPER_LANG || 'uk';
+  // Hard input validation — prevents shell injection via lang/model.
+  const model = VALID_MODEL.has(rawModel) ? rawModel : 'small';
+  const lang = VALID_LANG.test(rawLang) ? rawLang : 'uk';
 
   // Check if whisper is available
   let whisperAvailable = false;
@@ -52,8 +59,10 @@ export async function transcribeVoice(req: TranscribeRequest): Promise<Transcrib
 
   try {
     await fs.writeFile(tmpFile, req.audioBuffer);
-    await execAsync(
-      `${whisperBin} ${tmpFile} --model ${model} --language ${lang} --output_format txt --output_dir ${tmpDir}`,
+    // execFile (no shell) — args passed as array, no metacharacter interpretation.
+    await execFileAsync(
+      whisperBin,
+      [tmpFile, '--model', model, '--language', lang, '--output_format', 'txt', '--output_dir', tmpDir],
       { timeout: 120_000 },
     );
     const text = await fs.readFile(tmpOutput, 'utf-8');

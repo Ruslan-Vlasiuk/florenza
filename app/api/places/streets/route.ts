@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -153,6 +154,14 @@ function fuzzyMatchStreets(query: string, corpus: string[]): string[] {
 }
 
 export async function GET(req: NextRequest) {
+  const ip = getClientIp(req);
+  const lim = rateLimit(`places:${ip}`, 30, 60_000); // 30 req/min/IP
+  if (!lim.allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests', suggestions: [] },
+      { status: 429, headers: { 'Retry-After': String(lim.retryAfterSec) } },
+    );
+  }
   const params = req.nextUrl.searchParams;
   const cityKey = (params.get('city') ?? '').toLowerCase();
   const q = (params.get('q') ?? '').trim();

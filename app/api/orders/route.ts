@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getPayloadClient } from '@/lib/payload-client';
 import { sendNewOrderAdminAlert } from '@/lib/messengers/order-alert';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -51,6 +52,22 @@ const orderRequestSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const ipLimit = rateLimit(`orders:ip:${ip}`, 5, 60_000); // 5 orders/min/IP
+    if (!ipLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Забагато спроб. Спробуйте через хвилину.' },
+        { status: 429, headers: { 'Retry-After': String(ipLimit.retryAfterSec) } },
+      );
+    }
+    const dailyLimit = rateLimit(`orders:ip:daily:${ip}`, 30, 24 * 60 * 60_000);
+    if (!dailyLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Денний ліміт замовлень вичерпано.' },
+        { status: 429, headers: { 'Retry-After': String(dailyLimit.retryAfterSec) } },
+      );
+    }
+
     const body = await req.json();
     const parsed = orderRequestSchema.safeParse(body);
     if (!parsed.success) {
