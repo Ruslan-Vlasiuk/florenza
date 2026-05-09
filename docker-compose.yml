@@ -21,6 +21,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    # SECURITY hardening (same rationale as `app`)
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+      - FOWNER
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 1g
 
   app:
     build:
@@ -39,6 +53,28 @@ services:
       - "127.0.0.1:3000:3000"
     volumes:
       - media_uploads:/var/florenza/media
+    # SECURITY hardening:
+    # - read_only: container FS is read-only. Even if there's an RCE, the
+    #   attacker cannot persist a binary into /app, /usr, etc.
+    # - tmpfs: writable scratch areas in RAM, mounted noexec — dropped
+    #   binaries (e.g. /tmp/let, /var/tmp/lib/ruldalmh from earlier breach)
+    #   physically cannot be executed.
+    # - cap_drop: ALL + selective add — no SETUID, no NET_RAW, no PTRACE.
+    # - no-new-privileges: prevents setuid escalation.
+    # - pids_limit: caps process bombs.
+    # - mem_limit: prevents resource exhaustion DoS.
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m
+      - /var/tmp:rw,noexec,nosuid,nodev,size=16m
+      - /var/florenza/media:rw,noexec,nosuid,size=200m
+      - /run:rw,noexec,nosuid,size=8m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 1g
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
