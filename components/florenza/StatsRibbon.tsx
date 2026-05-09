@@ -12,7 +12,7 @@ interface Stat {
 const STATS: Stat[] = [
   { value: 1200, suffix: '+', label: 'букетів зібрано вручну' },
   { value: 60, suffix: ' хв', label: 'термінова доставка' },
-  { value: 4, label: 'міста зони покриття' },
+  { value: 5, label: 'міст зони покриття' },
   { value: 24, suffix: '/7', label: 'приймаємо замовлення' },
 ];
 
