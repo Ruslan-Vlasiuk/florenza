@@ -67,7 +67,6 @@ services:
     tmpfs:
       - /tmp:rw,noexec,nosuid,nodev,size=64m
       - /var/tmp:rw,noexec,nosuid,nodev,size=16m
-      - /var/florenza/media:rw,noexec,nosuid,size=200m
       - /run:rw,noexec,nosuid,size=8m
     cap_drop:
       - ALL
