@@ -159,7 +159,7 @@ export default async function HomePage() {
               {featured.map((b, i) => (
                 <div
                   key={b.slug}
-                  className="bg-[rgba(245,240,232,0.88)] backdrop-blur-sm rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(40,30,40,0.15)]"
+                  className="bg-[rgba(245,240,232,0.96)] rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(40,30,40,0.15)]"
                 >
                   <BouquetCard bouquet={b} index={i} />
                 </div>

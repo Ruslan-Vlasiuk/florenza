@@ -39,7 +39,7 @@ export function BalloonsSection({ bouquets }: { bouquets: BouquetCardData[] }) {
         {bouquets.slice(0, 6).map((b, i) => (
           <div
             key={b.slug}
-            className="bg-[rgba(245,240,232,0.85)] backdrop-blur-sm rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(40,20,30,0.15)]"
+            className="bg-[rgba(245,240,232,0.96)] rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(40,20,30,0.15)]"
           >
             <BouquetCard bouquet={b} index={i} />
           </div>

@@ -56,7 +56,7 @@ export function BigRosesSection({ bouquets }: { bouquets: BouquetCardData[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ delay: i * 0.07, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="bg-[rgba(245,232,224,0.93)] backdrop-blur-sm rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(20,6,10,0.25)]"
+              className="bg-[rgba(245,232,224,0.97)] rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(20,6,10,0.25)]"
             >
               <BouquetCard bouquet={b} index={i} />
             </motion.div>
