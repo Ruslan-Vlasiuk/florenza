@@ -22,10 +22,18 @@ export function InventoryTicker() {
 
   return (
     <section
-      className="overflow-hidden border-y border-[var(--color-border-soft)] py-3"
-      style={{ background: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(8px)' }}
+      className="overflow-hidden border-y border-[var(--color-border-soft)] py-3 bg-white/85"
+      style={{
+        // content-visibility: auto + intrinsic-size lets the browser skip
+        // layout/paint/compositing for the ticker when it's off-screen.
+        contentVisibility: 'auto',
+        containIntrinsicSize: '40px',
+      }}
     >
-      <div className="flex animate-[florenza-ticker_60s_linear_infinite] whitespace-nowrap">
+      <div
+        className="flex animate-[florenza-ticker_60s_linear_infinite] whitespace-nowrap"
+        style={{ willChange: 'transform' }}
+      >
         {repeated.map((item, i) => (
           <div
             key={i}

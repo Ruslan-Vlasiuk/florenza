@@ -95,65 +95,81 @@ export default async function HomePage() {
 
       <SectionDivider variant="sprig" />
 
-      <StoryStickySection
-        imageUrl="https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?w=1400&q=88&auto=format&fit=crop"
-        imageAlt="Білі півонії в студії Florenza"
-        chapters={STORY_CHAPTERS}
-      />
+      <div className="cv-auto-tall">
+        <StoryStickySection
+          imageUrl="https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?w=1400&q=88&auto=format&fit=crop"
+          imageAlt="Білі півонії в студії Florenza"
+          chapters={STORY_CHAPTERS}
+        />
+      </div>
 
       <SectionDivider variant="line" />
 
-      {bouquetOfTheDay && <BouquetOfTheDay bouquet={bouquetOfTheDay} />}
+      {bouquetOfTheDay && (
+        <div className="cv-auto-section">
+          <BouquetOfTheDay bouquet={bouquetOfTheDay} />
+        </div>
+      )}
 
       {discounts.length > 0 && (
-        <BlurFade>
-          <SpecialOffersSection bouquets={discounts} />
-        </BlurFade>
+        <div className="cv-auto-section">
+          <BlurFade>
+            <SpecialOffersSection bouquets={discounts} />
+          </BlurFade>
+        </div>
       )}
 
       {bigRoses.length > 0 && (
-        <BlurFade>
-          <BigRosesSection bouquets={bigRoses} />
-        </BlurFade>
+        <div className="cv-auto-section">
+          <BlurFade>
+            <BigRosesSection bouquets={bigRoses} />
+          </BlurFade>
+        </div>
       )}
 
       {balloons.length > 0 && (
-        <BlurFade>
-          <BalloonsSection bouquets={balloons} />
-        </BlurFade>
+        <div className="cv-auto-section">
+          <BlurFade>
+            <BalloonsSection bouquets={balloons} />
+          </BlurFade>
+        </div>
       )}
 
-      <ProcessSection />
+      <div className="cv-auto-section">
+        <ProcessSection />
+      </div>
 
       <SectionDivider variant="dots" />
 
-      <BlurFade>
-        <section className="editorial-container py-24 md:py-32">
-          <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-14">
-            <div className="max-w-xl">
-              <p className="section-eyebrow mb-4">Каталог</p>
-              <h2 className="font-[var(--font-display)] text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--color-deep-forest)]">
-                Букети сезону
-              </h2>
-            </div>
-            <MagneticButton href="/buketu" variant="ghost" className="self-start md:self-end">
-              Усі букети →
-            </MagneticButton>
-          </header>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-16">
-            {featured.map((b, i) => (
-              <div
-                key={b.slug}
-                className="bg-[rgba(245,240,232,0.88)] backdrop-blur-sm rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(40,30,40,0.15)]"
-              >
-                <BouquetCard bouquet={b} index={i} />
+      <div className="cv-auto-tall">
+        <BlurFade>
+          <section className="editorial-container py-24 md:py-32">
+            <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-14">
+              <div className="max-w-xl">
+                <p className="section-eyebrow mb-4">Каталог</p>
+                <h2 className="font-[var(--font-display)] text-[clamp(2.25rem,4vw,3.5rem)] leading-tight text-[var(--color-deep-forest)]">
+                  Букети сезону
+                </h2>
               </div>
-            ))}
-          </div>
-        </section>
-      </BlurFade>
+              <MagneticButton href="/buketu" variant="ghost" className="self-start md:self-end">
+                Усі букети →
+              </MagneticButton>
+            </header>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-16">
+              {featured.map((b, i) => (
+                <div
+                  key={b.slug}
+                  className="bg-[rgba(245,240,232,0.88)] backdrop-blur-sm rounded-[var(--radius-lg)] p-3 shadow-[0_8px_30px_rgba(40,30,40,0.15)]"
+                >
+                  <BouquetCard bouquet={b} index={i} />
+                </div>
+              ))}
+            </div>
+          </section>
+        </BlurFade>
+      </div>
 
-      <section className="py-24 md:py-32 relative">
+      <section className="py-24 md:py-32 relative cv-auto-section">
         <div className="editorial-container">
           <BlurFade>
             <header className="text-center mb-14 max-w-xl mx-auto flex flex-col items-center">
@@ -170,21 +186,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <PhotoMosaic />
+      <div className="cv-auto-tall">
+        <PhotoMosaic />
+      </div>
 
       <SectionDivider variant="sprig" />
 
-      <FloristsDiary />
+      <div className="cv-auto-section">
+        <FloristsDiary />
+      </div>
 
       <SectionDivider variant="line" />
 
-      <FaqSection />
+      <div className="cv-auto-section">
+        <FaqSection />
+      </div>
 
       <SectionDivider variant="dots" />
 
-      <BlurFade>
-        <OccasionShowcase bouquets={authorShowcase} />
-      </BlurFade>
+      <div className="cv-auto-section">
+        <BlurFade>
+          <OccasionShowcase bouquets={authorShowcase} />
+        </BlurFade>
+      </div>
 
       <MessengerOrder />
     </>

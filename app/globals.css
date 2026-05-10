@@ -375,6 +375,22 @@ html {
   scrollbar-color: var(--color-sage-deep) transparent;
 }
 
+/* Performance utility — opt sections out of paint/layout/compositing
+   while they're far off-screen. Apply to heavy below-fold sections.
+   contain-intrinsic-size reserves a height so the scrollbar doesn't jump. */
+.cv-auto-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 800px;
+}
+.cv-auto-tall {
+  content-visibility: auto;
+  contain-intrinsic-size: 1200px;
+}
+.cv-auto-short {
+  content-visibility: auto;
+  contain-intrinsic-size: 400px;
+}
+
 /* Editorial floating-petal animation (used on Particles component) */
 @keyframes florenza-drift {
   0% { transform: translate3d(0, 0, 0) rotate(0deg); }
