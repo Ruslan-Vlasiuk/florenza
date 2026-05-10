@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 /**
  * Scroll-driven color morphing background.
@@ -27,6 +28,20 @@ export function ScrollColorWash() {
   const isHome = pathname === '/';
   const { scrollYProgress } = useScroll();
   const reduced = useReducedMotion();
+
+  // Defer mounting the heavy 7-layer choreography until the browser is idle
+  // and past the first paint. The hero is already painted with its own
+  // background by then, so the user never sees a flash. This eliminates
+  // the first-scroll jank spike caused by 7 fixed-position full-screen
+  // radial-gradient layers all entering the GPU compositor at once.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const idle = (window as any).requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 1));
+    const cancelIdle = (window as any).cancelIdleCallback ?? clearTimeout;
+    const id = idle(() => setMounted(true), { timeout: 1500 });
+    return () => cancelIdle(id);
+  }, []);
 
   // All useTransform calls must run unconditionally to satisfy hook rules,
   // even if we render the static fallback for non-home routes below.
@@ -55,6 +70,12 @@ export function ScrollColorWash() {
       0, 0.95, 0.7, 0,
     ]
   );
+
+  // Until idle: render nothing on home (page already has cream body bg).
+  // This is the big win — first scroll has nothing extra to composite.
+  if (isHome && !mounted) {
+    return null;
+  }
 
   // Inner pages: skip the scroll choreography entirely.
   if (!isHome) {
