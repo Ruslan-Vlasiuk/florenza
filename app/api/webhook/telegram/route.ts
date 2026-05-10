@@ -463,6 +463,7 @@ async function handleBouquetDeepLink(args: {
     bouquetId: String(bouquet.id),
     bouquetName: bouquet.name,
   };
+  let conversationId: number | string;
   if (existing.docs[0]) {
     await payload.update({
       collection: 'conversations',
@@ -470,8 +471,9 @@ async function handleBouquetDeepLink(args: {
       data: { entryContext, firstTurnHandled: false } as any,
       overrideAccess: true,
     });
+    conversationId = existing.docs[0].id;
   } else {
-    await payload.create({
+    const created = await payload.create({
       collection: 'conversations',
       data: {
         channel: 'telegram',
@@ -482,21 +484,34 @@ async function handleBouquetDeepLink(args: {
       } as any,
       overrideAccess: true,
     });
+    conversationId = created.id;
   }
 
-  await sendTelegramMessage(
-    chatId,
-    [
-      `Бачу, ви цікавитесь букетом <b>«${bouquet.name}»</b> 🌿`,
-      '',
-      `Ціна: <b>${bouquet.price} грн</b>`,
-      bouquet.descriptionShort ? '' : null,
-      bouquet.descriptionShort ?? null,
-      '',
-      'Що цікавить — склад, доставка, оформити замовлення? Я Лія, відповім одразу.',
-    ]
-      .filter((x) => x !== null)
-      .join('\n'),
-  );
+  const welcomeText = [
+    `Бачу, ви цікавитесь букетом <b>«${bouquet.name}»</b> 🌿`,
+    '',
+    `Ціна: <b>${bouquet.price} грн</b>`,
+    bouquet.descriptionShort ? '' : null,
+    bouquet.descriptionShort ?? null,
+    '',
+    'Що цікавить — склад, доставка, оформити замовлення? Я Лія, відповім одразу.',
+  ]
+    .filter((x) => x !== null)
+    .join('\n');
+
+  await sendTelegramMessage(chatId, welcomeText);
+
+  // Persist welcome as an assistant message so the AI sees it in history
+  // on the user's next turn — anchors the conversation to this new bouquet
+  // even though older history (e.g. earlier bouquet inquiries) remains.
+  await payload.create({
+    collection: 'messages',
+    data: {
+      conversation: conversationId,
+      role: 'assistant',
+      content: `[Контекст оновлено — клієнт перейшов з картки букета «${bouquet.name}» (slug: ${bouquet.slug}, id: ${bouquet.id}, ціна: ${bouquet.price} грн).]\n\n${welcomeText.replace(/<\/?b>/g, '')}`,
+    } as any,
+    overrideAccess: true,
+  });
   return true;
 }

@@ -78,6 +78,7 @@ export default async function HomePage() {
         title="Квіти, що залишаються в пам'яті"
         subtitle="Свіжі квіти зі справжнього саду, складені вручну. Залишається в думках довше, ніж у вазі."
         imageUrl="/images/hero/hero-1.jpg"
+        imageUrlMobile="/images/hero/hero-1-mobile.jpg"
         imageAlt="Букет півоній і трояндових квітів у sage-зеленій декоративній коробці"
         ctaPrimary={{ label: 'Перейти до каталогу', href: '/buketu' }}
         ctaSecondary={{ label: 'Дізнатися більше', href: '/about' }}

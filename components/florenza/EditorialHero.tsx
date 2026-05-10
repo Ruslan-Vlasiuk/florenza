@@ -8,6 +8,7 @@ import { Petals } from './effects/Petals';
 
 interface EditorialHeroProps {
   imageUrl?: string;
+  imageUrlMobile?: string;
   imageUrls?: string[];
   imageAlt: string;
   eyebrow?: string;
@@ -26,6 +27,7 @@ interface EditorialHeroProps {
  */
 export function EditorialHero({
   imageUrl,
+  imageUrlMobile,
   imageUrls,
   imageAlt,
   eyebrow,
@@ -157,10 +159,11 @@ export function EditorialHero({
 
       {/* Image side.
           Mobile (magazine spread): styled card with rounded corners,
-          shadow, and side margins; aspect ~4:5 sits above the text card.
-          md+: full-bleed right column as before. */}
+          shadow, side margins; landscape 3:2 aspect (half the previous
+          portrait height). Uses imageUrlMobile if provided.
+          md+: full-bleed right column as before with the portrait image. */}
       <div
-        className="md:col-span-6 lg:col-span-5 order-1 md:order-2 relative z-10 mt-6 mb-2 mx-5 md:mx-0 md:mt-0 md:mb-0 aspect-[4/5] md:aspect-auto md:min-h-[92svh] rounded-[var(--radius-lg)] md:rounded-none overflow-hidden shadow-[0_30px_60px_-20px_rgba(40,35,30,0.35)] md:shadow-none ring-1 ring-[var(--color-border-soft)] md:ring-0"
+        className="md:col-span-6 lg:col-span-5 order-1 md:order-2 relative z-10 mt-6 mb-2 mx-5 md:mx-0 md:mt-0 md:mb-0 aspect-[3/2] md:aspect-auto md:min-h-[92svh] rounded-[var(--radius-lg)] md:rounded-none overflow-hidden shadow-[0_30px_60px_-20px_rgba(40,35,30,0.35)] md:shadow-none ring-1 ring-[var(--color-border-soft)] md:ring-0"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -171,7 +174,9 @@ export function EditorialHero({
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
           style={reduced ? undefined : { y: imageY, willChange: 'transform' }}
         >
-          {/* Crossfade between slides */}
+          {/* Crossfade between slides. Renders TWO images — mobile-only
+              (landscape 3:2) and desktop-only (portrait). Saves bandwidth on
+              mobile and gives each viewport a properly-framed composition. */}
           <AnimatePresence mode="sync">
             <motion.div
               key={slides[activeIdx]}
@@ -181,13 +186,24 @@ export function EditorialHero({
               exit={{ opacity: 0 }}
               transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
             >
+              {/* Mobile-only image (landscape) */}
+              <Image
+                src={imageUrlMobile ?? slides[activeIdx]}
+                alt={imageAlt}
+                fill
+                priority={activeIdx === 0}
+                sizes="100vw"
+                className={`md:hidden object-cover transition-opacity duration-700 ease-out ${heroImgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoadingComplete={() => setHeroImgLoaded(true)}
+              />
+              {/* Desktop-only image (portrait) */}
               <Image
                 src={slides[activeIdx]}
                 alt={imageAlt}
                 fill
                 priority={activeIdx === 0}
-                sizes="(min-width: 768px) 50vw, 100vw"
-                className={`object-cover transition-opacity duration-700 ease-out ${heroImgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                sizes="50vw"
+                className={`hidden md:block object-cover transition-opacity duration-700 ease-out ${heroImgLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoadingComplete={() => setHeroImgLoaded(true)}
               />
               {/* Shimmer skeleton until decoded */}
