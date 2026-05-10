@@ -6,7 +6,7 @@ import { MessageCircle, Send, X } from 'lucide-react';
 import { MagneticButton } from './MagneticButton';
 import { openLiya } from '@/lib/liya-bridge';
 
-const TELEGRAM_BOT_URL = 'https://t.me/FLORENZA_irpin_bot';
+const TELEGRAM_BOT_USERNAME = 'FLORENZA_irpin_bot';
 
 type Props = {
   bouquetSlug: string;
@@ -102,7 +102,7 @@ export function AskInChatButton({
                 </button>
 
                 <a
-                  href={TELEGRAM_BOT_URL}
+                  href={`https://t.me/${TELEGRAM_BOT_USERNAME}?start=bouquet_${bouquetSlug}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}

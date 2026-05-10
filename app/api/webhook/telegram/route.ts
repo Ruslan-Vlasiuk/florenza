@@ -120,6 +120,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
+    // 4b. Deep-link from a bouquet card: /start bouquet_<slug>
+    // The website's "Запитати в чаті → Telegram" button on bouquet cards
+    // generates this. We persist a per-conversation entryContext so the
+    // very next AI turn knows which bouquet the customer is asking about.
+    const bouquetMatch = text.match(/^\/start\s+bouquet_([a-z0-9-]+)$/i);
+    if (bouquetMatch) {
+      const slug = bouquetMatch[1].toLowerCase();
+      const handled = await handleBouquetDeepLink({ slug, chatId, fromName, fromUsername });
+      if (handled) return NextResponse.json({ ok: true });
+      // fall through to plain /start handler if bouquet not found
+    }
+
     // 5. Plain /start without payload
     if (text.toLowerCase() === '/start') {
       await sendTelegramMessage(chatId, 'Я АІ-помічник сайту florenza-irpin.com');
@@ -409,4 +421,82 @@ async function notifyAdminCustomerLinked(
     [[{ text: '💬 Написати клієнту', callback_data: `reply:${orderNumber}` }]],
     { useAdminBot: true, replyToMessageId },
   ).catch((e) => console.error('[notifyAdminCustomerLinked]', e));
+}
+
+/**
+ * Customer arrived from a bouquet card via /start bouquet_<slug>.
+ * Persists entryContext on the conversation so Liya's first reply
+ * already knows which bouquet they were looking at, then sends a
+ * tailored welcome.
+ */
+async function handleBouquetDeepLink(args: {
+  slug: string;
+  chatId: string;
+  fromName: string;
+  fromUsername?: string;
+}): Promise<boolean> {
+  const { slug, chatId } = args;
+  const payload = await getPayloadClient();
+  const r = await payload.find({
+    collection: 'bouquets',
+    where: { slug: { equals: slug }, status: { equals: 'published' } },
+    limit: 1,
+  });
+  const bouquet = r.docs[0] as any;
+  if (!bouquet) return false;
+
+  // Find or create conversation and write entryContext.
+  const existing = await payload.find({
+    collection: 'conversations',
+    where: {
+      and: [
+        { channel: { equals: 'telegram' } },
+        { externalId: { equals: chatId } },
+      ],
+    },
+    limit: 1,
+  });
+  const entryContext = {
+    intent: 'question',
+    source: 'web_card',
+    bouquetSlug: bouquet.slug,
+    bouquetId: String(bouquet.id),
+    bouquetName: bouquet.name,
+  };
+  if (existing.docs[0]) {
+    await payload.update({
+      collection: 'conversations',
+      id: existing.docs[0].id,
+      data: { entryContext, firstTurnHandled: false } as any,
+      overrideAccess: true,
+    });
+  } else {
+    await payload.create({
+      collection: 'conversations',
+      data: {
+        channel: 'telegram',
+        externalId: chatId,
+        status: 'active',
+        entryContext,
+        firstTurnHandled: false,
+      } as any,
+      overrideAccess: true,
+    });
+  }
+
+  await sendTelegramMessage(
+    chatId,
+    [
+      `Бачу, ви цікавитесь букетом <b>«${bouquet.name}»</b> 🌿`,
+      '',
+      `Ціна: <b>${bouquet.price} грн</b>`,
+      bouquet.descriptionShort ? '' : null,
+      bouquet.descriptionShort ?? null,
+      '',
+      'Що цікавить — склад, доставка, оформити замовлення? Я Лія, відповім одразу.',
+    ]
+      .filter((x) => x !== null)
+      .join('\n'),
+  );
+  return true;
 }

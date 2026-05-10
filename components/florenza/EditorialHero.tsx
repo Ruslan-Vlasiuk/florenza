@@ -68,18 +68,18 @@ export function EditorialHero({
   return (
     <section
       ref={heroRef}
-      className="relative w-full min-h-[92svh] grid grid-cols-1 md:grid-cols-12 gap-0 overflow-hidden"
+      className="relative w-full md:min-h-[92svh] grid grid-cols-1 md:grid-cols-12 gap-0 overflow-hidden"
     >
       {/* Petals drift across whole hero — pauses when scrolled out */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <Petals count={3} />
       </div>
 
-      {/* Text side. On mobile this overlays the image (which sits behind via
-          order-1) — text gets dark gradient backdrop for readability.
-          On md+ it lives in the left column with the original cream bg. */}
+      {/* Text side. Magazine-spread layout on mobile: image lives in its
+          own card above (order-1), text card flows below on cream (order-2).
+          On md+ it goes back to side-by-side. */}
       <div
-        className="md:col-span-6 lg:col-span-7 order-2 md:order-1 flex items-center editorial-container py-16 md:py-24 relative z-10"
+        className="md:col-span-6 lg:col-span-7 order-2 md:order-1 flex items-center editorial-container py-10 md:py-24 relative z-10"
       >
         <div className="max-w-xl">
           {eyebrow && (
@@ -87,13 +87,13 @@ export function EditorialHero({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="section-eyebrow mb-8 text-[var(--color-cream)] md:text-[var(--color-sage-deep)]"
+              className="section-eyebrow mb-6 md:mb-8"
             >
               {eyebrow}
             </motion.p>
           )}
           <h1
-            className="font-[var(--font-display)] text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.02] text-[var(--color-cream)] md:text-[var(--color-deep-forest)]"
+            className="font-[var(--font-display)] text-[clamp(2.25rem,9vw,5.5rem)] leading-[1.02] text-[var(--color-deep-forest)]"
             aria-label={title}
           >
             {words.map((word, i) => {
@@ -115,6 +115,7 @@ export function EditorialHero({
                       ? "'opsz' 144, 'SOFT' 100, 'wght' 320"
                       : "'opsz' 144, 'SOFT' 50, 'wght' 350",
                     fontStyle: isItalic ? 'italic' : 'normal',
+                    color: isItalic ? 'var(--color-sage-deep)' : undefined,
                   }}
                 >
                   {word}
@@ -127,7 +128,7 @@ export function EditorialHero({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.55, duration: 0.7 }}
-              className="mt-8 text-base md:text-xl text-[rgba(245,240,232,0.92)] md:text-[var(--color-text-secondary)] leading-relaxed max-w-md"
+              className="mt-6 md:mt-8 text-base md:text-xl text-[var(--color-text-secondary)] leading-relaxed max-w-md"
             >
               {subtitle}
             </motion.p>
@@ -155,11 +156,11 @@ export function EditorialHero({
       </div>
 
       {/* Image side.
-          On mobile: absolute-positioned to fill the entire hero so the
-          headline text overlays it (text is light + dark gradient backdrop).
-          On md+: takes the right column normally. */}
+          Mobile (magazine spread): styled card with rounded corners,
+          shadow, and side margins; aspect ~4:5 sits above the text card.
+          md+: full-bleed right column as before. */}
       <div
-        className="absolute inset-0 z-0 md:static md:inset-auto md:z-10 md:col-span-6 lg:col-span-5 order-1 md:order-2 md:min-h-[92svh] overflow-hidden"
+        className="md:col-span-6 lg:col-span-5 order-1 md:order-2 relative z-10 mt-6 mb-2 mx-5 md:mx-0 md:mt-0 md:mb-0 aspect-[4/5] md:aspect-auto md:min-h-[92svh] rounded-[var(--radius-lg)] md:rounded-none overflow-hidden shadow-[0_30px_60px_-20px_rgba(40,35,30,0.35)] md:shadow-none ring-1 ring-[var(--color-border-soft)] md:ring-0"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -197,27 +198,13 @@ export function EditorialHero({
             </motion.div>
           </AnimatePresence>
 
-          {/* Vignette overlay — concentrates focus, reduces image dominance */}
+          {/* Subtle vignette — focuses attention without darkening the card */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                'radial-gradient(ellipse at center, transparent 50%, rgba(26,26,26,0.18) 100%)',
+                'radial-gradient(ellipse at center, transparent 60%, rgba(26,26,26,0.15) 100%)',
             }}
-          />
-          {/* Mobile-only dark scrim so the H1/subtitle/CTAs read on top
-              of the hero image. Stronger on the left (text side) and bottom. */}
-          <div
-            className="absolute inset-0 pointer-events-none md:hidden"
-            style={{
-              background:
-                'linear-gradient(180deg, rgba(20,20,20,0.55) 0%, rgba(20,20,20,0.35) 35%, rgba(20,20,20,0.55) 100%)',
-            }}
-          />
-          {/* Subtle blur for the image on mobile so colours don't fight the H1 */}
-          <div
-            className="absolute inset-0 pointer-events-none md:hidden"
-            style={{ backdropFilter: 'blur(1.5px)' }}
           />
         </motion.div>
 
