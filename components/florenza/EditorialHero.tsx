@@ -79,9 +79,10 @@ export function EditorialHero({
 
       {/* Text side. Magazine-spread layout on mobile: image lives in its
           own card above (order-1), text card flows below on cream (order-2).
-          On md+ it goes back to side-by-side. */}
+          On md+ it goes back to side-by-side. Tight spacing on mobile so
+          the CTA buttons stay above the fold. */}
       <div
-        className="md:col-span-6 lg:col-span-7 order-2 md:order-1 flex items-center editorial-container py-10 md:py-24 relative z-10"
+        className="md:col-span-6 lg:col-span-7 order-2 md:order-1 flex items-center editorial-container py-5 md:py-24 relative z-10"
       >
         <div className="max-w-xl">
           {eyebrow && (
@@ -89,13 +90,13 @@ export function EditorialHero({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="section-eyebrow mb-6 md:mb-8"
+              className="section-eyebrow mb-3 md:mb-8"
             >
               {eyebrow}
             </motion.p>
           )}
           <h1
-            className="font-[var(--font-display)] text-[clamp(2.25rem,9vw,5.5rem)] leading-[1.02] text-[var(--color-deep-forest)]"
+            className="font-[var(--font-display)] text-[clamp(2rem,8vw,5.5rem)] leading-[1.04] text-[var(--color-deep-forest)]"
             aria-label={title}
           >
             {words.map((word, i) => {
@@ -130,7 +131,7 @@ export function EditorialHero({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.55, duration: 0.7 }}
-              className="mt-6 md:mt-8 text-base md:text-xl text-[var(--color-text-secondary)] leading-relaxed max-w-md"
+              className="mt-3 md:mt-8 text-[15px] md:text-xl text-[var(--color-text-secondary)] leading-snug md:leading-relaxed max-w-md"
             >
               {subtitle}
             </motion.p>
@@ -140,7 +141,7 @@ export function EditorialHero({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.85, duration: 0.5 }}
-              className="mt-12 flex flex-wrap gap-4"
+              className="mt-5 md:mt-12 flex flex-wrap gap-3 md:gap-4"
             >
               {ctaPrimary && (
                 <MagneticButton href={ctaPrimary.href} variant="primary">
@@ -163,7 +164,7 @@ export function EditorialHero({
           portrait height). Uses imageUrlMobile if provided.
           md+: full-bleed right column as before with the portrait image. */}
       <div
-        className="md:col-span-6 lg:col-span-5 order-1 md:order-2 relative z-10 mt-6 mb-2 mx-5 md:mx-0 md:mt-0 md:mb-0 aspect-[3/2] md:aspect-auto md:min-h-[92svh] rounded-[var(--radius-lg)] md:rounded-none overflow-hidden shadow-[0_30px_60px_-20px_rgba(40,35,30,0.35)] md:shadow-none ring-1 ring-[var(--color-border-soft)] md:ring-0"
+        className="md:col-span-6 lg:col-span-5 order-1 md:order-2 relative z-10 mt-3 mb-0 mx-4 md:mx-0 md:mt-0 md:mb-0 aspect-[3/2] md:aspect-auto md:min-h-[92svh] rounded-[var(--radius-lg)] md:rounded-none overflow-hidden shadow-[0_24px_50px_-20px_rgba(40,35,30,0.35)] md:shadow-none ring-1 ring-[var(--color-border-soft)] md:ring-0"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
