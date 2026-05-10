@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     siteName: 'Florenza',
     title: 'Florenza — флористичний бутік в Ірпені',
     description:
-      'Преміум авторська флористика. Editorial-естетика. Доставка по ИБГ та ближньому Києву.',
+      'Преміум авторська флористика. Editorial-естетика. Доставка по Ірпеню, Бучі, Гостомелю, Ворзелю та ближньому Києву.',
     images: ['/og-default.png'],
   },
   twitter: {

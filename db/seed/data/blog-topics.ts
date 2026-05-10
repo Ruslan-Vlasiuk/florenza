@@ -1,6 +1,6 @@
 /**
  * 30 starter blog topics for Florenza.
- * Topics cover SEO-rich queries for ИБГ flower buyers.
+ * Topics cover SEO-rich queries for Irpin/Bucha/Hostomel/Vorzel flower buyers.
  */
 
 export const BLOG_TOPICS = [

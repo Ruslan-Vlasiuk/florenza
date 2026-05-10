@@ -13,7 +13,7 @@ export function LocalBusinessSchema() {
     image: 'https://florenza-irpin.com/og-default.png',
     logo: 'https://florenza-irpin.com/logo.svg',
     description:
-      'Преміум флористичний бутік в Ірпені. Авторські букети, доставка по ИБГ та ближньому Києву.',
+      'Преміум флористичний бутік в Ірпені. Авторські букети, доставка по Ірпеню, Бучі, Гостомелю, Ворзелю та ближньому Києву.',
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'вул. Ірпінська 1',

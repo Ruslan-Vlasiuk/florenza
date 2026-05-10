@@ -48,7 +48,7 @@ export function Footer() {
           <div className="col-span-2">
             <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed max-w-xs">
               Преміум флористичний бутік у Ірпені. Тиха editorial-чутливість,
-              авторські букети, доставка по ИБГ та ближньому Києву.
+              авторські букети, доставка по Ірпеню, Бучі, Гостомелю, Ворзелю та ближньому Києву.
             </p>
             <div className="mt-8 space-y-1 text-xs text-[var(--color-text-muted)]">
               <p className="uppercase tracking-[0.22em] text-[var(--color-sage-deep)] mb-1">
