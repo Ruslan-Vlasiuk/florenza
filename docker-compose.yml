@@ -52,13 +52,18 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     volumes:
-      - media_uploads:/var/florenza/media
+      # Payload Media collection writes/reads from ./public/media by default.
+      # Mount the persistent volume there so uploads survive container rebuilds.
+      - media_uploads:/app/public/media
     # SECURITY hardening:
     # - read_only: container FS is read-only. Even if there's an RCE, the
     #   attacker cannot persist a binary into /app, /usr, etc.
     # - tmpfs: writable scratch areas in RAM, mounted noexec — dropped
     #   binaries (e.g. /tmp/let, /var/tmp/lib/ruldalmh from earlier breach)
     #   physically cannot be executed.
+    #   /app/.next/cache is needed by Next.js Image Optimization (writes
+    #   resized/optimized variants here). Without it, every image request
+    #   re-optimizes from source = slow + 500 errors when source missing.
     # - cap_drop: ALL + selective add — no SETUID, no NET_RAW, no PTRACE.
     # - no-new-privileges: prevents setuid escalation.
     # - pids_limit: caps process bombs.
@@ -68,6 +73,7 @@ services:
       - /tmp:rw,noexec,nosuid,nodev,size=64m
       - /var/tmp:rw,noexec,nosuid,nodev,size=16m
       - /run:rw,noexec,nosuid,size=8m
+      - /app/.next/cache:rw,noexec,nosuid,size=128m
     cap_drop:
       - ALL
     security_opt:
@@ -92,6 +98,9 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    volumes:
+      # Seed must write into the SAME volume the app reads from.
+      - media_uploads:/app/public/media
     profiles:
       - seed
     # Run via:
