@@ -33,7 +33,7 @@ export function InventoryTicker() {
       <div
         className="flex whitespace-nowrap"
         style={{
-          animation: 'florenza-ticker 60s linear infinite',
+          animation: 'florenza-ticker 25s linear infinite',
           willChange: 'transform',
         }}
       >
