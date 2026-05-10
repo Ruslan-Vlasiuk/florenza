@@ -71,7 +71,7 @@ export function EditorialHero({
     >
       {/* Petals drift across whole hero — pauses when scrolled out */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <Petals count={6} />
+        <Petals count={3} />
       </div>
 
       {/* Text side */}

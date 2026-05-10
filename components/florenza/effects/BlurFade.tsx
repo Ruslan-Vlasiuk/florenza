@@ -23,18 +23,25 @@ export function BlurFade({
   delay = 0,
   duration = 0.9,
   yOffset = 24,
-  blur = 8,
+  blur = 0, // disabled by default — filter:blur on a full section is GPU-heavy
   className,
   once = true,
 }: BlurFadeProps) {
   const reduced = useReducedMotion();
   if (reduced) return <div className={className}>{children}</div>;
 
+  const initial: Record<string, number | string> = { opacity: 0, y: yOffset };
+  const animate: Record<string, number | string> = { opacity: 1, y: 0 };
+  if (blur > 0) {
+    initial.filter = `blur(${blur}px)`;
+    animate.filter = 'blur(0px)';
+  }
+
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: yOffset, filter: `blur(${blur}px)` }}
-      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      initial={initial}
+      whileInView={animate}
       viewport={{ once, margin: '-80px' }}
       transition={{ delay, duration, ease: [0.16, 1, 0.3, 1] }}
     >
