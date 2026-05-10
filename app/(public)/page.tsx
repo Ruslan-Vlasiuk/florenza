@@ -77,14 +77,8 @@ export default async function HomePage() {
         eyebrow="Florenza · Ірпінь · Буча · Гостомель · Ворзель · Київ"
         title="Квіти, що залишаються в пам'яті"
         subtitle="Свіжі квіти зі справжнього саду, складені вручну. Залишається в думках довше, ніж у вазі."
-        imageUrls={[
-          '/images/hero/hero-1a.jpg',
-          '/images/hero/hero-1b.jpg',
-          '/images/hero/hero-1c.jpg',
-          '/images/hero/hero-1d.jpg',
-          '/images/hero/hero-1e.jpg',
-        ]}
-        imageAlt="Авторський букет у декоративній коробці"
+        imageUrl="/images/hero/hero-1.jpg"
+        imageAlt="Букет півоній і трояндових квітів у sage-зеленій декоративній коробці"
         ctaPrimary={{ label: 'Перейти до каталогу', href: '/buketu' }}
         ctaSecondary={{ label: 'Дізнатися більше', href: '/about' }}
       />

@@ -159,7 +159,7 @@ export function EditorialHero({
         onMouseLeave={() => setPaused(false)}
       >
         <motion.div
-          className="absolute -inset-[8%]"
+          className="absolute inset-x-0 -inset-y-[8%]"
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
