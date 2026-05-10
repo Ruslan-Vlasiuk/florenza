@@ -453,6 +453,15 @@ html {
   100% { background-position: 200% 0; }
 }
 
+/* Inventory ticker marquee — must live in global CSS so the Tailwind
+   `animate-[florenza-ticker_…]` utility can find this keyframe by name.
+   When defined inside a styled-jsx block the name gets hashed and the
+   animation never resolves (especially visible on mobile builds). */
+@keyframes florenza-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}
+
 /* ============================================================================
    Image skeleton — placeholder shape with sweeping shimmer (light reflection).
    Apply to a container that wraps next/image. Keep visible until image fires

@@ -31,8 +31,11 @@ export function InventoryTicker() {
       }}
     >
       <div
-        className="flex animate-[florenza-ticker_60s_linear_infinite] whitespace-nowrap"
-        style={{ willChange: 'transform' }}
+        className="flex whitespace-nowrap"
+        style={{
+          animation: 'florenza-ticker 60s linear infinite',
+          willChange: 'transform',
+        }}
       >
         {repeated.map((item, i) => (
           <div
@@ -44,16 +47,6 @@ export function InventoryTicker() {
           </div>
         ))}
       </div>
-      <style jsx>{`
-        @keyframes florenza-ticker {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-33.333%);
-          }
-        }
-      `}</style>
     </section>
   );
 }
