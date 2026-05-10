@@ -268,6 +268,7 @@ export async function handleIncomingMessage(msg: IncomingMessage): Promise<LiyaR
     conversationId: conversation.id,
     customerId,
     channel: msg.channel,
+    externalId: msg.externalId,
   };
 
   // 6. Tool loop

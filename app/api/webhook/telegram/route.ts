@@ -90,12 +90,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // 4. Customer deep-link from order success page: /start order_FL-XXX
+    // 4. Customer deep-link from order success page: /start order_F-XXX
     const startMatch = text.match(/^\/start\s+order_([A-Z0-9-]+)$/i);
     if (startMatch) {
-      const orderNumber = startMatch[1].toUpperCase().startsWith('FL-')
-        ? startMatch[1].toUpperCase()
-        : `FL-${startMatch[1].toUpperCase()}`;
+      // Accept both new F-YYMMDD-NNN and legacy FL-YYYYMMDD-XXXXX formats verbatim.
+      const orderNumber = startMatch[1].toUpperCase();
       const result = await linkOrderToTelegramChat({
         orderNumber,
         chatId,
@@ -127,8 +126,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // 6. Customer typed an order number (FL-...) — try to link
-    const numMatch = text.match(/^(FL-\d{8}-[A-Z0-9]{5})$/i);
+    // 6. Customer typed an order number (F-YYMMDD-NNN or legacy FL-...) — try to link
+    const numMatch = text.match(/^(F-\d{6}-\d{3}|FL-\d{8}-[A-Z0-9]{5})$/i);
     if (numMatch) {
       const result = await linkOrderToTelegramChat({
         orderNumber: numMatch[1].toUpperCase(),

@@ -21,6 +21,10 @@ export interface ToolContext {
   conversationId: string;
   customerId?: string;
   channel: 'web_chat' | 'telegram' | 'viber';
+  // External chat identifier (Telegram chat_id / Viber user id). Required for
+  // tools that deliver a follow-up message directly to the customer (e.g.
+  // Mono pay button right after create_pending_order in TG).
+  externalId?: string;
 }
 
 export interface ToolDef {

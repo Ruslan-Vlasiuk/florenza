@@ -154,9 +154,12 @@ export const Orders: CollectionConfig = {
       async ({ data, operation }) => {
         if (operation === 'create' && !data.orderNumber) {
           const d = new Date();
-          const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-          const rand = Math.random().toString(36).slice(2, 7).toUpperCase();
-          data.orderNumber = `FL-${ymd}-${rand}`;
+          const yy = String(d.getFullYear()).slice(-2);
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          // Format: F-YYMMDD-NNN  (e.g. F-260510-742)
+          const nnn = String(Math.floor(Math.random() * 900) + 100);
+          data.orderNumber = `F-${yy}${mm}${dd}-${nnn}`;
         }
         return data;
       },

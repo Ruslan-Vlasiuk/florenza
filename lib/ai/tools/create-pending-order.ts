@@ -1,6 +1,11 @@
 import type { ToolDef } from './index';
 import { getPayloadClient } from '../../payload-client';
 import { sendNewOrderAdminAlert } from '../../messengers/order-alert';
+import {
+  buildPrepaymentPrompt,
+  sendTelegramMessageWithButtons,
+} from '../../messengers/telegram-commands';
+import { setCustomerTelegram } from '../../payments/order-db';
 
 export const createPendingOrder: ToolDef = {
   name: 'create_pending_order',
@@ -148,6 +153,27 @@ export const createPendingOrder: ToolDef = {
     const orderNumber = (order as any).orderNumber;
     const tgDeepLink = `https://t.me/FLORENZA_irpin_bot?start=order_${orderNumber}`;
 
+    // If the customer is talking to us in Telegram already — push the Mono
+    // pay button right after the order is created. Without this, Liya tells
+    // them "press the button below" but no button is ever rendered, because
+    // the bot only attaches buttons via the `/start order_X` deep-link flow.
+    if (ctx.channel === 'telegram' && ctx.externalId) {
+      try {
+        // Link this TG chat to the customer record so subsequent payment
+        // webhooks (Mono success) know where to deliver the receipt.
+        await setCustomerTelegram({
+          customerId: customerId as any,
+          telegramChatId: ctx.externalId,
+          name: input.buyer_name,
+        });
+        const prep = await buildPrepaymentPrompt(order as any);
+        await sendTelegramMessageWithButtons(ctx.externalId, prep.text, prep.buttons);
+      } catch (e) {
+        console.error('[create_pending_order] failed to send TG pay button:', e);
+        // Non-fatal — admin still notified, customer can /start order_X manually
+      }
+    }
+
     const halfAmount = Math.round(input.total_amount / 2);
 
     return {
@@ -157,7 +183,7 @@ export const createPendingOrder: ToolDef = {
       tgDeepLink,
       message:
         ctx.channel === 'telegram'
-          ? `Замовлення створено: ${orderNumber}. Клієнт уже у Telegram. Скажи коротко (БЕЗ запиту даних, БЕЗ особистих імен, БЕЗ створення посилань на оплату): "Замовлення прийнято — ${orderNumber} ✅ Сума ${input.total_amount} грн. Передоплата 50% (${halfAmount} грн) — натисніть кнопку нижче. Решта при доставці." Бот сам надішле кнопку оплати.`
+          ? `Замовлення створено: ${orderNumber}. Кнопку оплати вже надіслано клієнту окремим повідомленням ПЕРЕД цим. Скажи коротко (БЕЗ запиту даних, БЕЗ особистих імен, БЕЗ генерації будь-яких посилань): "Замовлення прийнято — ${orderNumber} ✅ Сума ${input.total_amount} грн. Передоплата 50% (${halfAmount} грн) — кнопка для оплати в попередньому повідомленні ↑. Решта при доставці. Кур'єр приїде в обраний слот."`
           : `Замовлення створено: ${orderNumber}. Скажи клієнту коротко (БЕЗ створення Mono-посилань — тільки TG): "Замовлення прийнято — ${orderNumber} ✅ Сума ${input.total_amount} грн. Передоплата 50% (${halfAmount} грн). Перейдіть у наш Telegram-бот: ${tgDeepLink} — там одна кнопка для оплати. Решта 50% при доставці." Не вживай особистих імен. НЕ генеруй жодних інших посилань. Завершуй розмову.`,
     };
   },
