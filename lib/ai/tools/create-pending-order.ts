@@ -61,7 +61,7 @@ export const createPendingOrder: ToolDef = {
         limit: 1,
         overrideAccess: true,
       });
-      if (r.docs[0]) bouquetIdNum = r.docs[0].id;
+      if (r.docs[0]) bouquetIdNum = Number(r.docs[0].id);
     }
     if (!Number.isFinite(bouquetIdNum)) {
       return {
@@ -82,7 +82,7 @@ export const createPendingOrder: ToolDef = {
           limit: 1,
           overrideAccess: true,
         });
-        if (r.docs[0]) deliveryZoneIdNum = r.docs[0].id;
+        if (r.docs[0]) deliveryZoneIdNum = Number(r.docs[0].id);
       }
     }
     const conversationIdNum =
