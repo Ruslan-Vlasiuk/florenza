@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SkeletonImage } from './effects/SkeletonImage';
 import { BlurFade } from './effects/BlurFade';
 import { BotanicalWatermark } from './effects/BotanicalWatermark';
 
@@ -50,7 +50,7 @@ export function StoryStickySection({
         <div className="md:col-span-5 lg:col-span-5 order-1">
           <div className="md:sticky md:top-24">
             <div className="relative aspect-[4/5] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--color-cream-soft)]">
-              <Image
+              <SkeletonImage
                 src={imageUrl}
                 alt={imageAlt}
                 fill

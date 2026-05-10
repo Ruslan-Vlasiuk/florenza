@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SkeletonImage } from './effects/SkeletonImage';
 import type { BouquetCardData } from './BouquetCard';
 import { MagneticButton } from './MagneticButton';
 import { OrderButton } from './OrderButton';
@@ -24,7 +24,7 @@ export function BouquetOfTheDay({ bouquet }: BouquetOfTheDayProps) {
               occasionally returned unrelated stock). */}
           <div className="col-span-12 md:col-span-7 relative">
             <div className="relative aspect-[4/5] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--color-cream-soft)] shadow-[0_30px_80px_rgba(44,62,45,0.18)]">
-              <Image
+              <SkeletonImage
                 src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=1600&q=88&auto=format&fit=crop"
                 alt="Сьогоднішній букет — півонії та троянди в льняній обгортці"
                 fill

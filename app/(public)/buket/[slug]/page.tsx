@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { SkeletonImage } from '@/components/florenza/effects/SkeletonImage';
 import Link from 'next/link';
 import { fetchBouquetBySlug, fetchAllBouquets } from '@/lib/data';
 import { formatPrice } from '@/lib/utils/format';
@@ -74,7 +75,7 @@ export default async function BouquetPage({
               />
             ) : (
               <div className="relative aspect-[4/5] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--color-cream-soft)]">
-                <Image
+                <SkeletonImage
                   src={(bouquet as any).primaryImage?.url ?? '/images/placeholder.jpg'}
                   alt={(bouquet as any).name}
                   fill
@@ -92,7 +93,7 @@ export default async function BouquetPage({
                     key={i}
                     className="relative aspect-square rounded-[var(--radius-md)] overflow-hidden bg-[var(--color-cream-soft)]"
                   >
-                    <Image
+                    <SkeletonImage
                       src={g.image?.url ?? '/images/placeholder.jpg'}
                       alt={`${(bouquet as any).name} — ракурс ${i + 1}`}
                       fill

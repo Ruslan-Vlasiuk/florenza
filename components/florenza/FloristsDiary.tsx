@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SkeletonImage } from './effects/SkeletonImage';
 import Link from 'next/link';
 import { BlurFade } from './effects/BlurFade';
 
@@ -70,7 +70,7 @@ export function FloristsDiary() {
           <BlurFade key={e.title} delay={i * 0.12} yOffset={28}>
             <Link href={e.href} className="group block">
               <div className="relative aspect-[4/3] rounded-[var(--radius-lg)] overflow-hidden bg-[var(--color-cream-soft)] mb-5 shadow-[0_4px_20px_rgba(44,62,45,0.06)]">
-                <Image
+                <SkeletonImage
                   src={e.image}
                   alt=""
                   fill

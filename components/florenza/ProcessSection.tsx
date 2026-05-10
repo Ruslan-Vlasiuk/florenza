@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SkeletonImage } from './effects/SkeletonImage';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 
@@ -80,7 +80,7 @@ export function ProcessSection() {
                     className="absolute inset-0"
                     style={{ opacity: stepOpacities[i] }}
                   >
-                    <Image
+                    <SkeletonImage
                       src={src}
                       alt=""
                       fill

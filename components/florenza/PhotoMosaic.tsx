@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SkeletonImage } from './effects/SkeletonImage';
 import { BlurFade } from './effects/BlurFade';
 
 // Curated bouquet-only Unsplash IDs at modest size (500w is enough for
@@ -64,7 +64,7 @@ function PhotoRow({
             key={`${p.src}-${i}`}
             className="relative w-[260px] md:w-[340px] aspect-[4/5] flex-shrink-0 overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-cream-soft)]"
           >
-            <Image
+            <SkeletonImage
               src={p.src}
               alt={p.alt}
               fill
