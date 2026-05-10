@@ -18,7 +18,16 @@ export function BigRosesSection({ bouquets }: { bouquets: BouquetCardData[] }) {
   if (!bouquets.length) return null;
 
   return (
-    <section className="relative py-24 md:py-36 overflow-hidden">
+    <section
+      className="relative py-24 md:py-36 overflow-hidden"
+      style={{
+        // Self-contained dark burgundy background — no longer relies on
+        // ScrollColorWash. Single linear gradient + one accent radial =
+        // far cheaper to composite than the previous 7-layer scroll wash.
+        background:
+          'radial-gradient(ellipse 80% 60% at 70% 30%, rgba(140,35,55,0.55) 0%, transparent 65%), linear-gradient(180deg, #28080f 0%, #14040a 100%)',
+      }}
+    >
       <div className="editorial-container relative z-10">
         <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16 max-w-6xl">
           <div className="max-w-xl">
