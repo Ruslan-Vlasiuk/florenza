@@ -453,6 +453,43 @@ html {
   100% { background-position: 200% 0; }
 }
 
+/* ============================================================================
+   Image skeleton — placeholder shape with sweeping shimmer (light reflection).
+   Apply to a container that wraps next/image. Keep visible until image fires
+   onLoadingComplete; then opacity-fade it out to reveal the image beneath.
+   ============================================================================ */
+.image-shimmer {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      100deg,
+      rgba(245, 240, 232, 0) 0%,
+      rgba(255, 255, 255, 0.65) 45%,
+      rgba(255, 255, 255, 0.85) 50%,
+      rgba(255, 255, 255, 0.65) 55%,
+      rgba(245, 240, 232, 0) 100%
+    ),
+    /* base tinted skeleton: cream → soft sage */
+    linear-gradient(180deg, #efe6d6 0%, #e6e0d0 100%);
+  background-size: 200% 100%, 100% 100%;
+  background-position: -200% 0, 0 0;
+  animation: florenza-shimmer 1.8s linear infinite;
+  pointer-events: none;
+  will-change: background-position, opacity;
+}
+.image-shimmer.is-hidden {
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .image-shimmer {
+    animation: none;
+    background-position: 0 0;
+  }
+}
+
 .skeleton {
   background: linear-gradient(
     90deg,

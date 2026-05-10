@@ -71,20 +71,8 @@ export function ScrollColorWash() {
     ]
   );
 
-  // ScrollColorWash is disabled on home — it was the main source of
-  // scroll lag (7 fixed-position full-screen layers, each with stacked
-  // radial gradients, all subscribing to scrollYProgress = constant
-  // GPU compositing on every frame).
-  //
-  // Sections that need a dramatic background (BigRoses burgundy,
-  // Balloons dusky-rose-to-sky) now own their backgrounds inline.
-  // The rest of the page uses the default cream body bg.
-  if (isHome) {
-    return null;
-  }
-
-  // Until idle: render nothing on home (kept for the previous defer fix,
-  // unreachable now but harmless).
+  // Until idle: render nothing on home (first scroll has nothing extra
+  // to composite). After ~1.5s the lightweight 4-layer wash mounts.
   if (isHome && !mounted) {
     return null;
   }

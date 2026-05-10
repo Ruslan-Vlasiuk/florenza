@@ -54,6 +54,7 @@ export function EditorialHero({
   const isCarousel = slides.length > 1;
   const [activeIdx, setActiveIdx] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [heroImgLoaded, setHeroImgLoaded] = useState(false);
   const next = () => setActiveIdx((i) => (i + 1) % slides.length);
   const prev = () => setActiveIdx((i) => (i - 1 + slides.length) % slides.length);
 
@@ -181,7 +182,13 @@ export function EditorialHero({
                 fill
                 priority={activeIdx === 0}
                 sizes="(min-width: 768px) 50vw, 100vw"
-                className="object-cover"
+                className={`object-cover transition-opacity duration-700 ease-out ${heroImgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onLoadingComplete={() => setHeroImgLoaded(true)}
+              />
+              {/* Shimmer skeleton until decoded */}
+              <div
+                className={`image-shimmer ${heroImgLoaded ? 'is-hidden' : ''}`}
+                aria-hidden="true"
               />
             </motion.div>
           </AnimatePresence>

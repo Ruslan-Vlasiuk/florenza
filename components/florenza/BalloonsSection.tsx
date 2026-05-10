@@ -5,15 +5,7 @@ import { BotanicalWatermark } from './effects/BotanicalWatermark';
 export function BalloonsSection({ bouquets }: { bouquets: BouquetCardData[] }) {
   if (!bouquets.length) return null;
   return (
-    <section
-      className="py-16 md:py-24 relative overflow-hidden"
-      style={{
-        // Self-contained dusky-rose / pastel-sky background — no longer
-        // relies on ScrollColorWash.
-        background:
-          'radial-gradient(ellipse 80% 70% at 30% 30%, rgba(200,160,180,0.5) 0%, transparent 65%), linear-gradient(180deg, #6b3040 0%, #c8a0b0 35%, #e0c8d4 70%, #d8e0eb 100%)',
-      }}
-    >
+    <section className="py-16 md:py-24 relative overflow-hidden">
       <BotanicalWatermark variant="eucalyptus" position="top-right" size={340} opacity={0.08} />
       <div className="editorial-container relative z-10">
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">

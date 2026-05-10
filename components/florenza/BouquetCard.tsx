@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { formatPrice } from '@/lib/utils/format';
 import { cn } from '@/lib/utils/cn';
 import { DiscountTimer } from './DiscountTimer';
@@ -44,6 +45,8 @@ export function BouquetCard({
 
   const aspect = bouquet.size === 'lg' ? 'aspect-[3/4]' : bouquet.size === 'sm' ? 'aspect-square' : 'aspect-[4/5]';
 
+  const [primaryLoaded, setPrimaryLoaded] = useState(false);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
@@ -64,7 +67,11 @@ export function BouquetCard({
             alt={bouquet.imageAlt}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover"
+            className={cn(
+              'object-cover transition-opacity duration-700 ease-out',
+              primaryLoaded ? 'opacity-100' : 'opacity-0',
+            )}
+            onLoadingComplete={() => setPrimaryLoaded(true)}
           />
           {bouquet.hoverImageUrl && (
             <Image
@@ -75,6 +82,12 @@ export function BouquetCard({
               className="object-cover"
             />
           )}
+          {/* Skeleton with sweeping shimmer until the image is decoded.
+              Fades out smoothly to reveal the loaded image beneath. */}
+          <div
+            className={cn('image-shimmer', primaryLoaded && 'is-hidden')}
+            aria-hidden="true"
+          />
           {hasDiscount && (
             <div className="absolute top-3 left-3 px-2.5 py-1 bg-[var(--color-deep-forest)] text-[var(--color-cream)] text-xs uppercase tracking-wider rounded-sm">
               {bouquet.discount!.type === 'percent'
