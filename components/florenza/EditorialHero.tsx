@@ -1,13 +1,14 @@
 'use client';
 
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MagneticButton } from './MagneticButton';
 import { Petals } from './effects/Petals';
 
 interface EditorialHeroProps {
-  imageUrl: string;
+  imageUrl?: string;
+  imageUrls?: string[];
   imageAlt: string;
   eyebrow?: string;
   title: string;
@@ -25,6 +26,7 @@ interface EditorialHeroProps {
  */
 export function EditorialHero({
   imageUrl,
+  imageUrls,
   imageAlt,
   eyebrow,
   title,
@@ -46,6 +48,21 @@ export function EditorialHero({
   const words = title.split(' ');
   // Italicize the last word for editorial cadence
   const lastWordIndex = words.length - 1;
+
+  // Carousel state — only when imageUrls provided
+  const slides = imageUrls && imageUrls.length > 0 ? imageUrls : imageUrl ? [imageUrl] : [];
+  const isCarousel = slides.length > 1;
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const next = () => setActiveIdx((i) => (i + 1) % slides.length);
+  const prev = () => setActiveIdx((i) => (i - 1 + slides.length) % slides.length);
+
+  // Auto-advance every 6s, paused on hover
+  useEffect(() => {
+    if (!isCarousel || paused || reduced) return;
+    const id = setInterval(next, 6000);
+    return () => clearInterval(id);
+  }, [isCarousel, paused, reduced, slides.length]);
 
   return (
     <section
@@ -136,7 +153,11 @@ export function EditorialHero({
       </div>
 
       {/* Image side */}
-      <div className="md:col-span-6 lg:col-span-5 order-1 md:order-2 relative aspect-[4/5] md:aspect-auto md:min-h-[92svh] overflow-hidden">
+      <div
+        className="md:col-span-6 lg:col-span-5 order-1 md:order-2 relative aspect-[4/5] md:aspect-auto md:min-h-[92svh] overflow-hidden"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
         <motion.div
           className="absolute -inset-[8%]"
           initial={{ opacity: 0, scale: 1.05 }}
@@ -144,14 +165,27 @@ export function EditorialHero({
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
           style={reduced ? undefined : { y: imageY, willChange: 'transform' }}
         >
-          <Image
-            src={imageUrl}
-            alt={imageAlt}
-            fill
-            priority
-            sizes="(min-width: 768px) 50vw, 100vw"
-            className="object-cover"
-          />
+          {/* Crossfade between slides */}
+          <AnimatePresence mode="sync">
+            <motion.div
+              key={slides[activeIdx]}
+              className="absolute inset-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Image
+                src={slides[activeIdx]}
+                alt={imageAlt}
+                fill
+                priority={activeIdx === 0}
+                sizes="(min-width: 768px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </motion.div>
+          </AnimatePresence>
+
           {/* Vignette overlay — concentrates focus, reduces image dominance */}
           <div
             className="absolute inset-0 pointer-events-none"
@@ -169,6 +203,50 @@ export function EditorialHero({
             }}
           />
         </motion.div>
+
+        {/* Carousel controls — visible only when imageUrls > 1 */}
+        {isCarousel && (
+          <>
+            {/* Arrow controls */}
+            <button
+              type="button"
+              aria-label="Попереднє зображення"
+              onClick={prev}
+              className="absolute top-1/2 -translate-y-1/2 left-3 md:left-4 z-20 w-10 h-10 md:w-11 md:h-11 rounded-full bg-[var(--color-cream)]/80 backdrop-blur-sm hover:bg-[var(--color-cream)] text-[var(--color-deep-forest)] flex items-center justify-center shadow-md transition"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button
+              type="button"
+              aria-label="Наступне зображення"
+              onClick={next}
+              className="absolute top-1/2 -translate-y-1/2 right-3 md:right-4 z-20 w-10 h-10 md:w-11 md:h-11 rounded-full bg-[var(--color-cream)]/80 backdrop-blur-sm hover:bg-[var(--color-cream)] text-[var(--color-deep-forest)] flex items-center justify-center shadow-md transition"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+
+            {/* Dots indicator + counter */}
+            <div className="absolute bottom-5 md:bottom-7 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-2 rounded-full bg-[var(--color-cream)]/70 backdrop-blur-md">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  aria-label={`Зображення ${i + 1}`}
+                  onClick={() => setActiveIdx(i)}
+                  className={
+                    'transition-all rounded-full ' +
+                    (i === activeIdx
+                      ? 'w-6 h-1.5 bg-[var(--color-deep-forest)]'
+                      : 'w-1.5 h-1.5 bg-[var(--color-deep-forest)]/35 hover:bg-[var(--color-deep-forest)]/60')
+                  }
+                />
+              ))}
+              <span className="ml-1 text-[10px] uppercase tracking-[0.22em] text-[var(--color-deep-forest)]/70 tabular-nums">
+                {String(activeIdx + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Scroll indicator */}

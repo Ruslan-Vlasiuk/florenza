@@ -76,9 +76,20 @@ export default async function HomePage() {
       <EditorialHero
         eyebrow="Florenza · Ірпінь · Буча · Гостомель · Ворзель · Київ"
         title="Квіти, що залишаються в пам'яті"
-        subtitle="Авторська флористика для тих, хто цінує тишу і деталь. Доставка по Ірпеню, Бучі, Гостомелю та ближньому Києву."
-        imageUrl="https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=1600&q=85&auto=format&fit=crop"
-        imageAlt="Букет півоній у льняній упаковці"
+        subtitle="Свіжі квіти зі справжнього саду, складені вручну. Залишається в думках довше, ніж у вазі."
+        imageUrls={[
+          '/images/hero/hero-1.jpg',
+          '/images/hero/hero-2.jpg',
+          '/images/hero/hero-3.jpg',
+          '/images/hero/hero-4.jpg',
+          '/images/hero/hero-5.jpg',
+          '/images/hero/hero-6.jpg',
+          '/images/hero/hero-7.jpg',
+          '/images/hero/hero-8.jpg',
+          '/images/hero/hero-9.jpg',
+          '/images/hero/hero-10.jpg',
+        ]}
+        imageAlt="Авторський букет ручної збірки"
         ctaPrimary={{ label: 'Перейти до каталогу', href: '/buketu' }}
         ctaSecondary={{ label: 'Дізнатися більше', href: '/about' }}
       />
