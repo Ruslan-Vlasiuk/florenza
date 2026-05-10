@@ -42,13 +42,18 @@ export async function POST(req: NextRequest) {
     if (!message) return NextResponse.json({ ok: true });
 
     const adminChatId = String(message.chat.id);
+    const fromName = `${message.from?.first_name ?? ''} ${message.from?.last_name ?? ''}`.trim();
+    const fromUsername = message.from?.username ?? '';
     const text = (message.text ?? '').trim();
 
     // Hard gate: only the configured admin chat can use this bot.
     if (!isAdminChat(adminChatId)) {
+      console.log(
+        `[admin-bot] unauthorized: chat_id=${adminChatId} name="${fromName}" username="${fromUsername}" text="${text}"`,
+      );
       await sendAdminBotMessage(
         adminChatId,
-        'Цей бот — для адміна Florenza. Якщо ви клієнт — напишіть @FLORENZA_irpin_bot.',
+        `Цей бот — для адміна Florenza. Якщо ви клієнт — напишіть @FLORENZA_irpin_bot.\n\n<i>Ваш chat_id для авторизації:</i> <code>${adminChatId}</code>`,
       );
       return NextResponse.json({ ok: true });
     }

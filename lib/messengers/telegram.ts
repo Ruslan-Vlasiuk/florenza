@@ -75,8 +75,13 @@ export async function sendTelegramAdminAlert(
   opts: { urgency?: 'low' | 'normal' | 'high' | 'urgent' } = {},
 ): Promise<void> {
   const token = process.env.TELEGRAM_ADMIN_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
-  if (!token || !chatId) {
+  const list = process.env.TELEGRAM_ADMIN_CHAT_IDS;
+  const chatIds = list
+    ? list.split(',').map((s) => s.trim()).filter(Boolean)
+    : process.env.TELEGRAM_ADMIN_CHAT_ID
+      ? [process.env.TELEGRAM_ADMIN_CHAT_ID]
+      : [];
+  if (!token || !chatIds.length) {
     console.warn('[telegram admin] not configured, skipping alert');
     return;
   }
@@ -87,15 +92,17 @@ export async function sendTelegramAdminAlert(
     urgent: '🚨 ',
   }[opts.urgency ?? 'normal'];
 
-  await fetch(`${TG_API(token)}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: prefix + text,
-      parse_mode: 'HTML',
-    }),
-  });
+  for (const chatId of chatIds) {
+    await fetch(`${TG_API(token)}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: prefix + text,
+        parse_mode: 'HTML',
+      }),
+    }).catch((e) => console.warn(`[telegram admin] send to ${chatId} failed:`, e));
+  }
 }
 
 export async function downloadTelegramFile(fileId: string): Promise<Buffer> {

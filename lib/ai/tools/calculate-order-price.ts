@@ -1,6 +1,38 @@
 import type { ToolDef } from './index';
 import { getPayloadClient } from '../../payload-client';
 
+async function lookupBouquet(payload: any, idOrSlug: string): Promise<any | null> {
+  if (!idOrSlug) return null;
+  const numeric = Number(idOrSlug);
+  if (Number.isFinite(numeric)) {
+    try {
+      return await payload.findByID({ collection: 'bouquets', id: numeric });
+    } catch {/* fall through to slug lookup */}
+  }
+  const r = await payload.find({
+    collection: 'bouquets',
+    where: { slug: { equals: String(idOrSlug) } },
+    limit: 1,
+  });
+  return r.docs[0] ?? null;
+}
+
+async function lookupZone(payload: any, idOrSlug: string): Promise<any | null> {
+  if (!idOrSlug) return null;
+  const numeric = Number(idOrSlug);
+  if (Number.isFinite(numeric)) {
+    try {
+      return await payload.findByID({ collection: 'delivery-zones', id: numeric });
+    } catch {/* fall through */}
+  }
+  const r = await payload.find({
+    collection: 'delivery-zones',
+    where: { slug: { equals: String(idOrSlug) } },
+    limit: 1,
+  });
+  return r.docs[0] ?? null;
+}
+
 export const calculateOrderPrice: ToolDef = {
   name: 'calculate_order_price',
   description:
@@ -26,14 +58,23 @@ export const calculateOrderPrice: ToolDef = {
   },
   handler: async (input, _ctx) => {
     const payload = await getPayloadClient();
-    const bouquet = (await payload.findByID({
-      collection: 'bouquets',
-      id: input.bouquet_id,
-    })) as any;
-    const zone = (await payload.findByID({
-      collection: 'delivery-zones',
-      id: input.delivery_zone_id,
-    })) as any;
+
+    // Robust lookup: AI sometimes passes the slug instead of the numeric id.
+    // Try id first, fall back to slug; same for delivery zone.
+    const bouquet = (await lookupBouquet(payload, input.bouquet_id)) as any;
+    if (!bouquet) {
+      return {
+        error: true,
+        message: `Букет ${input.bouquet_id} не знайдено. Викликай search_bouquets або get_bouquet_details щоб дістати правильний bouquet_id.`,
+      };
+    }
+    const zone = (await lookupZone(payload, input.delivery_zone_id)) as any;
+    if (!zone) {
+      return {
+        error: true,
+        message: `Зону доставки ${input.delivery_zone_id} не знайдено. Викликай get_delivery_zones.`,
+      };
+    }
 
     const subtotal = bouquet.price;
     let discountAmount = 0;

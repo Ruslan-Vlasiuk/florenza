@@ -56,8 +56,18 @@ export function ProcessSection() {
   const stepOpacities = [opacity1, opacity2, opacity3, opacity4];
 
   return (
-    <section ref={ref} className="relative py-24 md:py-32">
-      <div className="editorial-container">
+    <section
+      ref={ref}
+      className="relative py-24 md:py-32"
+      style={{
+        // Self-contained light background so the dark H2 / body text are
+        // always legible regardless of which mood the ScrollColorWash is
+        // currently transitioning through behind the section.
+        background:
+          'radial-gradient(ellipse 80% 60% at 30% 20%, rgba(245, 240, 232, 0.95) 0%, rgba(245, 240, 232, 0.92) 60%, rgba(232, 220, 200, 0.92) 100%)',
+      }}
+    >
+      <div className="editorial-container relative z-10">
         <header className="mb-16 max-w-2xl">
           <p className="section-eyebrow mb-4">Процес</p>
           <h2 className="font-[var(--font-display)] text-[clamp(2.25rem,4.5vw,3.75rem)] leading-[1.05] text-[var(--color-deep-forest)] mb-6">

@@ -25,12 +25,30 @@ function getCustomerBotToken() {
 }
 
 function getAdminChatId(): string | undefined {
-  return process.env.TELEGRAM_ADMIN_CHAT_ID;
+  // Backwards-compat: returns first admin id.
+  return getAdminChatIds()[0];
+}
+
+/**
+ * Returns the full list of authorized admin chat ids. Reads
+ * TELEGRAM_ADMIN_CHAT_IDS (comma-separated) first; falls back to the
+ * legacy single-value TELEGRAM_ADMIN_CHAT_ID.
+ */
+export function getAdminChatIds(): string[] {
+  const list = process.env.TELEGRAM_ADMIN_CHAT_IDS;
+  if (list) {
+    return list
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  const single = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  return single ? [single] : [];
 }
 
 export function isAdminChat(chatId: string | number): boolean {
-  const adminId = getAdminChatId();
-  return !!adminId && String(chatId) === String(adminId);
+  const ids = getAdminChatIds();
+  return ids.includes(String(chatId));
 }
 
 /**

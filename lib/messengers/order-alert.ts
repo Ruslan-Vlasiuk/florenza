@@ -18,8 +18,12 @@ export async function sendNewOrderAdminAlert(args: {
   source: AlertSource;
   prepaymentRequired?: boolean;
 }): Promise<{ messageId?: number }> {
-  const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
-  if (!adminChatId) return {};
+  const adminChatIds = (() => {
+    const list = process.env.TELEGRAM_ADMIN_CHAT_IDS;
+    if (list) return list.split(',').map((s) => s.trim()).filter(Boolean);
+    return process.env.TELEGRAM_ADMIN_CHAT_ID ? [process.env.TELEGRAM_ADMIN_CHAT_ID] : [];
+  })();
+  if (!adminChatIds.length) return {};
 
   const payload = await getPayloadClient();
   const order = (await payload.findByID({
@@ -100,30 +104,37 @@ export async function sendNewOrderAdminAlert(args: {
     .join('\n');
 
   try {
-    const sent = await sendTelegramMessageWithButtons(
-      adminChatId,
-      lines,
-      [
+    // Fan-out alert to every authorized admin. Persist message_id from the
+    // FIRST admin (used by the reply-to-customer thread); other admins still
+    // get the alert but their message_id isn't tracked separately.
+    let firstSent: { messageId?: number } = {};
+    for (const adminChatId of adminChatIds) {
+      const sent = await sendTelegramMessageWithButtons(
+        adminChatId,
+        lines,
         [
-          { text: '📋 Деталі', callback_data: `details:${orderNumber}` },
-          {
-            text: customer?.telegramChatId ? '💬 Написати клієнту' : '📞 Телефон',
-            callback_data: customer?.telegramChatId
-              ? `reply:${orderNumber}`
-              : `phone:${orderNumber}`,
-          },
+          [
+            { text: '📋 Деталі', callback_data: `details:${orderNumber}` },
+            {
+              text: customer?.telegramChatId ? '💬 Написати клієнту' : '📞 Телефон',
+              callback_data: customer?.telegramChatId
+                ? `reply:${orderNumber}`
+                : `phone:${orderNumber}`,
+            },
+          ],
         ],
-      ],
-      { useAdminBot: true },
-    );
+        { useAdminBot: true },
+      );
+      if (!firstSent.messageId) firstSent = sent;
+    }
 
-    if (sent.messageId) {
+    if (firstSent.messageId) {
       await recordAdminAlertMessageId({
         orderId: args.orderId,
-        messageId: sent.messageId,
+        messageId: firstSent.messageId,
       }).catch(() => {});
     }
-    return sent;
+    return firstSent;
   } catch (err) {
     console.error('[order-alert] inline alert failed, falling back:', err);
     await sendAdminAlert({

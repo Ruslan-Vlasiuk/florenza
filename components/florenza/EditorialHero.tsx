@@ -75,7 +75,9 @@ export function EditorialHero({
         <Petals count={3} />
       </div>
 
-      {/* Text side */}
+      {/* Text side. On mobile this overlays the image (which sits behind via
+          order-1) — text gets dark gradient backdrop for readability.
+          On md+ it lives in the left column with the original cream bg. */}
       <div
         className="md:col-span-6 lg:col-span-7 order-2 md:order-1 flex items-center editorial-container py-16 md:py-24 relative z-10"
       >
@@ -85,13 +87,13 @@ export function EditorialHero({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="section-eyebrow mb-8"
+              className="section-eyebrow mb-8 text-[var(--color-cream)] md:text-[var(--color-sage-deep)]"
             >
               {eyebrow}
             </motion.p>
           )}
           <h1
-            className="font-[var(--font-display)] text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.02] text-[var(--color-deep-forest)]"
+            className="font-[var(--font-display)] text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.02] text-[var(--color-cream)] md:text-[var(--color-deep-forest)]"
             aria-label={title}
           >
             {words.map((word, i) => {
@@ -113,7 +115,6 @@ export function EditorialHero({
                       ? "'opsz' 144, 'SOFT' 100, 'wght' 320"
                       : "'opsz' 144, 'SOFT' 50, 'wght' 350",
                     fontStyle: isItalic ? 'italic' : 'normal',
-                    color: isItalic ? 'var(--color-sage-deep)' : undefined,
                   }}
                 >
                   {word}
@@ -126,7 +127,7 @@ export function EditorialHero({
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.55, duration: 0.7 }}
-              className="mt-8 text-lg md:text-xl text-[var(--color-text-secondary)] leading-relaxed max-w-md"
+              className="mt-8 text-base md:text-xl text-[rgba(245,240,232,0.92)] md:text-[var(--color-text-secondary)] leading-relaxed max-w-md"
             >
               {subtitle}
             </motion.p>
@@ -153,9 +154,12 @@ export function EditorialHero({
         </div>
       </div>
 
-      {/* Image side */}
+      {/* Image side.
+          On mobile: absolute-positioned to fill the entire hero so the
+          headline text overlays it (text is light + dark gradient backdrop).
+          On md+: takes the right column normally. */}
       <div
-        className="md:col-span-6 lg:col-span-5 order-1 md:order-2 relative aspect-[4/5] md:aspect-auto md:min-h-[92svh] overflow-hidden"
+        className="absolute inset-0 z-0 md:static md:inset-auto md:z-10 md:col-span-6 lg:col-span-5 order-1 md:order-2 md:min-h-[92svh] overflow-hidden"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
@@ -201,13 +205,19 @@ export function EditorialHero({
                 'radial-gradient(ellipse at center, transparent 50%, rgba(26,26,26,0.18) 100%)',
             }}
           />
-          {/* Cream-side gradient — creates seamless transition into body */}
+          {/* Mobile-only dark scrim so the H1/subtitle/CTAs read on top
+              of the hero image. Stronger on the left (text side) and bottom. */}
           <div
-            className="absolute left-0 top-0 bottom-0 w-1/3 pointer-events-none md:hidden"
+            className="absolute inset-0 pointer-events-none md:hidden"
             style={{
               background:
-                'linear-gradient(90deg, rgba(245,240,232,0.6) 0%, transparent 100%)',
+                'linear-gradient(180deg, rgba(20,20,20,0.55) 0%, rgba(20,20,20,0.35) 35%, rgba(20,20,20,0.55) 100%)',
             }}
+          />
+          {/* Subtle blur for the image on mobile so colours don't fight the H1 */}
+          <div
+            className="absolute inset-0 pointer-events-none md:hidden"
+            style={{ backdropFilter: 'blur(1.5px)' }}
           />
         </motion.div>
 

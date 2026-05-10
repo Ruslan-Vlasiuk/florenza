@@ -52,17 +52,39 @@ export const createPendingOrder: ToolDef = {
   handler: async (input, ctx) => {
     const payload = await getPayloadClient();
 
-    // Payload+Postgres relationships expect numeric IDs.
-    const bouquetIdNum = Number(input.bouquet_id);
+    // Resolve bouquet by id OR slug — AI sometimes passes the slug.
+    let bouquetIdNum = Number(input.bouquet_id);
+    if (!Number.isFinite(bouquetIdNum)) {
+      const r = await payload.find({
+        collection: 'bouquets',
+        where: { slug: { equals: String(input.bouquet_id) } },
+        limit: 1,
+        overrideAccess: true,
+      });
+      if (r.docs[0]) bouquetIdNum = r.docs[0].id;
+    }
     if (!Number.isFinite(bouquetIdNum)) {
       return {
         error: true,
-        message: `Невалідний bouquet_id: ${input.bouquet_id}. Викличу escalate_to_human.`,
+        message: `Букет ${input.bouquet_id} не знайдено (ні по id, ні по slug). Викличи search_bouquets щоб дістати правильний bouquet_id.`,
       };
     }
-    const deliveryZoneIdNum = input.delivery_zone_id
-      ? Number(input.delivery_zone_id)
-      : undefined;
+    // Same for zone
+    let deliveryZoneIdNum: number | undefined;
+    if (input.delivery_zone_id) {
+      const num = Number(input.delivery_zone_id);
+      if (Number.isFinite(num)) {
+        deliveryZoneIdNum = num;
+      } else {
+        const r = await payload.find({
+          collection: 'delivery-zones',
+          where: { slug: { equals: String(input.delivery_zone_id) } },
+          limit: 1,
+          overrideAccess: true,
+        });
+        if (r.docs[0]) deliveryZoneIdNum = r.docs[0].id;
+      }
+    }
     const conversationIdNum =
       typeof ctx.conversationId === 'number'
         ? ctx.conversationId

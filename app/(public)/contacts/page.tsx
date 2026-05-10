@@ -5,7 +5,7 @@ import { MagneticButton } from '@/components/florenza/MagneticButton';
 export const metadata: Metadata = {
   title: 'Контакти',
   description:
-    'Florenza — м. Ірпінь, вул. Ірпінська 1. Доставка по Ірпеню, Бучі, Гостомелю, Ворзелю та ближньому Києву. Замовлення через Telegram, Viber, чат на сайті.',
+    'Florenza — м. Ірпінь, вул. Ірпінська 1. Доставка по Ірпеню, Бучі, Гостомелю, Ворзелю та ближньому Києву. Замовлення через Telegram або чат на сайті.',
   alternates: { canonical: '/contacts' },
 };
 
