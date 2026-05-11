@@ -52,16 +52,30 @@ export const createPendingOrder: ToolDef = {
   handler: async (input, ctx) => {
     const payload = await getPayloadClient();
 
-    // Resolve bouquet by id OR slug — AI sometimes passes the slug.
+    // Resolve bouquet by id OR slug OR name — AI passes any of the three.
     let bouquetIdNum = Number(input.bouquet_id);
     if (!Number.isFinite(bouquetIdNum)) {
-      const r = await payload.find({
+      const raw = String(input.bouquet_id).trim();
+      // Try slug first
+      const slugTry = await payload.find({
         collection: 'bouquets',
-        where: { slug: { equals: String(input.bouquet_id) } },
+        where: { slug: { equals: raw.toLowerCase() } },
         limit: 1,
         overrideAccess: true,
       });
-      if (r.docs[0]) bouquetIdNum = Number(r.docs[0].id);
+      if (slugTry.docs[0]) {
+        bouquetIdNum = Number(slugTry.docs[0].id);
+      } else {
+        // Fallback: case-insensitive name match
+        const stripQuotes = raw.replace(/^[«»"'`]|[«»"'`]$/g, '').trim();
+        const nameTry = await payload.find({
+          collection: 'bouquets',
+          where: { name: { like: stripQuotes } },
+          limit: 1,
+          overrideAccess: true,
+        });
+        if (nameTry.docs[0]) bouquetIdNum = Number(nameTry.docs[0].id);
+      }
     }
     if (!Number.isFinite(bouquetIdNum)) {
       return {

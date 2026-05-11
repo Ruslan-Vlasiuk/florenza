@@ -1,20 +1,31 @@
 import type { ToolDef } from './index';
 import { getPayloadClient } from '../../payload-client';
 
-async function lookupBouquet(payload: any, idOrSlug: string): Promise<any | null> {
-  if (!idOrSlug) return null;
-  const numeric = Number(idOrSlug);
+async function lookupBouquet(payload: any, idOrSlugOrName: string): Promise<any | null> {
+  if (!idOrSlugOrName) return null;
+  const raw = String(idOrSlugOrName).trim();
+  const numeric = Number(raw);
   if (Number.isFinite(numeric)) {
     try {
       return await payload.findByID({ collection: 'bouquets', id: numeric });
-    } catch {/* fall through to slug lookup */}
+    } catch {/* fall through */}
   }
-  const r = await payload.find({
+  // Slug match (latin transliteration like "rankova-kvitkarnia")
+  const slugTry = await payload.find({
     collection: 'bouquets',
-    where: { slug: { equals: String(idOrSlug) } },
+    where: { slug: { equals: raw.toLowerCase() } },
     limit: 1,
   });
-  return r.docs[0] ?? null;
+  if (slugTry.docs[0]) return slugTry.docs[0];
+  // Name match — case-insensitive contains. AI sometimes passes the
+  // Ukrainian display name like "Ранкова квіткарня" instead of the slug.
+  const stripQuotes = raw.replace(/^[«»"'`]|[«»"'`]$/g, '').trim();
+  const nameTry = await payload.find({
+    collection: 'bouquets',
+    where: { name: { like: stripQuotes } },
+    limit: 1,
+  });
+  return nameTry.docs[0] ?? null;
 }
 
 async function lookupZone(payload: any, idOrSlug: string): Promise<any | null> {
